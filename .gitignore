@@ -5,6 +5,9 @@ index.json
 results.json
 counts.json
 
+# Adding IntelliJ files
+.idea
+
 # https://github.com/github/gitignore/blob/master/Global/Eclipse.gitignore
 .metadata
 bin/
