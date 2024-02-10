@@ -1,7 +1,5 @@
 package edu.usfca.cs272;
 
-import org.checkerframework.checker.units.qual.A;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
@@ -35,7 +33,8 @@ public class Driver {
 		// TODO Fill in and modify as needed
 		ArgumentParser argParser = new ArgumentParser(args);
 		Path path = argParser.getPath("-text");
-		Path output = argParser.getPath("-count", Path.of("counts.json"));
+		Path output = argParser.getPath("-counts", Path.of("count.json"));
+		System.out.println("Using " + output);
 		System.out.println("Working Directory: " + Path.of(".").toAbsolutePath().normalize().getFileName());
 		System.out.println("Arguments: " + Arrays.toString(args));
 
@@ -67,13 +66,22 @@ public class Driver {
 	}
 
 	private static void readFile(Path path, Path output) throws IOException {
-		Map<String, ? extends Number> map = new TreeMap<>();
+		Map<String,Integer> map = new TreeMap<>();
 		try (BufferedReader br = Files.newBufferedReader(path)) {
 			String text;
 			while ((text = br.readLine()) != null) {
 				// Add stemming.
+				stemLine(text, path, output, map);
+
 			}
 		}
 	}
+
+	// CITE: Talked to Frank about not having multi-line reading.
+	private static void stemLine(String text, Path input, Path output, Map<String, Integer> map) throws IOException {
+		ArrayList<String> list = FileStemmer.listStems(text);
+		map.put(String.valueOf(input), list.size());
+		JsonWriter.writeObject(map, output);
+    }
 
 }
