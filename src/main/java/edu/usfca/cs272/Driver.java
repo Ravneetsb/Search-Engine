@@ -2,6 +2,7 @@ package edu.usfca.cs272;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,11 +38,12 @@ public class Driver {
 		System.out.println("Using " + output);
 		System.out.println("Working Directory: " + Path.of(".").toAbsolutePath().normalize().getFileName());
 		System.out.println("Arguments: " + Arrays.toString(args));
-
+		Map<String, Integer> map = new TreeMap<>();
 		if (Files.isDirectory(path)) {
-			readDirectory(path, output);
+			readDirectory(path, output, map);
 		} else {
-			readFile(path, output);
+			 readFile(path, map);
+			JsonWriter.writeObject(map, output);
 		}
 
 		// calculate time elapsed and output
@@ -50,38 +52,31 @@ public class Driver {
 		System.out.printf("Elapsed: %f seconds%n", seconds);
 	}
 
-	private static void readDirectory(Path path, Path output) throws IOException {
-
-		try (Stream<Path> files = Files.walk(path, Integer.MAX_VALUE, FileVisitOption.FOLLOW_LINKS)) {
-			files.forEach((filePath) -> {
-                try {
-                    readFile(filePath, output);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-		} catch (Exception e) {
-			throw new IOException();
+	private static void readDirectory(Path input, Path output, Map<String, Integer> map) throws IOException {
+		try (DirectoryStream<Path> listing = Files.newDirectoryStream(input)) {
+			for (Path path: listing) {
+				System.out.println(path.toString());
+				if (Files.isDirectory(path)) {
+					readDirectory(path, output, map);
+				} else {
+					if (path.toString().toLowerCase().endsWith(".txt") || path.toString().toLowerCase().endsWith(".text")) {
+						readFile(path, map);
+						JsonWriter.writeObject(map, output);
+					}
+				}
+			}
 		}
 	}
 
-	private static void readFile(Path path, Path output) throws IOException {
-		Map<String,Integer> map = new TreeMap<>();
-		try (BufferedReader br = Files.newBufferedReader(path)) {
+	private static void readFile(Path path, Map<String, Integer> map) throws IOException {
+        try (BufferedReader br = Files.newBufferedReader(path)) {
 			String text;
 			while ((text = br.readLine()) != null) {
-				// Add stemming.
-				stemLine(text, path, output, map);
-
+				String data = text;
+				map.compute(String.valueOf(path), (key, value) -> (value == null) ? FileStemmer.listStems(data).size() : FileStemmer.listStems(data).size() + value);
 			}
 		}
 	}
 
 	// CITE: Talked to Frank about not having multi-line reading.
-	private static void stemLine(String text, Path input, Path output, Map<String, Integer> map) throws IOException {
-		ArrayList<String> list = FileStemmer.listStems(text);
-		map.put(String.valueOf(input), list.size());
-		JsonWriter.writeObject(map, output);
-    }
-
 }
