@@ -16,4 +16,4 @@ jobs:
     secrets: 'inherit'
     permissions: 'write-all'
     with:
-      head_ref: '${{ release }}'
+      head_ref: '${{ inputs.release }}'
