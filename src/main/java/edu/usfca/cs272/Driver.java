@@ -41,14 +41,11 @@ public class Driver {
 			} else if (argParser.hasFlag("-text")) {
 				path = argParser.getPath("-text");
 			}
-
-            assert output != null;
             System.out.println(output);
 			System.out.println("Using " + output);
 			System.out.println("Working Directory: " + Path.of(".").toAbsolutePath().normalize().getFileName());
 			System.out.println("Arguments: " + Arrays.toString(args));
 			Map<String, Integer> map = new TreeMap<>();
-            assert path != null;
             if (Files.isDirectory(path)) {
 				readDirectory(path, output, map);
 			} else {
@@ -56,7 +53,7 @@ public class Driver {
 				JsonWriter.writeObject(map, output);
 			}
 		} catch (Exception e) {
-			// Do nothing
+			System.out.println("Error");
 		}
 
 
