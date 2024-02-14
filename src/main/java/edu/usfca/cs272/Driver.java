@@ -45,18 +45,17 @@ public class Driver {
 			System.out.println("Using " + output);
 			System.out.println("Working Directory: " + Path.of(".").toAbsolutePath().normalize().getFileName());
 			System.out.println("Arguments: " + Arrays.toString(args));
-			Map<String, Integer> map = new TreeMap<>();
+			WordCounter counter = new WordCounter();
+
             if (Files.isDirectory(path)) {
-				readDirectory(path, output, map);
+				readDirectory(path, output, counter);
 			} else {
-				readFile(path, map);
-				JsonWriter.writeObject(map, output);
+				readFile(path, counter);
+				JsonWriter.writeObject(counter.getMap(), output);
 			}
 		} catch (Exception e) {
 			System.out.println("Error");
 		}
-
-
 
 		// calculate time elapsed and output
 		long elapsed = Duration.between(start, Instant.now()).toMillis();
@@ -64,30 +63,33 @@ public class Driver {
 		System.out.printf("Elapsed: %f seconds%n", seconds);
 	}
 
-	private static void readDirectory(Path input, Path output, Map<String, Integer> map) throws IOException {
+	private static void readDirectory(Path input, Path output, WordCounter counter) throws IOException {
 		try (DirectoryStream<Path> listing = Files.newDirectoryStream(input)) {
 			for (Path path: listing) {
-				System.out.println(path.toString());
 				if (Files.isDirectory(path)) {
-					readDirectory(path, output, map);
+					readDirectory(path, output, counter);
 				} else {
-					if (path.toString().toLowerCase().endsWith(".txt") || path.toString().toLowerCase().endsWith(".text")) {
-						readFile(path, map);
-						JsonWriter.writeObject(map, output);
+					if (fileIsTXT(path)) {
+						readFile(path, counter);
+						counter.write(output);
 					}
 				}
 			}
 		}
 	}
 
-	private static void readFile(Path path, Map<String, Integer> map) throws IOException {
+
+	private static void readFile(Path path, WordCounter counter) throws IOException {
         try (BufferedReader br = Files.newBufferedReader(path)) {
 			String text;
 			while ((text = br.readLine()) != null) {
-				String data = text;
-				map.compute(String.valueOf(path), (key, value) -> (value == null) ? FileStemmer.listStems(data).size() : FileStemmer.listStems(data).size() + value);
+				counter.compute(path, text);
 			}
 		}
+	}
+
+	private static boolean fileIsTXT(Path path) {
+		return path.toString().toLowerCase().endsWith(".txt") || path.toString().toLowerCase().endsWith(".text");
 	}
 
 	// CITE: Talked to Frank about not having multi-line reading.
