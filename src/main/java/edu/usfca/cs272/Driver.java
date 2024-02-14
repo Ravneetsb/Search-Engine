@@ -31,27 +31,27 @@ public class Driver {
 
 		ArgumentParser argParser = new ArgumentParser(args);
 		try {
-			Path path = null;
-			Path output = null;
-			if (argParser.hasFlag("-text") && argParser.hasFlag("-counts")) {
-				path = argParser.getPath("-text");
-				output = argParser.getPath("-counts", Path.of("counts.json"));
-			} else if (argParser.hasFlag("-counts")) {
-				output = Files.createFile(Path.of("counts.json"));
-			} else if (argParser.hasFlag("-text")) {
-				path = argParser.getPath("-text");
+			Path path = null; Path indexOutput = null;
+			path = argParser.getPath("-text");
+			Path countOutput = argParser.hasFlag("-counts") ? argParser.getPath("-counts", Path.of("counts.json")) : null;
+			indexOutput = argParser.hasFlag("-index") ? argParser.getPath("-index", Path.of("index.json")) : null;
+			if (path == null) {
+				if (countOutput != null)
+					Files.createFile(Path.of("counts.json"));
+				if (indexOutput != null)
+					Files.createFile(Path.of("index.json"));
 			}
-            System.out.println(output);
-			System.out.println("Using " + output);
+            System.out.println(countOutput);
+			System.out.println("Using " + countOutput);
 			System.out.println("Working Directory: " + Path.of(".").toAbsolutePath().normalize().getFileName());
 			System.out.println("Arguments: " + Arrays.toString(args));
 			WordCounter counter = new WordCounter();
 
             if (Files.isDirectory(path)) {
-				readDirectory(path, output, counter);
+				readDirectory(path, countOutput, counter);
 			} else {
 				readFile(path, counter);
-				JsonWriter.writeObject(counter.getMap(), output);
+				JsonWriter.writeObject(counter.getMap(), countOutput);
 			}
 		} catch (Exception e) {
 			System.out.println("Error");
