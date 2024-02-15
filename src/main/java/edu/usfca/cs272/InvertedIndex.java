@@ -1,5 +1,6 @@
 package edu.usfca.cs272;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -27,7 +28,7 @@ public class InvertedIndex {
             this.compute(String.valueOf(path), stem, i+1 + arrSize);
             nextVal = i+1+arrSize;
         }
-        return nextVal;
+        return (nextVal==0)?arrSize:nextVal;
     }
     public void index(Path path, String text) {
         ArrayList<String> stems = FileStemmer.listStems(text);
@@ -49,5 +50,8 @@ public class InvertedIndex {
         System.out.println(this.map);
     }
 
+    public void write(Path path) throws IOException {
+        JsonWriter.writeIndex(this.map, path);
+    }
 
 }
