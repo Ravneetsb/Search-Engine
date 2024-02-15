@@ -41,17 +41,19 @@ public class Driver {
 				if (indexOutput != null)
 					Files.createFile(Path.of("index.json"));
 			}
-            System.out.println(countOutput);
-			System.out.println("Using " + countOutput);
+			System.out.println("Using " + indexOutput);
 			System.out.println("Working Directory: " + Path.of(".").toAbsolutePath().normalize().getFileName());
 			System.out.println("Arguments: " + Arrays.toString(args));
 			WordCounter counter = new WordCounter();
+			InvertedIndex index = new InvertedIndex();
 
             if (Files.isDirectory(path)) {
-				readDirectory(path, countOutput, counter);
+				readDirectory(path, countOutput, counter, index);
 			} else {
-				readFile(path, counter);
-				JsonWriter.writeObject(counter.getMap(), countOutput);
+				readFile(path, counter, index);
+				if (countOutput != null) {
+					JsonWriter.writeObject(counter.getMap(), countOutput);
+				}
 			}
 		} catch (Exception e) {
 			System.out.println("Error");
@@ -63,14 +65,14 @@ public class Driver {
 		System.out.printf("Elapsed: %f seconds%n", seconds);
 	}
 
-	private static void readDirectory(Path input, Path output, WordCounter counter) throws IOException {
+	private static void readDirectory(Path input, Path output, WordCounter counter, InvertedIndex index) throws IOException {
 		try (DirectoryStream<Path> listing = Files.newDirectoryStream(input)) {
 			for (Path path: listing) {
 				if (Files.isDirectory(path)) {
-					readDirectory(path, output, counter);
+					readDirectory(path, output, counter, index);
 				} else {
 					if (fileIsTXT(path)) {
-						readFile(path, counter);
+						readFile(path, counter, index);
 						counter.write(output);
 					}
 				}
@@ -79,11 +81,15 @@ public class Driver {
 	}
 
 
-	private static void readFile(Path path, WordCounter counter) throws IOException {
+	private static void readFile(Path path, WordCounter counter, InvertedIndex index) throws IOException {
         try (BufferedReader br = Files.newBufferedReader(path)) {
 			String text;
+			int iter = 0;
 			while ((text = br.readLine()) != null) {
 				counter.compute(path, text);
+//				iter = index.index(path, text, iter);
+				index.index(path, text);
+				index.printMap();
 			}
 		}
 	}
