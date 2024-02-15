@@ -381,6 +381,9 @@ public class JsonWriter {
 	}
 
 	public static void writeIndex(Map<String, Map<String, Collection<Integer>>> index, Path path) throws IOException {
+		if (path == null) {
+			return;
+		}
 		try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, UTF_8)) {
 			writeIndex(index, bufferedWriter, 0);
 		}

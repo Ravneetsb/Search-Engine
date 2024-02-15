@@ -54,4 +54,8 @@ public class InvertedIndex {
         JsonWriter.writeIndex(this.map, path);
     }
 
+    public boolean isEmpty() {
+        return this.map.isEmpty();
+    }
+
 }

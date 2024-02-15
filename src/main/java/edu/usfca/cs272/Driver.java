@@ -56,7 +56,7 @@ public class Driver {
 				}
 			}
 		} catch (Exception e) {
-			// do nothing.
+			System.out.println(e);
 		}
 
 		// calculate time elapsed and output
@@ -93,7 +93,6 @@ public class Driver {
 				}
 //				index.index(path, text);
 			}
-//			index.printMap();
 			index.write(indexOutput);
 		}
 	}
