@@ -370,6 +370,45 @@ public class JsonWriter {
 		}
 	}
 
+	public static String writeIndex(Map<String, Map<String, Collection<Integer>>> index) {
+		try {
+			StringWriter writer = new StringWriter();
+			writeIndex(index, writer, 0);
+			return writer.toString();
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	public static void writeIndex(Map<String, Map<String, Collection<Integer>>> index, Path path) throws IOException {
+		try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, UTF_8)) {
+			writeIndex(index, bufferedWriter, 0);
+		}
+	}
+
+	public static void writeIndex(Map<String, Map<String, Collection<Integer>>> index, Writer writer, int indent) throws IOException {;
+		int size = index.size();
+		AtomicInteger num = new AtomicInteger();
+		if (size == 0) {
+			writer.write("{\n}");
+			return;
+		}
+		writer.write("{\n");
+		index.forEach((key, value) -> {
+            try {
+				writeQuote(key, writer, indent+1);
+				writer.write(": ");
+                writeObjectArrays(value, writer, indent + 1);
+				if (num.getAndIncrement() < size-1) {
+					writer.write(",\n");
+				}
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+		writer.write("\n}");
+	}
+
 	/**
 	 * Demonstrates this class.
 	 *

@@ -48,15 +48,15 @@ public class Driver {
 			InvertedIndex index = new InvertedIndex();
 
             if (Files.isDirectory(path)) {
-				readDirectory(path, countOutput, counter, index);
+				readDirectory(path, countOutput, counter, indexOutput, index);
 			} else {
-				readFile(path, counter, index);
+				readFile(path, counter, indexOutput,  index);
 				if (countOutput != null) {
 					JsonWriter.writeObject(counter.getMap(), countOutput);
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Error");
+			// do nothing.
 		}
 
 		// calculate time elapsed and output
@@ -65,15 +65,16 @@ public class Driver {
 		System.out.printf("Elapsed: %f seconds%n", seconds);
 	}
 
-	private static void readDirectory(Path input, Path output, WordCounter counter, InvertedIndex index) throws IOException {
+	private static void readDirectory(Path input, Path output, WordCounter counter, Path indexOutput, InvertedIndex index) throws IOException {
 		try (DirectoryStream<Path> listing = Files.newDirectoryStream(input)) {
 			for (Path path: listing) {
 				if (Files.isDirectory(path)) {
-					readDirectory(path, output, counter, index);
+					readDirectory(path, output, counter, indexOutput, index);
 				} else {
 					if (fileIsTXT(path)) {
-						readFile(path, counter, index);
-						counter.write(output);
+						readFile(path, counter, indexOutput, index);
+						if (output != null)
+							counter.write(output);
 					}
 				}
 			}
@@ -81,16 +82,19 @@ public class Driver {
 	}
 
 
-	private static void readFile(Path path, WordCounter counter, InvertedIndex index) throws IOException {
+	private static void readFile(Path path, WordCounter counter, Path indexOutput, InvertedIndex index) throws IOException {
         try (BufferedReader br = Files.newBufferedReader(path)) {
 			String text;
 			int iter = 0;
 			while ((text = br.readLine()) != null) {
-				counter.compute(path, text);
-//				iter = index.index(path, text, iter);
-				index.index(path, text);
-				index.printMap();
+				if (!text.isEmpty()) {
+					counter.compute(path, text);
+					iter = index.index(path, text, iter);
+				}
+//				index.index(path, text);
 			}
+//			index.printMap();
+			index.write(indexOutput);
 		}
 	}
 
