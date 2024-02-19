@@ -182,11 +182,6 @@ public class ArgumentParser {
 	 * @see #getPath(String, Path)
 	 */
 	public Path getPath(String flag) {
-		/*try {
-			return Path.of(this.map.get(flag));
-		} catch (Exception e) {
-			return null;
-		}*/
 		return getPath(flag, null);
 	}
 
@@ -222,11 +217,6 @@ public class ArgumentParser {
 	 * @see #getInteger(String, int)
 	 */
 	public int getInteger(String flag) {
-		/*try {
-			return Integer.parseInt(this.map.get(flag));
-		} catch (Exception e) {
-			return 0;
-		}*/
 		return getInteger(flag, 0);
 	}
 
