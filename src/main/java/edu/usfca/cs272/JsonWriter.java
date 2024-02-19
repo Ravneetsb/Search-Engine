@@ -381,25 +381,26 @@ public class JsonWriter {
 	}
 
 	public static void writeIndex(Map<String, Map<String, Collection<Integer>>> index, Writer writer, int indent) throws IOException {;
-		int size = index.size();
-		AtomicInteger num = new AtomicInteger();
-		if (size == 0) {
+		int size = index.size() - 1;
+		if (size == -1) {
 			writer.write("{\n}");
 			return;
 		}
 		writer.write("{\n");
-		index.forEach((key, value) -> {
-            try {
-				writeQuote(key, writer, indent+1);
+		int iter = 0;
+		for (var entry: index.entrySet()) {
+			String key = entry.getKey();
+			var value = entry.getValue();
+			try {
+				writeQuote(key, writer, indent + 1);
 				writer.write(": ");
-                writeObjectArrays(value, writer, indent + 1);
-				if (num.getAndIncrement() < size-1) {
+				writeObjectArrays(value, writer, indent + 1);
+				if (iter++ < size)
 					writer.write(",\n");
-				}
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+			} catch (Exception e) {
+				throw new RuntimeException();
+			}
+		}
 		writer.write("\n}");
 	}
 
