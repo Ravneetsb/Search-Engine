@@ -148,24 +148,24 @@ public class JsonWriter {
 	 * @see #writeIndent(String, Writer, int)
 	 */
 	public static void writeObject(Map<String, ? extends Number> elements, Writer writer, int indent) throws IOException {
-        int size = elements.size() - 1;
-        writer.write("{\n");
-        AtomicInteger iter = new AtomicInteger();
-        elements.forEach((key, value) -> {
-            try {
-                writeQuote(key, writer, indent+1);
-                writer.write(":");
-                if (iter.getAndIncrement() < size) {
-                    writer.write(String.format(" %s,\n", value));
-                } else {
-                    writer.write(String.format(" %s\n", value));
-                }
-            } catch (Exception e) {
-                // Do nothing.
-            }
-        });
-        writeIndent("}", writer, indent);
+		int size = elements.size() -1;
+		writer.write("{\n");
+		int iter = 0;
+		for (var entry : elements.entrySet()) {
+			String key = entry.getKey();
+			var value = entry.getValue();
+			try {
+				writeQuote(key, writer, indent + 1);
+				writer.write(":");
+				if (iter++ < size)
+					writer.write(String.format( " %s,\n", value));
+				else writer.write(String.format(" %s\n", value));
 
+			} catch (Exception e) {
+				// Do nothing.
+			}
+		}
+		writeIndent("}", writer, indent);
 	}
 
 	/**
