@@ -300,29 +300,26 @@ public class JsonWriter {
 	public static void writeArrayObjects(Collection<? extends Map<String, ? extends Number>> elements, Writer writer, int indent) throws IOException {
 		var iterator = elements.iterator();
 		writer.write("[\n");
-		AtomicInteger iter =  new AtomicInteger();
 		for (int i = 0; i < elements.size(); i++) {
 			var element = iterator.next();
-			int size = element.size();
-			writeIndent("{\n", writer, indent+1);
-			element.forEach((key, value) -> {
-                try {
-					writeQuote(key, writer, indent+2);
-					if (iter.getAndIncrement() < size - 1) {
+			int size = element.size() - 1;
+			writeIndent("{\n", writer, indent + 1);
+			int iter = 0;
+			for (var entry: element.entrySet()) {
+				String key = entry.getKey();
+				var value = entry.getValue();
+				try {
+					writeQuote(key, writer, indent + 2);
+					if (iter++ < size)
 						writeIndent(": "+ value + ",\n", writer, indent);
-					} else {
-						writeIndent(": "+ value + "\n", writer, indent);
-					}
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-			if (i < size - 1) {
-				writeIndent("},\n", writer, indent+1);
-			} else {
-				writeIndent("}\n", writer, indent+1);
+					else writeIndent(": "+ value + "\n", writer, indent);
+				} catch (Exception e) {
+					// Do nothing
+				}
 			}
-
+			if (i < elements.size() - 1)
+				writeIndent("},\n", writer, indent + 1);
+			else writeIndent("}\n", writer, indent + 1);
 		}
 		writeIndent("]", writer, indent);
 	}
