@@ -137,8 +137,15 @@ public class FileStemmer {
 	 * @see #listStems(String, Stemmer)
 	 */
 	public static ArrayList<String> listStems(Path input) throws IOException {
+		ArrayList<String> list = new ArrayList<>();
 		Stemmer stemmer = new SnowballStemmer(ENGLISH);
-		return listStems(String.valueOf(Files.readAllLines(input, UTF_8)), stemmer);
+		try (BufferedReader br = Files.newBufferedReader(input, UTF_8)) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				addStems(line, stemmer, list);
+			}
+		}
+		return list;
 	}
 
 	/**
