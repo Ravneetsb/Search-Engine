@@ -223,30 +223,24 @@ public class JsonWriter {
 	 * @see #writeArray(Collection)
 	 */
 	public static void writeObjectArrays(Map<String, ? extends Collection<? extends Number>> elements, Writer writer, int indent) throws IOException {
-        int size = elements.size() - 1;
-        writer.write("{\n");
-		/*
-		I have no idea how AtomicInteger works.
-		Will either replace it in future iterations,
-		or spend some time learning how it works.
-		 */
-        AtomicInteger iter = new AtomicInteger();
-        elements.forEach((key, value) -> {
-            try {
-                writeQuote(key, writer, indent+1);
-                writer.write(": ");
-                if (iter.getAndIncrement() < size) {
-                    writeArray(value, writer, indent+1);
-                    writer.write(",\n");
-                } else {
-                    writeArray(value, writer, indent+1);
-                    writer.write("\n");
-                }
-            } catch (Exception e) {
-                // Do nothing.
-            }
-        });
-        writeIndent("}", writer, indent);
+		int size = elements.size() - 1;
+		writer.write("{\n");
+		int iter = 0;
+		for (var entry: elements.entrySet()) {
+			String key = entry.getKey();
+			var value = entry.getValue();
+			try {
+				writeQuote(key, writer, indent + 1);
+				writer.write(": ");
+				writeArray(value, writer, indent + 1);
+				if (iter++ < size)
+					writer.write(",\n");
+				else writer.write("\n");
+			} catch (Exception e) {
+				// Do nothing
+			}
+		}
+		writeIndent("}", writer, indent);
 	}
 
 	/**
