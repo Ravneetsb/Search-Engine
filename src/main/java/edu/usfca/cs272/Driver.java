@@ -1,5 +1,7 @@
 package edu.usfca.cs272;
 
+import org.eclipse.jetty.util.IO;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -18,94 +20,60 @@ import java.util.*;
  * @version Spring 2024
  */
 public class Driver {
+  static final Path DEFAULT_INDEX = Path.of("index.json");
+  static final Path DEFAULT_COUNTS = Path.of("counts.json");
   /**
    * Initializes the classes necessary based on the provided command-line arguments. This includes
    * (but is not limited to) how to build or search an inverted index.
    *
    * @param args flag/value pairs used to start this program
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     // store initial start time
     Instant start = Instant.now();
 
     ArgumentParser argParser = new ArgumentParser(args);
-    try {
-      Path path = null;
-      Path indexOutput = null;
-      path = argParser.getPath("-text");
-      Path countOutput =
-          argParser.hasFlag("-counts")
-              ? argParser.getPath("-counts", Path.of("counts.json"))
-              : null;
-      indexOutput =
-          argParser.hasFlag("-index") ? argParser.getPath("-index", Path.of("index.json")) : null;
-      if (path == null) {
-        if (countOutput != null) Files.createFile(Path.of("counts.json"));
-        if (indexOutput != null) Files.createFile(Path.of("index.json"));
-      }
-      System.out.println("Using " + indexOutput);
-      System.out.println(
-          "Working Directory: " + Path.of(".").toAbsolutePath().normalize().getFileName());
-      System.out.println("Arguments: " + Arrays.toString(args));
-      WordCounter counter = new WordCounter();
-      InvertedIndex index = new InvertedIndex();
+    InvertedIndex index = new InvertedIndex();
 
-      if (Files.isDirectory(path)) {
-        readDirectory(path, countOutput, counter, indexOutput, index);
-      } else {
-        readFile(path, counter, indexOutput, index);
-        if (countOutput != null) {
-          JsonWriter.writeObject(counter.getMap(), countOutput);
-        }
+    if (argParser.hasFlag("-counts")) {
+      try {
+        Files.createFile(DEFAULT_COUNTS);
+      } catch (IOException e) {
+        System.out.printf("Unable to build counts from path: %s\n", DEFAULT_COUNTS);
       }
-    } catch (Exception e) {
-      System.out.println(e);
     }
 
+    if (argParser.hasFlag("-index")) {
+      try {
+        Files.createFile(Path.of("index.json"));
+      } catch (IOException e) {
+        System.out.printf("Unable to build counts from path: %s\n", DEFAULT_INDEX);
+      }
+    }
+
+    if (argParser.hasFlag("-text")) {
+      Path path = argParser.getPath("-text");
+      Path indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
+      Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
+
+      Builder builder = new Builder(path, countOutput, indexOutput, index);
+
+      if (Files.isDirectory(path)) {
+        builder.readDirectory();
+      } else {
+        builder.readFile();
+        try {
+          JsonWriter.writeObject(index.getCounts(), countOutput);
+        } catch (IOException e) {
+          System.out.printf("Unable to build counts from path: %s\n", countOutput);
+        }
+      }
+    }
     // calculate time elapsed and output
     long elapsed = Duration.between(start, Instant.now()).toMillis();
     double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();
     System.out.printf("Elapsed: %f seconds%n", seconds);
   }
-
-  private static void readDirectory(
-      Path input, Path output, WordCounter counter, Path indexOutput, InvertedIndex index)
-      throws IOException {
-    try (DirectoryStream<Path> listing = Files.newDirectoryStream(input)) {
-      for (Path path : listing) {
-        if (Files.isDirectory(path)) {
-          readDirectory(path, output, counter, indexOutput, index);
-        } else {
-          if (fileIsTXT(path)) {
-            readFile(path, counter, indexOutput, index);
-            if (output != null) counter.write(output);
-          }
-        }
-      }
-    }
-  }
-
-  private static void readFile(
-      Path path, WordCounter counter, Path indexOutput, InvertedIndex index) throws IOException {
-    try (BufferedReader br = Files.newBufferedReader(path)) {
-      String text;
-      int iter = 0;
-      while ((text = br.readLine()) != null) {
-        if (!text.isEmpty()) {
-          counter.compute(path, text);
-          iter = index.index(path, text, iter);
-        }
-        //				index.index(path, text);
-      }
-      index.write(indexOutput);
-    }
-  }
-
-  private static boolean fileIsTXT(Path path) {
-    return path.toString().toLowerCase().endsWith(".txt")
-        || path.toString().toLowerCase().endsWith(".text");
-  }
-
   // CITE: Talked to Frank about not having multi-line reading.
 
   // Test comment
