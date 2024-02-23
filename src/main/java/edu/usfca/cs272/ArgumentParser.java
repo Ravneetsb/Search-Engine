@@ -54,7 +54,7 @@ public class ArgumentParser {
   /**
    * Determines whether the argument is a value. Anything that is not a flag is considered a value.
    *
-   * @param arg the argument to test if its a value
+   * @param arg the argument to test if it's a value
    * @return {@code true} if the argument is a value
    */
   public static boolean isValue(String arg) {
@@ -232,9 +232,6 @@ public class ArgumentParser {
             "-verbose"
           };
     }
-
-    // expected output:
-    // {-max=false, -min=-10, -verbose=null, -f=output.txt, -@debug=null}
     ArgumentParser map = new ArgumentParser(args);
     System.out.println(map);
   }
