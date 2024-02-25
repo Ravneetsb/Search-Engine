@@ -348,7 +348,7 @@ public class JsonWriter {
     }
   }
 
-  public static String writeIndex(Map<String, Map<String, Collection<Integer>>> index) {
+  public static String writeIndex(InvertedIndex index) {
     try {
       StringWriter writer = new StringWriter();
       writeIndex(index, writer, 0);
@@ -358,7 +358,7 @@ public class JsonWriter {
     }
   }
 
-  public static void writeIndex(Map<String, Map<String, Collection<Integer>>> index, Path path)
+  public static void writeIndex(InvertedIndex index, Path path)
       throws IOException {
     if (path == null) {
       return;
@@ -369,7 +369,7 @@ public class JsonWriter {
   }
 
   public static void writeIndex(
-      Map<String, Map<String, Collection<Integer>>> index, Writer writer, int indent)
+      InvertedIndex index, Writer writer, int indent)
       throws IOException {
     ;
     int size = index.size() - 1;
