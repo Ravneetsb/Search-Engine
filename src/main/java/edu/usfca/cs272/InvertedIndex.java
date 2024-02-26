@@ -22,6 +22,10 @@ public class InvertedIndex {
     return Collections.unmodifiableSet(this.map.keySet());
   }
 
+/**
+* Returns unmodifiable map of files and their stem counts.
+ * @return unmodifiable map of files and their stem counts.
+*/
   public Map<String, Integer> getCounts() {
     return Collections.unmodifiableMap(this.countsMap);
   }
@@ -36,7 +40,7 @@ public class InvertedIndex {
     return Collections.unmodifiableMap(this.map.get(word));
   }
 
-  private void compute(String path, String stem, int location) {
+  private void add(String path, String stem, int location) {
     var stemMap = this.map.get(stem);
     stemMap.putIfAbsent(path, new TreeSet<>());
     var locationSet = stemMap.get(path);
@@ -45,7 +49,11 @@ public class InvertedIndex {
 
   public boolean add(Path path, String stem, int location) {
     this.map.putIfAbsent(stem, new TreeMap<>());
-    this.compute(String.valueOf(path), stem, location + 1);
+    try {
+      this.add(String.valueOf(path), stem, location + 1);
+    } catch (Exception e) {
+      return false;
+    }
     return true;
   }
 
