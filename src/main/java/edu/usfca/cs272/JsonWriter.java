@@ -78,18 +78,20 @@ public class JsonWriter {
    */
   public static void writeArray(Collection<? extends Number> elements, Writer writer, int indent)
       throws IOException {
-    writer.write("[\n");
+    writer.write("[");
     var iterator = elements.iterator();
     String data;
-    int iter = 0;
-    while (iterator.hasNext()) {
-      if (iter++ == elements.size() - 1) {
-        data = iterator.next() + "\n";
-      } else {
-        data = iterator.next() + ",\n";
-      }
+    if (iterator.hasNext()) {
+      writer.write("\n");
+      data = iterator.next().toString();
       writeIndent(data, writer, indent + 1);
     }
+    while (iterator.hasNext()) {
+      data = iterator.next().toString();
+      writer.write(",\n");
+      writeIndent(data, writer, indent + 1);
+    }
+    writer.write("\n");
     writeIndent("]", writer, indent);
   }
 
@@ -347,11 +349,12 @@ public class JsonWriter {
     }
   }
 
-/**
-* Writes InvertedIndex as a pretty JSON.
- * @param index InvertedIndex
- * @return null if exception.
-*/
+  /**
+   * Writes InvertedIndex as a pretty JSON.
+   *
+   * @param index InvertedIndex
+   * @return null if exception.
+   */
   public static String writeIndex(InvertedIndex index) {
     try {
       StringWriter writer = new StringWriter();
@@ -362,12 +365,13 @@ public class JsonWriter {
     }
   }
 
-/**
-* Writes InvertedIndex as a pretty JSON.
- * @param index InverteIndex
- * @param path path of output file.
- * @throws IOException if BufferedWriter error.
-*/
+  /**
+   * Writes InvertedIndex as a pretty JSON.
+   *
+   * @param index InverteIndex
+   * @param path path of output file.
+   * @throws IOException if BufferedWriter error.
+   */
   public static void writeIndex(InvertedIndex index, Path path) throws IOException {
     if (path == null) {
       return;
@@ -377,13 +381,14 @@ public class JsonWriter {
     }
   }
 
-/**
-* Writes InvertedIndex as a pretty JSON
- * @param index InvertedIndex
- * @param writer Writer
- * @param indent indent value
- * @throws IOException if writer error.
-*/
+  /**
+   * Writes InvertedIndex as a pretty JSON
+   *
+   * @param index InvertedIndex
+   * @param writer Writer
+   * @param indent indent value
+   * @throws IOException if writer error.
+   */
   public static void writeIndex(InvertedIndex index, Writer writer, int indent) throws IOException {
     ;
     int size = index.size() - 1;
