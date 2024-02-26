@@ -1,15 +1,10 @@
 package edu.usfca.cs272;
 
-import org.eclipse.jetty.util.IO;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
 
 /**
  * Class responsible for running this project based on the provided command-line arguments. See the
@@ -22,6 +17,7 @@ import java.util.*;
 public class Driver {
   static final Path DEFAULT_INDEX = Path.of("index.json");
   static final Path DEFAULT_COUNTS = Path.of("counts.json");
+
   /**
    * Initializes the classes necessary based on the provided command-line arguments. This includes
    * (but is not limited to) how to build or search an inverted index.
@@ -49,22 +45,21 @@ public class Driver {
 
     if (argParser.hasFlag("-counts")) {
       countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
-        try {
-            Files.createFile(countOutput);
-        } catch (IOException e) {
-            System.out.printf("Unable to create counts file at: %s", countOutput);
-        }
+      try {
+        Files.createFile(countOutput);
+      } catch (IOException e) {
+        System.out.printf("Unable to create counts file at: %s", countOutput);
+      }
     }
-
 
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
       Builder builder = new Builder(path, countOutput, indexOutput, index);
 
       if (Files.isDirectory(path)) {
-        try{
+        try {
           builder.readDirectory();
-          } catch (Exception e) {
+        } catch (Exception e) {
           System.out.printf("Could not parse path: %s\n", path);
         }
       } else {
@@ -80,5 +75,4 @@ public class Driver {
     double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();
     System.out.printf("Elapsed: %f seconds%n", seconds);
   }
-
 }

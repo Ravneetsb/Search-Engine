@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -358,8 +357,7 @@ public class JsonWriter {
     }
   }
 
-  public static void writeIndex(InvertedIndex index, Path path)
-      throws IOException {
+  public static void writeIndex(InvertedIndex index, Path path) throws IOException {
     if (path == null) {
       return;
     }
@@ -368,9 +366,7 @@ public class JsonWriter {
     }
   }
 
-  public static void writeIndex(
-      InvertedIndex index, Writer writer, int indent)
-      throws IOException {
+  public static void writeIndex(InvertedIndex index, Writer writer, int indent) throws IOException {
     ;
     int size = index.size() - 1;
     if (size == -1) {
