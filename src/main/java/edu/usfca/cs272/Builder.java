@@ -6,6 +6,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+/**
+ * Builder Class for the Search Engine Project.
+ * @author Ravneet Singh Bhatia, CS 272 Software Development (University of San Francisco)
+ * @version Spring 2024
+ */
 public class Builder {
   private final Path input;
   private final Path indexOutput;
