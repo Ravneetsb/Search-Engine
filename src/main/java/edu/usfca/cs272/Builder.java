@@ -42,6 +42,7 @@ public class Builder {
         this.readDirectory(input);
     }
 
+    // CITE: Talked to Frank about not having multi-line reading.
     public void readFile(Path file) throws Exception {
         ArrayList<String> stems;
         stems = FileStemmer.listStems(file);
