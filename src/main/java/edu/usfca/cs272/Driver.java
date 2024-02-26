@@ -35,37 +35,43 @@ public class Driver {
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index = new InvertedIndex();
 
-    if (argParser.hasFlag("-counts")) {
-      try {
-        Files.createFile(DEFAULT_COUNTS);
-      } catch (IOException e) {
-        System.out.printf("Unable to build counts from path: %s\n", DEFAULT_COUNTS);
-      }
-    }
+    Path indexOutput = null;
+    Path countOutput = null;
 
     if (argParser.hasFlag("-index")) {
+      indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
       try {
-        Files.createFile(Path.of("index.json"));
+        Files.createFile(indexOutput);
       } catch (IOException e) {
-        System.out.printf("Unable to build counts from path: %s\n", DEFAULT_INDEX);
+        System.out.printf("Unable to create index file at: %s", indexOutput);
       }
     }
 
-    if (argParser.hasFlag("-text")) {
-      Path path = argParser.getPath("-text");
-      Path indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
-      Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
+    if (argParser.hasFlag("-counts")) {
+      countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
+        try {
+            Files.createFile(countOutput);
+        } catch (IOException e) {
+            System.out.printf("Unable to create counts file at: %s", countOutput);
+        }
+    }
 
+
+    if (argParser.hasValue("-text")) {
+      Path path = argParser.getPath("-text");
       Builder builder = new Builder(path, countOutput, indexOutput, index);
 
       if (Files.isDirectory(path)) {
-        builder.readDirectory();
+        try{
+          builder.readDirectory();
+          } catch (Exception e) {
+          System.out.printf("Could not parse path: %s\n", path);
+        }
       } else {
-        builder.readFile();
         try {
-          JsonWriter.writeObject(index.getCounts(), countOutput);
-        } catch (IOException e) {
-          System.out.printf("Unable to build counts from path: %s\n", countOutput);
+          builder.readFile(path);
+        } catch (Exception e) {
+          System.out.printf("Could not read file from: %s\n", path);
         }
       }
     }
@@ -74,7 +80,5 @@ public class Driver {
     double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();
     System.out.printf("Elapsed: %f seconds%n", seconds);
   }
-  // CITE: Talked to Frank about not having multi-line reading.
 
-  // Test comment
 }
