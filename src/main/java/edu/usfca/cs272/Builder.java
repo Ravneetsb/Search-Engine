@@ -1,8 +1,7 @@
 package edu.usfca.cs272;
 
-import org.checkerframework.checker.units.qual.A;
+import org.eclipse.jetty.util.IO;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -22,19 +21,15 @@ public class Builder {
         this.index = index;
     }
 
-    public void readDirectory() {
-        try (DirectoryStream<Path> listing = Files.newDirectoryStream(input)) {
+    public void readDirectory(Path directory) throws Exception {
+        try (DirectoryStream<Path> listing = Files.newDirectoryStream(directory)) {
             for (Path path: listing) {
                 if (Files.isDirectory(path)) {
-                    readDirectory();
+                    readDirectory(path);
                 } else {
                     if (fileIsTXT(path)) {
-                        readFile();
-                        try {
-                            JsonWriter.writeObject(index.getCounts(), countsOutput);
-                        } catch (IOException e) {
-                            System.out.printf("Unable to build counts from path: %s\n", countsOutput);
-                        }
+                        readFile(path);
+                        writeOutput();
                     }
                 }
             }
@@ -43,18 +38,19 @@ public class Builder {
         }
     }
 
-    public void readFile() {
-        try (BufferedReader br = Files.newBufferedReader(input)) {
-            String text;
-            int iter = 0;
-            while ((text = br.readLine()) != null) {
-                if (!text.isEmpty()) {
-                    iter = index.index(input, text, iter);
-                }
-            }
-        } catch (IOException e) {
-            System.out.printf("Unable to load data from path: %s\n", input);
+    public void readDirectory() throws Exception {
+        this.readDirectory(input);
+    }
+
+    public void readFile(Path file) throws Exception {
+        ArrayList<String> stems;
+        stems = FileStemmer.listStems(file);
+        for (int i = 0; i < stems.size(); i++) {
+            this.index.add(file, stems.get(i), i);
         }
+        if (!stems.isEmpty())
+            this.index.addCounts(file, stems.size());
+        writeOutput();
     }
 
     private boolean fileIsTXT(Path path) {
@@ -62,12 +58,20 @@ public class Builder {
                 || path.toString().toLowerCase().endsWith(".text");
     }
 
-    private boolean index(String text, int arrSize) {
-        ArrayList<String> stems = FileStemmer.listStems(text);
-        int nextVal = 0;
-        for (int i = 0; i < stems.size(); i++) {
-            String stem = stems.get(i);
-            this.index.add(, stem, i);
+    public void writeOutput() {
+        if (countsOutput != null) {
+            try {
+                JsonWriter.writeObject(this.index.getCounts(), countsOutput);
+            } catch (IOException e) {
+                System.out.printf("Unable to build counts with path: %s\n", countsOutput);
+            }
+        }
+        if (indexOutput != null) {
+            try {
+                JsonWriter.writeIndex(this.index, indexOutput);
+            } catch (IOException e) {
+                System.out.printf("Unable to build index with path: %s\n", indexOutput);
+            }
         }
     }
 }
