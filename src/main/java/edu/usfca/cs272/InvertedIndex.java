@@ -1,8 +1,5 @@
 package edu.usfca.cs272;
 
-import com.sun.source.tree.Tree;
-
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -14,8 +11,8 @@ public class InvertedIndex {
 * Constructor for InvertedIndex
 */
   public InvertedIndex() {
-    this.map = new HashMap<>();
-    this.countsMap = new HashMap<>();
+    this.map = new TreeMap<>();
+    this.countsMap = new TreeMap<>();
   }
 
 /**
@@ -39,52 +36,32 @@ public class InvertedIndex {
     return Collections.unmodifiableMap(this.map.get(word));
   }
 
-/**
-*
- * @param path Path of file
- * @param text line
- * @param arrSize 
- * @return
-*/
-  public int index(Path path, String text, int arrSize) {
-    ArrayList<String> stems = FileStemmer.listStems(text);
-    int nextVal = 0;
-    for (int i = 0; i < stems.size(); i++) {
-      String stem = stems.get(i);
-      this.map.putIfAbsent(stem, new HashMap<>());
-      this.compute(String.valueOf(path), stem, i + 1 + arrSize);
-      nextVal = i + 1 + arrSize;
-    }
-    return (nextVal == 0) ? arrSize : nextVal;
-  }
-
-  public void index(Path path, String text) {
-    ArrayList<String> stems = FileStemmer.listStems(text);
-    for (int i = 0; i < stems.size(); i++) {
-      String stem = stems.get(i);
-      this.map.putIfAbsent(stem, new HashMap<>());
-      this.compute(String.valueOf(path), stem, i + 1);
-    }
-  }
-
   private void compute(String path, String stem, int location) {
     var stemMap = this.map.get(stem);
-    stemMap.putIfAbsent(path, new HashSet<>());
+    stemMap.putIfAbsent(path, new TreeSet<>());
     var locationSet = stemMap.get(path);
     locationSet.add(location);
   }
 
   public boolean add(Path path, String stem, int location) {
-      this.map.putIfAbsent(stem, new HashMap<>());
+      this.map.putIfAbsent(stem, new TreeMap<>());
       this.compute(String.valueOf(path), stem, location + 1);
     return true;
   }
 
-  public void printMap() {
-    System.out.println(this.map);
-  }
-
   public boolean isEmpty() {
     return this.map.isEmpty();
+  }
+
+  public int size() {
+    return this.map.size();
+  }
+
+  public Set<Map.Entry<String, Map<String, Collection<Integer>>>> entrySet() {
+    return this.map.entrySet();
+  }
+
+  public void addCounts(Path file, int size) {
+    this.countsMap.put(String.valueOf(file), size);
   }
 }
