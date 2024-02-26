@@ -1,5 +1,7 @@
 package edu.usfca.cs272;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -7,9 +9,11 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Outputs several simple data structures in "pretty" JSON format where newlines are used to
@@ -153,8 +157,12 @@ public class JsonWriter {
       try {
         writeQuote(key, writer, indent + 1);
         writer.write(":");
-        if (iter++ < size) writer.write(String.format(" %s,\n", value));
-        else writer.write(String.format(" %s\n", value));
+        if (iter++ < size) {
+					writer.write(String.format(" %s,\n", value));
+				}
+				else {
+					writer.write(String.format(" %s\n", value));
+				}
 
       } catch (Exception e) {
         // Do nothing.
@@ -226,8 +234,12 @@ public class JsonWriter {
         writeQuote(key, writer, indent + 1);
         writer.write(": ");
         writeArray(value, writer, indent + 1);
-        if (iter++ < size) writer.write(",\n");
-        else writer.write("\n");
+        if (iter++ < size) {
+					writer.write(",\n");
+				}
+				else {
+					writer.write("\n");
+				}
       } catch (Exception e) {
         // Do nothing
       }
@@ -301,14 +313,22 @@ public class JsonWriter {
         var value = entry.getValue();
         try {
           writeQuote(key, writer, indent + 2);
-          if (iter++ < size) writeIndent(": " + value + ",\n", writer, indent);
-          else writeIndent(": " + value + "\n", writer, indent);
+          if (iter++ < size) {
+						writeIndent(": " + value + ",\n", writer, indent);
+					}
+					else {
+						writeIndent(": " + value + "\n", writer, indent);
+					}
         } catch (Exception e) {
           // Do nothing
         }
       }
-      if (i < elements.size() - 1) writeIndent("},\n", writer, indent + 1);
-      else writeIndent("}\n", writer, indent + 1);
+      if (i < elements.size() - 1) {
+				writeIndent("},\n", writer, indent + 1);
+			}
+			else {
+				writeIndent("}\n", writer, indent + 1);
+			}
     }
     writeIndent("]", writer, indent);
   }
@@ -381,6 +401,7 @@ public class JsonWriter {
     }
   }
 
+  // TODO Make the parameter the underlying map type to make a bit more reusable
   /**
    * Writes InvertedIndex as a pretty JSON
    *
@@ -401,11 +422,13 @@ public class JsonWriter {
     for (var entry : index.entrySet()) {
       String key = entry.getKey();
       var value = entry.getValue();
-      try {
+      try { // TODO Remove try/catch
         writeQuote(key, writer, indent + 1);
         writer.write(": ");
         writeObjectArrays(value, writer, indent + 1);
-        if (iter++ < size) writer.write(",\n");
+        if (iter++ < size) {
+					writer.write(",\n");
+				}
       } catch (Exception e) {
         throw new RuntimeException();
       }
