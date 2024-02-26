@@ -3,6 +3,11 @@ package edu.usfca.cs272;
 import java.nio.file.Path;
 import java.util.*;
 
+/**
+* InvertedIndex Data Structure for the Search Engine Project.
+ * @author Ravneet Singh Bhatia, CS 272 Software Development (University of San Francisco)
+ * @version Spring 2024
+*/
 public class InvertedIndex {
   private final Map<String, Map<String, Collection<Integer>>> map;
   private final Map<String, Integer> countsMap;
@@ -40,6 +45,12 @@ public class InvertedIndex {
     return Collections.unmodifiableMap(this.map.get(word));
   }
 
+/**
+* Helper function to populate index.
+ * @param path String value of file path
+ * @param stem word stem
+ * @param location index in stemList
+*/
   private void add(String path, String stem, int location) {
     var stemMap = this.map.get(stem);
     stemMap.putIfAbsent(path, new TreeSet<>());
@@ -47,6 +58,13 @@ public class InvertedIndex {
     locationSet.add(location);
   }
 
+/**
+* add stem to index.
+ * @param path file path
+ * @param stem word stem
+ * @param location index in stemList
+ * @return true if added successfully.
+*/
   public boolean add(Path path, String stem, int location) {
     this.map.putIfAbsent(stem, new TreeMap<>());
     try {
@@ -57,18 +75,35 @@ public class InvertedIndex {
     return true;
   }
 
+/**
+* Returns true if index is empty.
+ * @return true if index is empty.
+*/
   public boolean isEmpty() {
     return this.map.isEmpty();
   }
 
+/**
+* Returns the number of stems in the index.
+ * @return the number of stems in the index.
+*/
   public int size() {
     return this.map.size();
   }
 
+/**
+* Returns entrySet for index.
+ * @return entrySet for index.
+*/
   public Set<Map.Entry<String, Map<String, Collection<Integer>>>> entrySet() {
     return this.map.entrySet();
   }
 
+/**
+* add file path and the number of stems in that file to countsMap.
+ * @param file path of file.
+ * @param size number of stems.
+*/
   public void addCounts(Path file, int size) {
     this.countsMap.put(String.valueOf(file), size);
   }
