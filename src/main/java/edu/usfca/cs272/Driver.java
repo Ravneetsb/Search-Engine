@@ -15,10 +15,8 @@ import java.time.Instant;
  * @version Spring 2024
  */
 public class Driver {
-	// TODO Always use public or private (either is okay for the members below)
-
-  static final Path DEFAULT_INDEX = Path.of("index.json");
-  static final Path DEFAULT_COUNTS = Path.of("counts.json");
+  public static final Path DEFAULT_INDEX = Path.of("index.json");
+  public static final Path DEFAULT_COUNTS = Path.of("counts.json");
 
   /**
    * Initializes the classes necessary based on the provided command-line arguments. This includes
