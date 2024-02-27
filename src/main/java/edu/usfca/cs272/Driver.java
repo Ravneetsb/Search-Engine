@@ -15,6 +15,8 @@ import java.time.Instant;
  * @version Spring 2024
  */
 public class Driver {
+	// TODO Always use public or private (either is okay for the members below)
+
   static final Path DEFAULT_INDEX = Path.of("index.json");
   static final Path DEFAULT_COUNTS = Path.of("counts.json");
 
@@ -31,10 +33,10 @@ public class Driver {
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index = new InvertedIndex();
 
-    Path indexOutput = null;
+    Path indexOutput = null; // TODO Declare these where they are defined
     Path countOutput = null;
 
-    if (argParser.hasFlag("-index")) {
+    if (argParser.hasFlag("-index")) { // TODO Remove
       indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
       try {
         Files.createFile(indexOutput);
@@ -43,7 +45,7 @@ public class Driver {
       }
     }
 
-    if (argParser.hasFlag("-counts")) {
+    if (argParser.hasFlag("-counts")) { // TODO Remove
       countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
       try {
         Files.createFile(countOutput);
@@ -54,9 +56,9 @@ public class Driver {
 
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
-      Builder builder = new Builder(path, countOutput, indexOutput, index);
+      Builder builder = new Builder(path, countOutput, indexOutput, index); // TODO Builder shouldn't need the output paths
 
-      if (Files.isDirectory(path)) {
+      if (Files.isDirectory(path)) { // TODO Make a build(...) method that chooses whether to call readDir or file.
         try {
           builder.readDirectory();
         } catch (Exception e) {
@@ -70,9 +72,29 @@ public class Driver {
         }
       }
     }
+
+    // TODO Should be if blocks for writing to file here
+
+
     // calculate time elapsed and output
     long elapsed = Duration.between(start, Instant.now()).toMillis();
     double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();
     System.out.printf("Elapsed: %f seconds%n", seconds);
   }
 }
+
+/*
+ * TODO
+Description	Resource	Path	Location	Type
+Javadoc: Missing comment for default declaration	Driver.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 18	Java Problem
+Javadoc: Missing comment for default declaration	Driver.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 19	Java Problem
+Javadoc: Missing comment for private declaration	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 15	Java Problem
+Javadoc: Missing comment for private declaration	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 16	Java Problem
+Javadoc: Missing comment for private declaration	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 17	Java Problem
+Javadoc: Missing comment for private declaration	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 19	Java Problem
+Javadoc: Missing comment for private declaration	InvertedIndex.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 12	Java Problem
+Javadoc: Missing comment for private declaration	InvertedIndex.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 13	Java Problem
+Javadoc: Missing tag for declared exception Exception	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 59	Java Problem
+Javadoc: Missing tag for declared exception Exception	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 69	Java Problem
+Javadoc: Missing tag for declared exception IOException	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 41	Java Problem
+*/
