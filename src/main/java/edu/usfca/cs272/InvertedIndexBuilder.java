@@ -19,8 +19,6 @@ public class InvertedIndexBuilder {
    * Constructor for InvertedIndexBuilder Class.
    *
    * @param input file/directory path
-   * @param countsOutput output path for counts
-   * @param indexOutput output path for index
    * @param index InvertedIndex
    */
   public InvertedIndexBuilder(Path input, InvertedIndex index) {
