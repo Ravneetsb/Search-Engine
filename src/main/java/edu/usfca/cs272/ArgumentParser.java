@@ -35,7 +35,7 @@ public class ArgumentParser {
    * "-" character followed by any character that is not a digit or whitespace. For example,
    * "-hello" and "-@world" are considered flags, but "-10" and "- hello" are not.
    *
-   * @param arg the argument to test if its a flag
+   * @param arg the argument to test if it's a flag
    * @return {@code true} if the argument is a flag
    * @see String#startsWith(String)
    * @see String#length()
@@ -54,7 +54,7 @@ public class ArgumentParser {
   /**
    * Determines whether the argument is a value. Anything that is not a flag is considered a value.
    *
-   * @param arg the argument to test if its a value
+   * @param arg the argument to test if it's a value
    * @return {@code true} if the argument is a value
    */
   public static boolean isValue(String arg) {
