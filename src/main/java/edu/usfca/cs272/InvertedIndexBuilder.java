@@ -7,11 +7,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 
 /**
- * Builder Class for the Search Engine Project.
+ * InvertedIndexBuilder Class for the Search Engine Project.
  * @author Ravneet Singh Bhatia, CS 272 Software Development (University of San Francisco)
  * @version Spring 2024
  */
-public class Builder { // TODO InvertedIndexBuilder
+public class InvertedIndexBuilder {
   private final Path input;
   private final Path indexOutput;
   private final Path countsOutput;
@@ -19,14 +19,14 @@ public class Builder { // TODO InvertedIndexBuilder
   private final InvertedIndex index; // TODO Only keep this one
 
   /**
-   * Constructor for Builder Class.
+   * Constructor for InvertedIndexBuilder Class.
    *
    * @param input file/directory path
    * @param countsOutput output path for counts
    * @param indexOutput output path for index
    * @param index InvertedIndex
    */
-  public Builder(Path input, Path countsOutput, Path indexOutput, InvertedIndex index) {
+  public InvertedIndexBuilder(Path input, Path countsOutput, Path indexOutput, InvertedIndex index) {
     this.input = input;
     this.countsOutput = countsOutput;
     this.indexOutput = indexOutput;

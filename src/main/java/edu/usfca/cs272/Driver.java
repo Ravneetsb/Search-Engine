@@ -54,17 +54,17 @@ public class Driver {
 
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
-      Builder builder = new Builder(path, countOutput, indexOutput, index); // TODO Builder shouldn't need the output paths
+      InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder(path, countOutput, indexOutput, index); // TODO InvertedIndexBuilder shouldn't need the output paths
 
       if (Files.isDirectory(path)) { // TODO Make a build(...) method that chooses whether to call readDir or file.
         try {
-          builder.readDirectory();
+          invertedIndexBuilder.readDirectory();
         } catch (Exception e) {
           System.out.printf("Could not parse path: %s\n", path);
         }
       } else {
         try {
-          builder.readFile(path);
+          invertedIndexBuilder.readFile(path);
         } catch (Exception e) {
           System.out.printf("Could not read file from: %s\n", path);
         }
@@ -86,13 +86,13 @@ public class Driver {
 Description	Resource	Path	Location	Type
 Javadoc: Missing comment for default declaration	Driver.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 18	Java Problem
 Javadoc: Missing comment for default declaration	Driver.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 19	Java Problem
-Javadoc: Missing comment for private declaration	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 15	Java Problem
-Javadoc: Missing comment for private declaration	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 16	Java Problem
-Javadoc: Missing comment for private declaration	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 17	Java Problem
-Javadoc: Missing comment for private declaration	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 19	Java Problem
+Javadoc: Missing comment for private declaration	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 15	Java Problem
+Javadoc: Missing comment for private declaration	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 16	Java Problem
+Javadoc: Missing comment for private declaration	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 17	Java Problem
+Javadoc: Missing comment for private declaration	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 19	Java Problem
 Javadoc: Missing comment for private declaration	InvertedIndex.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 12	Java Problem
 Javadoc: Missing comment for private declaration	InvertedIndex.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 13	Java Problem
-Javadoc: Missing tag for declared exception Exception	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 59	Java Problem
-Javadoc: Missing tag for declared exception Exception	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 69	Java Problem
-Javadoc: Missing tag for declared exception IOException	Builder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 41	Java Problem
+Javadoc: Missing tag for declared exception Exception	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 59	Java Problem
+Javadoc: Missing tag for declared exception Exception	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 69	Java Problem
+Javadoc: Missing tag for declared exception IOException	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 41	Java Problem
 */
