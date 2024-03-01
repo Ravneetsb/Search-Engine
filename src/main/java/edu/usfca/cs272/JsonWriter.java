@@ -375,7 +375,7 @@ public class JsonWriter {
    * @param index InvertedIndex
    * @return null if exception.
    */
-  public static String writeIndex(InvertedIndex index) {
+  public static String writeIndex(Map<String, Map<String, Collection<Integer>>> index) {
     try {
       StringWriter writer = new StringWriter();
       writeIndex(index, writer, 0);
@@ -392,7 +392,7 @@ public class JsonWriter {
    * @param path path of output file.
    * @throws IOException if BufferedWriter error.
    */
-  public static void writeIndex(InvertedIndex index, Path path) throws IOException {
+  public static void writeIndex(Map<String, Map<String, Collection<Integer>>> index, Path path) throws IOException {
     if (path == null) {
       return;
     }
@@ -401,7 +401,6 @@ public class JsonWriter {
     }
   }
 
-  // TODO Make the parameter the underlying map type to make a bit more reusable
   /**
    * Writes InvertedIndex as a pretty JSON
    *
@@ -410,8 +409,7 @@ public class JsonWriter {
    * @param indent indent value
    * @throws IOException if writer error.
    */
-  public static void writeIndex(InvertedIndex index, Writer writer, int indent) throws IOException {
-    ;
+  public static void writeIndex(Map<String, Map<String, Collection<Integer>>> index, Writer writer, int indent) throws IOException {
     int size = index.size() - 1;
     if (size == -1) {
       writer.write("{\n}");
@@ -422,15 +420,11 @@ public class JsonWriter {
     for (var entry : index.entrySet()) {
       String key = entry.getKey();
       var value = entry.getValue();
-      try { // TODO Remove try/catch
-        writeQuote(key, writer, indent + 1);
-        writer.write(": ");
-        writeObjectArrays(value, writer, indent + 1);
-        if (iter++ < size) {
-					writer.write(",\n");
-				}
-      } catch (Exception e) {
-        throw new RuntimeException();
+      writeQuote(key, writer, indent + 1);
+      writer.write(": ");
+      writeObjectArrays(value, writer, indent + 1);
+      if (iter++ < size) {
+        writer.write(",\n");
       }
     }
     writer.write("\n}");
