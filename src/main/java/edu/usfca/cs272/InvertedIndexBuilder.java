@@ -13,10 +13,7 @@ import java.util.ArrayList;
  */
 public class InvertedIndexBuilder {
   private final Path input;
-  private final Path indexOutput;
-  private final Path countsOutput;
-
-  private final InvertedIndex index; // TODO Only keep this one
+  private final InvertedIndex index;
 
   /**
    * Constructor for InvertedIndexBuilder Class.
@@ -26,10 +23,8 @@ public class InvertedIndexBuilder {
    * @param indexOutput output path for index
    * @param index InvertedIndex
    */
-  public InvertedIndexBuilder(Path input, Path countsOutput, Path indexOutput, InvertedIndex index) {
+  public InvertedIndexBuilder(Path input, InvertedIndex index) {
     this.input = input;
-    this.countsOutput = countsOutput;
-    this.indexOutput = indexOutput;
     this.index = index;
   }
 

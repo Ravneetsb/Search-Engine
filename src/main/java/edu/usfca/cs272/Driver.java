@@ -54,7 +54,7 @@ public class Driver {
 
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
-      InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder(path, countOutput, indexOutput, index); // TODO InvertedIndexBuilder shouldn't need the output paths
+      InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder(path, index); // TODO InvertedIndexBuilder shouldn't need the output paths
 
       if (Files.isDirectory(path)) { // TODO Make a build(...) method that chooses whether to call readDir or file.
         try {
@@ -71,7 +71,21 @@ public class Driver {
       }
     }
 
-    // TODO Should be if blocks for writing to file here
+    if (countOutput != null) {
+      try {
+        JsonWriter.writeObject(index.getCounts(), countOutput);
+      } catch (IOException e) {
+          System.err.printf("Unable to write Counts Map to path: %s", countOutput);
+      }
+    }
+
+    if (indexOutput != null) {
+      try {
+        index.toJson(indexOutput);
+      } catch (IOException e) {
+        System.err.printf("Unable to write Inverted Index to path: %s", indexOutput);
+      }
+    }
 
 
     // calculate time elapsed and output
