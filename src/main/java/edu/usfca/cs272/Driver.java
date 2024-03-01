@@ -31,25 +31,15 @@ public class Driver {
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index = new InvertedIndex();
 
-    Path indexOutput = null; // TODO Declare these where they are defined
+    Path indexOutput = null;
     Path countOutput = null;
 
-    if (argParser.hasFlag("-index")) { // TODO Remove
+    if (argParser.hasFlag("-index")) {
       indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
-      try {
-        Files.createFile(indexOutput);
-      } catch (IOException e) {
-        System.out.printf("Unable to create index file at: %s", indexOutput);
-      }
     }
 
-    if (argParser.hasFlag("-counts")) { // TODO Remove
+    if (argParser.hasFlag("-counts")) {
       countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
-      try {
-        Files.createFile(countOutput);
-      } catch (IOException e) {
-        System.out.printf("Unable to create counts file at: %s", countOutput);
-      }
     }
 
     if (argParser.hasValue("-text")) {
