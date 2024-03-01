@@ -1,5 +1,8 @@
 package edu.usfca.cs272;
 
+import org.eclipse.jetty.util.IO;
+
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,22 +53,7 @@ public class InvertedIndex {
     return Collections.unmodifiableCollection(this.map.get(word).get(location));
   }
 
-  /*
-   * TODO Combine the add methods into 1 public method that takes a String type
-   */
 
-/**
-* Helper function to populate index.
- * @param path String value of file path
- * @param stem word stem
- * @param location index in stemList
-*/
-  private void add(String path, String stem, int location) {
-    var stemMap = this.map.get(stem);
-    stemMap.putIfAbsent(path, new TreeSet<>());
-    var locationSet = stemMap.get(path);
-    locationSet.add(location);
-  }
 
 /**
 * add stem to index.
@@ -74,10 +62,13 @@ public class InvertedIndex {
  * @param location index in stemList
  * @return true if added successfully.
 */
-  public boolean add(Path path, String stem, int location) {
+  public boolean add(String path, String stem, int location) {
     this.map.putIfAbsent(stem, new TreeMap<>());
     try {
-      this.add(String.valueOf(path), stem, location + 1);
+      var stemMap = this.map.get(stem);
+      stemMap.putIfAbsent(path, new TreeSet<>());
+      var locationSet = stemMap.get(path);
+      locationSet.add(location+1);
     } catch (Exception e) {
       return false;
     }
@@ -115,6 +106,10 @@ public class InvertedIndex {
   	JsonWriter.writeIndex(this.map, null, 0);
   }
   */
+
+  public void toJson(Path output) throws IOException {
+    JsonWriter.writeIndex(this.map, output);
+  }
 
 /**
 * add file path and the number of stems in that file to countsMap.
