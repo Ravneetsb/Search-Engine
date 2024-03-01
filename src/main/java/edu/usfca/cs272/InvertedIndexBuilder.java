@@ -87,10 +87,10 @@ public class InvertedIndexBuilder {
    * @param path of file
    * @return true if file has a valid text file extension.
    */
-  private boolean fileIsTXT(Path path) { // TODO public static
-  	// TODO Make a bit more efficient---don't toString and toLower twice
-    return path.toString().toLowerCase().endsWith(".txt")
-        || path.toString().toLowerCase().endsWith(".text");
+  public static boolean fileIsTXT(Path path) {
+    String clean = path.toString().toLowerCase();
+    return clean.endsWith(".txt")
+        || clean.endsWith(".text");
   }
 
 }
