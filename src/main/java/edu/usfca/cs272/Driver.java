@@ -54,20 +54,12 @@ public class Driver {
 
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
-      InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder(path, index); // TODO InvertedIndexBuilder shouldn't need the output paths
+      InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder(path, index);
 
-      if (Files.isDirectory(path)) { // TODO Make a build(...) method that chooses whether to call readDir or file.
-        try {
-          invertedIndexBuilder.readDirectory(path);
-        } catch (Exception e) {
-          System.out.printf("Could not parse path: %s\n", path);
-        }
-      } else {
-        try {
-          invertedIndexBuilder.readFile(path);
-        } catch (Exception e) {
-          System.out.printf("Could not read file from: %s\n", path);
-        }
+      try {
+        invertedIndexBuilder.build();
+      } catch (IOException e) {
+        System.err.printf("Unable to build Index from path: %s", path);
       }
     }
 

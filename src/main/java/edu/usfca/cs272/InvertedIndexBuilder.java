@@ -26,6 +26,13 @@ public class InvertedIndexBuilder {
     this.index = index;
   }
 
+  public void build() throws IOException {
+    if (Files.isDirectory(input)) {
+      readDirectory(input);
+    } else
+      readFile(input);
+  }
+
   /**
    * Reads text files in a directory or nested directories.
    *
@@ -53,7 +60,7 @@ public class InvertedIndexBuilder {
    *
    * @param file path of text file.
    */
-  public void readFile(Path file) throws Exception {
+  public void readFile(Path file) throws IOException {
   	/*
   	 * TODO Make this more efficient by copy/pasting some logic from the file stemmer
   	 * into here to add directly into an inverted index, never to a list of stems
