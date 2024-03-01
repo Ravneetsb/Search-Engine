@@ -40,14 +40,13 @@ public class InvertedIndex {
     return Collections.unmodifiableMap(this.countsMap);
   }
 
-  // TODO Breaking encapsulation
   /**
    * Returns unmodifiable map where key is file path value is location of word.
    *
    * @param word key in the index.
    * @return unmodifiable map where key is file path value is location of word.
    */
-  public Collection<? extends Number> getPositions(String word, String location) { // TODO String location, so you can access the specific set of positions and make that unmodifiable
+  public Collection<? extends Number> getPositions(String word, String location) {
     return Collections.unmodifiableCollection(this.map.get(word).get(location));
   }
 
