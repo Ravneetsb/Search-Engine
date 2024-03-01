@@ -47,11 +47,6 @@ public class InvertedIndexBuilder {
     }
   }
 
-  /** Read text files from a directory / nested directories. */
-  public void readDirectory() throws Exception { // TODO Remove
-    this.readDirectory(input);
-  }
-
   // CITE: Talked to Frank about not having multi-line reading.
   /**
    * reads text file to populate InvertedIndex.

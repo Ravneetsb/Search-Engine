@@ -58,7 +58,7 @@ public class Driver {
 
       if (Files.isDirectory(path)) { // TODO Make a build(...) method that chooses whether to call readDir or file.
         try {
-          invertedIndexBuilder.readDirectory();
+          invertedIndexBuilder.readDirectory(path);
         } catch (Exception e) {
           System.out.printf("Could not parse path: %s\n", path);
         }
