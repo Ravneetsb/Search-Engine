@@ -47,8 +47,8 @@ public class InvertedIndex {
    * @param word key in the index.
    * @return unmodifiable map where key is file path value is location of word.
    */
-  public Map<String, Collection<? extends Number>> getPositions(String word) { // TODO String location, so you can access the specific set of positions and make that unmodifiable
-    return Collections.unmodifiableMap(this.map.get(word));
+  public Collection<? extends Number> getPositions(String word, String location) { // TODO String location, so you can access the specific set of positions and make that unmodifiable
+    return Collections.unmodifiableCollection(this.map.get(word).get(location));
   }
 
   /*
