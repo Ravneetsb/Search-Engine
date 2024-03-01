@@ -4,12 +4,7 @@ import org.eclipse.jetty.util.IO;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
 * InvertedIndex Data Structure for the Search Engine Project.
@@ -75,7 +70,14 @@ public class InvertedIndex {
     return true;
   }
 
-  // TODO Make an addAll method as well
+  public boolean addAll(String path, Collection<String> stems) {
+    boolean done = false;
+    int location = 0;
+    for (String stem: stems) {
+      done = this.add(path, stem, location++);
+    }
+    return done;
+  }
 
 /**
 * Returns true if index is empty.
@@ -100,12 +102,6 @@ public class InvertedIndex {
   public Set<Map.Entry<String, Map<String, Collection<Integer>>>> entrySet() {
     return this.map.entrySet();
   }
-
-  /* TODO
-  public void toJson(Path output) throws IOException {
-  	JsonWriter.writeIndex(this.map, null, 0);
-  }
-  */
 
   public void toJson(Path output) throws IOException {
     JsonWriter.writeIndex(this.map, output);
