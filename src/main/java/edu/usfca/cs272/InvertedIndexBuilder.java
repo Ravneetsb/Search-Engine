@@ -46,7 +46,6 @@ public class InvertedIndexBuilder {
         } else {
           if (fileIsTXT(path)) {
             readFile(path);
-            writeOutput();
           }
         }
       }
@@ -73,13 +72,13 @@ public class InvertedIndexBuilder {
   	 */
     ArrayList<String> stems;
     stems = FileStemmer.listStems(file);
+    String fileName = file.toString();
     for (int i = 0; i < stems.size(); i++) {
-      this.index.add(file, stems.get(i), i);
+      this.index.add(fileName, stems.get(i), i);
     }
     if (!stems.isEmpty()) {
-			this.index.addCounts(file, stems.size());
+			this.index.addCounts(fileName, stems.size());
 		}
-    writeOutput();
   }
 
   /**
@@ -94,24 +93,4 @@ public class InvertedIndexBuilder {
         || path.toString().toLowerCase().endsWith(".text");
   }
 
-  /**
-   * Writes the index and counts to indexOutput and countsOutput respectively. Ensures that the
-   * paths are not null.
-   */
-  public void writeOutput() { // TODO Remove, logic goes into Driver
-    if (countsOutput != null) {
-      try {
-        JsonWriter.writeObject(this.index.getCounts(), countsOutput);
-      } catch (IOException e) {
-        System.out.printf("Unable to build counts with path: %s\n", countsOutput);
-      }
-    }
-    if (indexOutput != null) {
-      try {
-        JsonWriter.writeIndex(this.index, indexOutput);
-      } catch (IOException e) {
-        System.out.printf("Unable to build index with path: %s\n", indexOutput);
-      }
-    }
-  }
 }

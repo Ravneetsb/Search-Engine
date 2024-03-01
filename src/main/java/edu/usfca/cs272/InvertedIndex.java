@@ -112,7 +112,7 @@ public class InvertedIndex {
  * @param file path of file.
  * @param size number of stems.
 */
-  public void addCounts(Path file, int size) { // TODO String not Path
+  public void addCounts(String file, int size) {
     this.countsMap.put(String.valueOf(file), size);
   }
 }
