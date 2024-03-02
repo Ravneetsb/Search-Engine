@@ -148,7 +148,7 @@ public class JsonWriter {
    */
   public static void writeObject(Map<String, ? extends Number> elements, Writer writer, int indent)
       throws IOException {
-    writer.write("{");
+    writeIndent("{", writer, 0);
     var iterator = elements.entrySet().iterator();
     if (iterator.hasNext()) {
       var element = iterator.next();
@@ -293,33 +293,21 @@ public class JsonWriter {
   public static void writeArrayObjects(
       Collection<? extends Map<String, ? extends Number>> elements, Writer writer, int indent)
       throws IOException {
+    writer.write("[");
     var iterator = elements.iterator();
-    writer.write("[\n");
-    for (int i = 0; i < elements.size(); i++) {
+    if (iterator.hasNext()) {
       var element = iterator.next();
-      int size = element.size() - 1;
-      writeIndent("{\n", writer, indent + 1);
-      int iter = 0;
-      for (var entry : element.entrySet()) {
-        String key = entry.getKey();
-        var value = entry.getValue();
-        try {
-          writeQuote(key, writer, indent + 2);
-          if (iter++ < size) {
-            writeIndent(": " + value + ",\n", writer, indent);
-          } else {
-            writeIndent(": " + value + "\n", writer, indent);
-          }
-        } catch (Exception e) {
-          // Do nothing
-        }
-      }
-      if (i < elements.size() - 1) {
-        writeIndent("},\n", writer, indent + 1);
-      } else {
-        writeIndent("}\n", writer, indent + 1);
-      }
+      writer.write("\n");
+      writeIndent("", writer, indent + 1);
+      writeObject(element, writer, indent + 1);
     }
+    while (iterator.hasNext()) {
+      var element = iterator.next();
+      writer.write(",\n");
+      writeIndent("", writer, indent + 1);
+      writeObject(element, writer, indent + 1);
+    }
+    writer.write("\n");
     writeIndent("]", writer, indent);
   }
 
