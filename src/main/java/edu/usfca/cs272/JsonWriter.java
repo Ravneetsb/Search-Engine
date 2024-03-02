@@ -162,7 +162,8 @@ public class JsonWriter {
       writeQuote(element.getKey(), writer, indent + 1);
       writer.write(String.format(": %s", element.getValue()));
     }
-    writer.write("\n}");
+    writer.write("\n");
+    writeIndent("}", writer, indent);
   }
 
   /**
@@ -224,16 +225,18 @@ public class JsonWriter {
       var element = iterator.next();
       writer.write("\n");
       writeQuote(element.getKey(), writer, indent + 1);
-      writer.write(" :");
+      writer.write(": ");
       writeArray(element.getValue(), writer, indent + 1);
     }
     while (iterator.hasNext()) {
       var element = iterator.next();
       writer.write(",\n");
       writeQuote(element.getKey(), writer, indent + 1);
+      writer.write(": ");
       writeArray(element.getValue(), writer, indent + 1);
     }
-    writer.write("\n}");
+    writer.write("\n");
+    writeIndent("}", writer, indent);
   }
 
   /**
