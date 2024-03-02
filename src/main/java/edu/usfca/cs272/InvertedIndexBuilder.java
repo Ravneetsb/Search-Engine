@@ -51,6 +51,7 @@ public class InvertedIndexBuilder {
    * Reads text files in a directory or nested directories.
    *
    * @param directory directory path
+   * @throws IOException if unable to read directory.
    */
   public void readDirectory(Path directory) throws IOException {
     try (DirectoryStream<Path> listing = Files.newDirectoryStream(directory)) {
@@ -73,6 +74,7 @@ public class InvertedIndexBuilder {
    * reads text file to populate InvertedIndex.
    *
    * @param file path of text file.
+   * @throws IOException if unable to read file.
    */
   public void readFile(Path file) throws IOException {
     int iter = 0;
