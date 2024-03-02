@@ -148,27 +148,21 @@ public class JsonWriter {
    */
   public static void writeObject(Map<String, ? extends Number> elements, Writer writer, int indent)
       throws IOException {
-    int size = elements.size() - 1;
-    writer.write("{\n");
-    int iter = 0;
-    for (var entry : elements.entrySet()) {
-      String key = entry.getKey();
-      var value = entry.getValue();
-      try {
-        writeQuote(key, writer, indent + 1);
-        writer.write(":");
-        if (iter++ < size) {
-					writer.write(String.format(" %s,\n", value));
-				}
-				else {
-					writer.write(String.format(" %s\n", value));
-				}
-
-      } catch (Exception e) {
-        // Do nothing.
-      }
+    writer.write("{");
+    var iterator = elements.entrySet().iterator();
+    if (iterator.hasNext()) {
+      var element = iterator.next();
+      writer.write("\n");
+      writeQuote(element.getKey(), writer, indent + 1);
+      writer.write(String.format(": %s", element.getValue()));
     }
-    writeIndent("}", writer, indent);
+    while (iterator.hasNext()) {
+      var element = iterator.next();
+      writer.write(",\n");
+      writeQuote(element.getKey(), writer, indent + 1);
+      writer.write(String.format(": %s", element.getValue()));
+    }
+    writer.write("\n}");
   }
 
   /**
@@ -235,11 +229,10 @@ public class JsonWriter {
         writer.write(": ");
         writeArray(value, writer, indent + 1);
         if (iter++ < size) {
-					writer.write(",\n");
-				}
-				else {
-					writer.write("\n");
-				}
+          writer.write(",\n");
+        } else {
+          writer.write("\n");
+        }
       } catch (Exception e) {
         // Do nothing
       }
@@ -314,21 +307,19 @@ public class JsonWriter {
         try {
           writeQuote(key, writer, indent + 2);
           if (iter++ < size) {
-						writeIndent(": " + value + ",\n", writer, indent);
-					}
-					else {
-						writeIndent(": " + value + "\n", writer, indent);
-					}
+            writeIndent(": " + value + ",\n", writer, indent);
+          } else {
+            writeIndent(": " + value + "\n", writer, indent);
+          }
         } catch (Exception e) {
           // Do nothing
         }
       }
       if (i < elements.size() - 1) {
-				writeIndent("},\n", writer, indent + 1);
-			}
-			else {
-				writeIndent("}\n", writer, indent + 1);
-			}
+        writeIndent("},\n", writer, indent + 1);
+      } else {
+        writeIndent("}\n", writer, indent + 1);
+      }
     }
     writeIndent("]", writer, indent);
   }
@@ -392,7 +383,8 @@ public class JsonWriter {
    * @param path path of output file.
    * @throws IOException if BufferedWriter error.
    */
-  public static void writeIndex(Map<String, Map<String, Collection<Integer>>> index, Path path) throws IOException {
+  public static void writeIndex(Map<String, Map<String, Collection<Integer>>> index, Path path)
+      throws IOException {
     if (path == null) {
       return;
     }
@@ -409,7 +401,9 @@ public class JsonWriter {
    * @param indent indent value
    * @throws IOException if writer error.
    */
-  public static void writeIndex(Map<String, Map<String, Collection<Integer>>> index, Writer writer, int indent) throws IOException {
+  public static void writeIndex(
+      Map<String, Map<String, Collection<Integer>>> index, Writer writer, int indent)
+      throws IOException {
     int size = index.size() - 1;
     if (size == -1) {
       writer.write("{\n}");
