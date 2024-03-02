@@ -19,7 +19,10 @@ import static opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM.ENGLISH;
  * @version Spring 2024
  */
 public class InvertedIndexBuilder {
+  /** Input path for directory/file. */
   private final Path input;
+
+  /** InvertedIndex data structure to build. */
   private final InvertedIndex index;
 
   /**
@@ -33,6 +36,11 @@ public class InvertedIndexBuilder {
     this.index = index;
   }
 
+  /**
+   * Build function for InvertedIndex
+   *
+   * @throws IOException if file can't be read.
+   */
   public void build() throws IOException {
     if (Files.isDirectory(input)) {
       readDirectory(input);

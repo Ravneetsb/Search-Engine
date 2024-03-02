@@ -81,11 +81,6 @@ public class Driver {
 
 /*
  * TODO
-Description	Resource	Path	Location	Type
-Javadoc: Missing comment for private declaration	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 15	Java Problem
-Javadoc: Missing comment for private declaration	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 16	Java Problem
-Javadoc: Missing comment for private declaration	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 17	Java Problem
-Javadoc: Missing comment for private declaration	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 19	Java Problem
 Javadoc: Missing comment for private declaration	InvertedIndex.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 12	Java Problem
 Javadoc: Missing comment for private declaration	InvertedIndex.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 13	Java Problem
 Javadoc: Missing tag for declared exception Exception	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 59	Java Problem
