@@ -218,26 +218,22 @@ public class JsonWriter {
   public static void writeObjectArrays(
       Map<String, ? extends Collection<? extends Number>> elements, Writer writer, int indent)
       throws IOException {
-    int size = elements.size() - 1;
-    writer.write("{\n");
-    int iter = 0;
-    for (var entry : elements.entrySet()) {
-      String key = entry.getKey();
-      var value = entry.getValue();
-      try {
-        writeQuote(key, writer, indent + 1);
-        writer.write(": ");
-        writeArray(value, writer, indent + 1);
-        if (iter++ < size) {
-          writer.write(",\n");
-        } else {
-          writer.write("\n");
-        }
-      } catch (Exception e) {
-        // Do nothing
-      }
+    writer.write("{");
+    var iterator = elements.entrySet().iterator();
+    if (iterator.hasNext()) {
+      var element = iterator.next();
+      writer.write("\n");
+      writeQuote(element.getKey(), writer, indent + 1);
+      writer.write(" :");
+      writeArray(element.getValue(), writer, indent + 1);
     }
-    writeIndent("}", writer, indent);
+    while (iterator.hasNext()) {
+      var element = iterator.next();
+      writer.write(",\n");
+      writeQuote(element.getKey(), writer, indent + 1);
+      writeArray(element.getValue(), writer, indent + 1);
+    }
+    writer.write("\n}");
   }
 
   /**
