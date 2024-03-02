@@ -15,7 +15,10 @@ import java.time.Instant;
  * @version Spring 2024
  */
 public class Driver {
+  /** Default path for output file for index. */
   public static final Path DEFAULT_INDEX = Path.of("index.json");
+
+  /** Default path for output file for counts. */
   public static final Path DEFAULT_COUNTS = Path.of("counts.json");
 
   /**
@@ -79,8 +82,6 @@ public class Driver {
 /*
  * TODO
 Description	Resource	Path	Location	Type
-Javadoc: Missing comment for default declaration	Driver.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 18	Java Problem
-Javadoc: Missing comment for default declaration	Driver.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 19	Java Problem
 Javadoc: Missing comment for private declaration	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 15	Java Problem
 Javadoc: Missing comment for private declaration	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 16	Java Problem
 Javadoc: Missing comment for private declaration	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 17	Java Problem
