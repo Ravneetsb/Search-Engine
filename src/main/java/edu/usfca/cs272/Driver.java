@@ -78,12 +78,3 @@ public class Driver {
     System.out.printf("Elapsed: %f seconds%n", seconds);
   }
 }
-
-/*
- * TODO
-Javadoc: Missing comment for private declaration	InvertedIndex.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 12	Java Problem
-Javadoc: Missing comment for private declaration	InvertedIndex.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 13	Java Problem
-Javadoc: Missing tag for declared exception Exception	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 59	Java Problem
-Javadoc: Missing tag for declared exception Exception	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 69	Java Problem
-Javadoc: Missing tag for declared exception IOException	InvertedIndexBuilder.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 41	Java Problem
-*/
