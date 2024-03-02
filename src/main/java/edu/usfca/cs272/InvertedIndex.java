@@ -1,7 +1,5 @@
 package edu.usfca.cs272;
 
-import org.eclipse.jetty.util.IO;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
@@ -108,15 +106,6 @@ public class InvertedIndex {
    */
   public int size() {
     return this.map.size();
-  }
-
-  /**
-   * Returns entrySet for index.
-   *
-   * @return entrySet for index.
-   */
-  public Set<Map.Entry<String, Map<String, Collection<Integer>>>> entrySet() {
-    return this.map.entrySet();
   }
 
   public void toJson(Path output) throws IOException {
