@@ -7,10 +7,11 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
-* InvertedIndex Data Structure for the Search Engine Project.
+ * InvertedIndex Data Structure for the Search Engine Project.
+ *
  * @author Ravneet Singh Bhatia, CS 272 Software Development (University of San Francisco)
  * @version Spring 2024
-*/
+ */
 public class InvertedIndex {
   private final Map<String, Map<String, Collection<Integer>>> map;
   private final Map<String, Integer> countsMap;
@@ -30,10 +31,11 @@ public class InvertedIndex {
     return Collections.unmodifiableSet(this.map.keySet());
   }
 
-/**
-* Returns unmodifiable map of files and their stem counts.
- * @return unmodifiable map of files and their stem counts.
-*/
+  /**
+   * Returns unmodifiable map of files and their stem counts.
+   *
+   * @return unmodifiable map of files and their stem counts.
+   */
   public Map<String, Integer> getCounts() {
     return Collections.unmodifiableMap(this.countsMap);
   }
@@ -48,22 +50,21 @@ public class InvertedIndex {
     return Collections.unmodifiableCollection(this.map.get(word).get(location));
   }
 
-
-
-/**
-* add stem to index.
- * @param path file path
- * @param stem word stem
- * @param location index in stemList
- * @return true if added successfully.
-*/
+  /**
+   * add stem to index.
+   *
+   * @param path file path
+   * @param stem word stem
+   * @param location index in stemList
+   * @return true if added successfully.
+   */
   public boolean add(String path, String stem, int location) {
     this.map.putIfAbsent(stem, new TreeMap<>());
     try {
       var stemMap = this.map.get(stem);
       stemMap.putIfAbsent(path, new TreeSet<>());
       var locationSet = stemMap.get(path);
-      locationSet.add(location+1);
+      locationSet.add(location + 1);
     } catch (Exception e) {
       return false;
     }
@@ -73,32 +74,35 @@ public class InvertedIndex {
   public boolean addAll(String path, Collection<String> stems) {
     boolean done = false;
     int location = 0;
-    for (String stem: stems) {
+    for (String stem : stems) {
       done = this.add(path, stem, location++);
     }
     return done;
   }
 
-/**
-* Returns true if index is empty.
- * @return true if index is empty.
-*/
+  /**
+   * Returns true if index is empty.
+   *
+   * @return true if index is empty.
+   */
   public boolean isEmpty() {
     return this.map.isEmpty();
   }
 
-/**
-* Returns the number of stems in the index.
- * @return the number of stems in the index.
-*/
+  /**
+   * Returns the number of stems in the index.
+   *
+   * @return the number of stems in the index.
+   */
   public int size() {
     return this.map.size();
   }
 
-/**
-* Returns entrySet for index.
- * @return entrySet for index.
-*/
+  /**
+   * Returns entrySet for index.
+   *
+   * @return entrySet for index.
+   */
   public Set<Map.Entry<String, Map<String, Collection<Integer>>>> entrySet() {
     return this.map.entrySet();
   }
@@ -107,11 +111,12 @@ public class InvertedIndex {
     JsonWriter.writeIndex(this.map, output);
   }
 
-/**
-* add file path and the number of stems in that file to countsMap.
- * @param file path of file.
- * @param size number of stems.
-*/
+  /**
+   * add file path and the number of stems in that file to countsMap.
+   *
+   * @param file path of file.
+   * @param size number of stems.
+   */
   public void addCounts(String file, int size) {
     this.countsMap.put(String.valueOf(file), size);
   }

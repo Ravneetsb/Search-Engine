@@ -57,7 +57,7 @@ public class Driver {
       try {
         JsonWriter.writeObject(index.getCounts(), countOutput);
       } catch (IOException e) {
-          System.err.printf("Unable to write Counts Map to path: %s", countOutput);
+        System.err.printf("Unable to write Counts Map to path: %s", countOutput);
       }
     }
 
@@ -68,7 +68,6 @@ public class Driver {
         System.err.printf("Unable to write Inverted Index to path: %s", indexOutput);
       }
     }
-
 
     // calculate time elapsed and output
     long elapsed = Duration.between(start, Instant.now()).toMillis();

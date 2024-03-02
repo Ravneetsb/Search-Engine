@@ -14,6 +14,7 @@ import static opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM.ENGLISH;
 
 /**
  * InvertedIndexBuilder Class for the Search Engine Project.
+ *
  * @author Ravneet Singh Bhatia, CS 272 Software Development (University of San Francisco)
  * @version Spring 2024
  */
@@ -35,8 +36,7 @@ public class InvertedIndexBuilder {
   public void build() throws IOException {
     if (Files.isDirectory(input)) {
       readDirectory(input);
-    } else
-      readFile(input);
+    } else readFile(input);
   }
 
   /**
@@ -73,14 +73,13 @@ public class InvertedIndexBuilder {
       Stemmer stemmer = new SnowballStemmer(ENGLISH);
       while ((line = br.readLine()) != null) {
         String[] words = FileStemmer.parse(line);
-        for (String word: words) {
-          index.add(file.toString(),stemmer.stem(word).toString(), iter++);
+        for (String word : words) {
+          index.add(file.toString(), stemmer.stem(word).toString(), iter++);
         }
-        }
-      if (iter != 0)
-        index.addCounts(file.toString(), iter);
       }
+      if (iter != 0) index.addCounts(file.toString(), iter);
     }
+  }
 
   /**
    * Validates file extension
@@ -90,8 +89,6 @@ public class InvertedIndexBuilder {
    */
   public static boolean fileIsTXT(Path path) {
     String clean = path.toString().toLowerCase();
-    return clean.endsWith(".txt")
-        || clean.endsWith(".text");
+    return clean.endsWith(".txt") || clean.endsWith(".text");
   }
-
 }
