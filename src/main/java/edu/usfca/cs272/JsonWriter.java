@@ -366,7 +366,7 @@ public class JsonWriter {
   /**
    * Writes InvertedIndex as a pretty JSON.
    *
-   * @param index InverteIndex
+   * @param index InvertedIndex
    * @param path path of output file.
    * @throws IOException if BufferedWriter error.
    */
