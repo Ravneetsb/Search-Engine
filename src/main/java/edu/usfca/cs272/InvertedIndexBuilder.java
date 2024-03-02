@@ -1,10 +1,16 @@
 package edu.usfca.cs272;
 
+import opennlp.tools.stemmer.Stemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
+
+import static opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM.ENGLISH;
 
 /**
  * InvertedIndexBuilder Class for the Search Engine Project.
@@ -61,20 +67,20 @@ public class InvertedIndexBuilder {
    * @param file path of text file.
    */
   public void readFile(Path file) throws IOException {
-  	/*
-  	 * TODO Make this more efficient by copy/pasting some logic from the file stemmer
-  	 * into here to add directly into an inverted index, never to a list of stems
-  	 */
-    ArrayList<String> stems;
-    stems = FileStemmer.listStems(file);
-    String fileName = file.toString();
-    for (int i = 0; i < stems.size(); i++) {
-      this.index.add(fileName, stems.get(i), i);
+    int iter = 0;
+    try (BufferedReader br = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+      String line;
+      Stemmer stemmer = new SnowballStemmer(ENGLISH);
+      while ((line = br.readLine()) != null) {
+        String[] words = FileStemmer.parse(line);
+        for (String word: words) {
+          index.add(file.toString(),stemmer.stem(word).toString(), iter++);
+        }
+        }
+      if (iter != 0)
+        index.addCounts(file.toString(), iter);
+      }
     }
-    if (!stems.isEmpty()) {
-			this.index.addCounts(fileName, stems.size());
-		}
-  }
 
   /**
    * Validates file extension
