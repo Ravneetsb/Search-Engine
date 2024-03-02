@@ -13,7 +13,13 @@ import java.util.*;
  * @version Spring 2024
  */
 public class InvertedIndex {
+/**
+* Map for Index.
+*/
   private final Map<String, Map<String, Collection<Integer>>> map;
+/**
+* Map for counts.
+*/
   private final Map<String, Integer> countsMap;
 
   /** Constructor for InvertedIndex */
@@ -71,6 +77,12 @@ public class InvertedIndex {
     return true;
   }
 
+/**
+* Add a collection of stems to Index.
+ * @param path Path of file.
+ * @param stems Collection of stems
+ * @return true if successful.
+*/
   public boolean addAll(String path, Collection<String> stems) {
     boolean done = false;
     int location = 0;
