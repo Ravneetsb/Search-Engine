@@ -17,13 +17,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @version Spring 2024
  */
 public class InvertedIndex {
-/**
-* Map for Index.
-*/
+  /** Map for Index. */
   private final Map<String, Map<String, Collection<Integer>>> map;
-/**
-* Map for counts.
-*/
+
+  /** Map for counts. */
   private final Map<String, Integer> countsMap;
 
   /** Constructor for InvertedIndex */
@@ -81,12 +78,13 @@ public class InvertedIndex {
     return true;
   }
 
-/**
-* Add a collection of stems to Index.
- * @param path Path of file.
- * @param stems Collection of stems
- * @return true if successful.
-*/
+  /**
+   * Add a collection of stems to Index.
+   *
+   * @param path Path of file.
+   * @param stems Collection of stems
+   * @return true if successful.
+   */
   public boolean addAll(String path, Collection<String> stems) {
     boolean done = false;
     int location = 0;
@@ -155,17 +153,17 @@ public class InvertedIndex {
     private TreeSet<String> parseQuery(Path query) throws IOException {
       TreeSet<String> queries = new TreeSet<>();
       try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
-          String line;
-          while ((line = br.readLine()) != null) {
-            var stems = FileStemmer.uniqueStems(line);
-            StringJoiner sb = new StringJoiner(" ");
-            for (var q: stems) {
-              if (!q.isEmpty()) {
-                sb.add(q);
-              }
+        String line;
+        while ((line = br.readLine()) != null) {
+          var stems = FileStemmer.uniqueStems(line);
+          StringJoiner sb = new StringJoiner(" ");
+          for (var q : stems) {
+            if (!q.isEmpty()) {
+              sb.add(q);
             }
-            queries.add(sb.toString());
           }
+          queries.add(sb.toString());
+        }
       } catch (IOException e) {
         // Do nothing
       }
@@ -176,14 +174,14 @@ public class InvertedIndex {
       DecimalFormat formatter = new DecimalFormat("0.00000000");
       System.out.println(map);
       System.out.println(queries);
-      for (var query: queries) {
+      for (var query : queries) {
         if (query.isEmpty()) continue;
         searchMap.putIfAbsent(query, new ArrayList<>());
         var qList = searchMap.get(query);
-        for (String q: query.split(" ")) {
+        for (String q : query.split(" ")) {
           var locationData = map.get(q);
           if (locationData != null) {
-            for (var entry: locationData.entrySet()) {
+            for (var entry : locationData.entrySet()) {
               TreeMap<String, String> scoreMap = new TreeMap<>();
               String file = entry.getKey();
               scoreMap.put("where", file);

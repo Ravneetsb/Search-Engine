@@ -37,9 +37,8 @@ public class Driver {
     InvertedIndex index = new InvertedIndex();
     InvertedIndex.Searcher searcher = index.newSearcher(argParser.getPath("-query"));
 
-      Path indexOutput = null;
+    Path indexOutput = null;
     Path countOutput = null;
-    Path searchOutput = null;
 
     if (argParser.hasFlag("-index")) {
       indexOutput = argParser.getPath("-index", DEFAULT_INDEX);

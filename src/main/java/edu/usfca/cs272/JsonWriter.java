@@ -417,7 +417,8 @@ public class JsonWriter {
     }
   }
 
-  public static void writeSearch(Map<String, Collection<TreeMap<String, String>>> searchMap, Path path) throws IOException {
+  public static void writeSearch(
+      Map<String, Collection<TreeMap<String, String>>> searchMap, Path path) throws IOException {
     if (path == null) {
       return;
     }
@@ -426,9 +427,9 @@ public class JsonWriter {
     }
   }
 
-  public static void writeSearch(Map<String, Collection<TreeMap<String, String>>> searchMap, Writer writer, int indent) throws IOException {
-
-  }
+  public static void writeSearch(
+      Map<String, Collection<TreeMap<String, String>>> searchMap, Writer writer, int indent)
+      throws IOException {}
 
   /**
    * Demonstrates this class.
