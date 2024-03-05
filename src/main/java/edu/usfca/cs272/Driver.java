@@ -77,3 +77,27 @@ public class Driver {
     System.out.printf("Elapsed: %f seconds%n", seconds);
   }
 }
+
+/*
+ * TODO Fix the Javadoc warnings in the code.
+ * 
+ * Other developers will *not* use poorly unprofessionally documented code
+ * regardless of whether the code itself is well designed! It is a tedious but
+ * critical step to the final steps of refactoring. The "Configuring Eclipse"
+ * guide on the course website shows how to setup Eclipse to see the Javadoc
+ * warnings. (Open the "View Screenshot" section.) Here is a direct link:
+ * 
+ * https://usf-cs272-spring2024.notion.site/Configuring-Eclipse-
+ * 4f735d746e004dbdbc34af6ad2d988cd#1a1a870909bb45f2a92ef5fc51038635
+ * 
+ * When conducting asynchronous reviews, I will no longer review code with major
+ * formatting issues or warnings in it. Please do a complete pass of your code
+ * for these issues before requesting code review.
+ * 
+ * The warnings found are below for reference:
+
+Description	Resource	Path	Location	Type
+Javadoc: Missing comment for public declaration	InvertedIndex.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 111	Java Problem
+Javadoc: Missing tag for parameter location	InvertedIndex.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 53	Java Problem
+
+ */
