@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -144,7 +145,7 @@ public class InvertedIndex {
   public class Searcher {
     private final TreeSet<String> queries;
 
-    private final Map<String, Collection<HashMap<String, String>>> searchMap;
+    private final Map<String, Collection<TreeMap<String, String>>> searchMap;
 
     public Searcher(Path query) throws IOException {
       this.queries = parseQuery(query);
@@ -172,6 +173,7 @@ public class InvertedIndex {
     }
 
     public void search() {
+      DecimalFormat formatter = new DecimalFormat("0.00000000");
       System.out.println(map);
       System.out.println(queries);
       for (var query: queries) {
@@ -182,10 +184,13 @@ public class InvertedIndex {
           var locationData = map.get(q);
           if (locationData != null) {
             for (var entry: locationData.entrySet()) {
-              HashMap<String, String> scoreMap = new HashMap<>();
-              scoreMap.put("where", entry.getKey());
-              int total = countsMap.get(entry.getKey());
-              scoreMap.put("count", );
+              TreeMap<String, String> scoreMap = new TreeMap<>();
+              String file = entry.getKey();
+              scoreMap.put("where", file);
+              int total = countsMap.get(file);
+              double count = map.get(q).get(file).size();
+              scoreMap.put("count", String.valueOf(count));
+              scoreMap.put("score", String.valueOf(formatter.format(count / total)));
               qList.add(scoreMap);
             }
           }
