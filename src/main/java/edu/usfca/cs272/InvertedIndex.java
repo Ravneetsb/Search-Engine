@@ -1,8 +1,13 @@
 package edu.usfca.cs272;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.IntStream;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * InvertedIndex Data Structure for the Search Engine Project.
@@ -120,5 +125,81 @@ public class InvertedIndex {
    */
   public void addCounts(String file, int size) {
     this.countsMap.put(String.valueOf(file), size);
+  }
+
+  @Override
+  public String toString() {
+    return JsonWriter.writeIndex(map);
+  }
+
+  public Searcher newSearcher(Path query) {
+    try {
+      return new Searcher(query);
+    } catch (IOException e) {
+      System.out.println("Query not found");
+    }
+    return null;
+  }
+
+  public class Searcher {
+    private final TreeSet<String> queries;
+
+    private final Map<String, Collection<HashMap<String, String>>> searchMap;
+
+    public Searcher(Path query) throws IOException {
+      this.queries = parseQuery(query);
+      this.searchMap = new TreeMap<>();
+    }
+
+    private TreeSet<String> parseQuery(Path query) throws IOException {
+      TreeSet<String> queries = new TreeSet<>();
+      try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
+          String line;
+          while ((line = br.readLine()) != null) {
+            var stems = FileStemmer.uniqueStems(line);
+            StringJoiner sb = new StringJoiner(" ");
+            for (var q: stems) {
+              if (!q.isEmpty()) {
+                sb.add(q);
+              }
+            }
+            queries.add(sb.toString());
+          }
+      } catch (IOException e) {
+        // Do nothing
+      }
+      return queries;
+    }
+
+    public void search() {
+      System.out.println(map);
+      System.out.println(queries);
+      for (var query: queries) {
+        if (query.isEmpty()) continue;
+        searchMap.putIfAbsent(query, new ArrayList<>());
+        var qList = searchMap.get(query);
+        for (String q: query.split(" ")) {
+          var locationData = map.get(q);
+          if (locationData != null) {
+            for (var entry: locationData.entrySet()) {
+              HashMap<String, String> scoreMap = new HashMap<>();
+              scoreMap.put("where", entry.getKey());
+              int total = countsMap.get(entry.getKey());
+              scoreMap.put("count", );
+              qList.add(scoreMap);
+            }
+          }
+        }
+      }
+      System.out.println(searchMap);
+    }
+
+    public int getScore(Map.Entry<String, Collection<Integer>> stem) {
+      int score = 0;
+
+
+      return score;
+    }
+
   }
 }

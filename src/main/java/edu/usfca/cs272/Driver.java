@@ -20,6 +20,9 @@ public class Driver {
   /** Default path for output file for counts. */
   public static final Path DEFAULT_COUNTS = Path.of("counts.json");
 
+  /** Default path for output file for results. */
+  public static final Path DEFAULT_RESULTS = Path.of("results.json");
+
   /**
    * Initializes the classes necessary based on the provided command-line arguments. This includes
    * (but is not limited to) how to build or search an inverted index.
@@ -32,9 +35,11 @@ public class Driver {
 
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index = new InvertedIndex();
+    InvertedIndex.Searcher searcher = index.newSearcher(argParser.getPath("-query"));
 
-    Path indexOutput = null;
+      Path indexOutput = null;
     Path countOutput = null;
+    Path searchOutput = null;
 
     if (argParser.hasFlag("-index")) {
       indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
@@ -47,7 +52,6 @@ public class Driver {
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
       InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder(path, index);
-
       try {
         invertedIndexBuilder.build();
       } catch (IOException e) {
@@ -69,6 +73,14 @@ public class Driver {
       } catch (IOException e) {
         System.err.printf("Unable to write Inverted Index to path: %s", indexOutput);
       }
+    }
+
+    if (argParser.hasFlag("-results")) {
+      Path results = argParser.getPath("-results", DEFAULT_RESULTS);
+    }
+
+    if (argParser.hasFlag("-query")) {
+      searcher.search();
     }
 
     // calculate time elapsed and output
