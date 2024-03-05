@@ -9,11 +9,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Outputs several simple data structures in "pretty" JSON format where newlines are used to
@@ -409,6 +405,29 @@ public class JsonWriter {
       }
     }
     writer.write("\n}");
+  }
+
+  public static String writeSearch(Map<String, Collection<TreeMap<String, String>>> searchMap) {
+    try {
+      StringWriter writer = new StringWriter();
+      writeSearch(searchMap, writer, 0);
+      return writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+  }
+
+  public static void writeSearch(Map<String, Collection<TreeMap<String, String>>> searchMap, Path path) throws IOException {
+    if (path == null) {
+      return;
+    }
+    try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, UTF_8)) {
+      writeSearch(searchMap, bufferedWriter, 0);
+    }
+  }
+
+  public static void writeSearch(Map<String, Collection<TreeMap<String, String>>> searchMap, Writer writer, int indent) throws IOException {
+
   }
 
   /**

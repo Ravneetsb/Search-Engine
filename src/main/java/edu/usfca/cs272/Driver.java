@@ -75,12 +75,17 @@ public class Driver {
       }
     }
 
-    if (argParser.hasFlag("-results")) {
-      Path results = argParser.getPath("-results", DEFAULT_RESULTS);
-    }
-
     if (argParser.hasFlag("-query")) {
       searcher.search();
+    }
+
+    if (argParser.hasFlag("-results")) {
+      Path results = argParser.getPath("-results", DEFAULT_RESULTS);
+      try {
+        searcher.toJson(results);
+      } catch (IOException e) {
+        // Do nothing.
+      }
     }
 
     // calculate time elapsed and output

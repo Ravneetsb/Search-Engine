@@ -198,5 +198,9 @@ public class InvertedIndex {
       }
       System.out.println(searchMap);
     }
+
+    public void toJson(Path path) throws IOException {
+      JsonWriter.writeSearch(searchMap, path);
+    }
   }
 }
