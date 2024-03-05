@@ -11,13 +11,10 @@ import java.util.*;
  * @version Spring 2024
  */
 public class InvertedIndex {
-/**
-* Map for Index.
-*/
+  /** Map for Index. */
   private final Map<String, Map<String, Collection<Integer>>> map;
-/**
-* Map for counts.
-*/
+
+  /** Map for counts. */
   private final Map<String, Integer> countsMap;
 
   /** Constructor for InvertedIndex */
@@ -48,6 +45,7 @@ public class InvertedIndex {
    * Returns unmodifiable map where key is file path value is location of word.
    *
    * @param word key in the index.
+   * @param location the file in which word is located.
    * @return unmodifiable map where key is file path value is location of word.
    */
   public Collection<? extends Number> getPositions(String word, String location) {
@@ -75,12 +73,13 @@ public class InvertedIndex {
     return true;
   }
 
-/**
-* Add a collection of stems to Index.
- * @param path Path of file.
- * @param stems Collection of stems
- * @return true if successful.
-*/
+  /**
+   * Add a collection of stems to Index.
+   *
+   * @param path Path of file.
+   * @param stems Collection of stems
+   * @return true if successful.
+   */
   public boolean addAll(String path, Collection<String> stems) {
     boolean done = false;
     int location = 0;
@@ -108,6 +107,12 @@ public class InvertedIndex {
     return this.map.size();
   }
 
+  /**
+   * writes index in pretty Json to output file.
+   *
+   * @param output Path of output file.
+   * @throws IOException if path is invalid.
+   */
   public void toJson(Path output) throws IOException {
     JsonWriter.writeIndex(this.map, output);
   }
