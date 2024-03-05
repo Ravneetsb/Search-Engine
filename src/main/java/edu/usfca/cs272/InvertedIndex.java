@@ -198,13 +198,5 @@ public class InvertedIndex {
       }
       System.out.println(searchMap);
     }
-
-    public int getScore(Map.Entry<String, Collection<Integer>> stem) {
-      int score = 0;
-
-
-      return score;
-    }
-
   }
 }
