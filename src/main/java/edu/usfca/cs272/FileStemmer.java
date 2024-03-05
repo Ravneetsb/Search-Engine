@@ -203,13 +203,12 @@ public class FileStemmer {
    * @param input the input file to parse and stem
    * @return a list where each item is the sets of unique sorted stems parsed from a single line of
    *     the input file
-   * @throws IOException if unable to read or parse file
    * @see SnowballStemmer
    * @see ALGORITHM#ENGLISH
    * @see StandardCharsets#UTF_8
    * @see #uniqueStems(String, Stemmer)
    */
-  public static ArrayList<TreeSet<String>> listUniqueStems(Path input) throws IOException {
+  public static ArrayList<TreeSet<String>> listUniqueStems(Path input) {
     ArrayList<TreeSet<String>> list = new ArrayList<>();
     try (BufferedReader br = Files.newBufferedReader(input)) {
       String line;
