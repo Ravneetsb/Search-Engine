@@ -1,16 +1,13 @@
 package edu.usfca.cs272;
 
-import opennlp.tools.stemmer.Stemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import static opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM.ENGLISH;
+import opennlp.tools.stemmer.Stemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /**
  * InvertedIndexBuilder Class for the Search Engine Project.
@@ -64,8 +61,8 @@ public class InvertedIndexBuilder {
           }
         }
       }
-    } catch (Exception e) {
-      throw new IOException("Unable to parse directory at: " + directory);
+    } catch (IOException e) {
+      System.err.println("Unable to parse directory at: " + directory);
     }
   }
 
@@ -80,11 +77,12 @@ public class InvertedIndexBuilder {
     int iter = 0;
     try (BufferedReader br = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
       String line;
-      Stemmer stemmer = new SnowballStemmer(ENGLISH);
+      Stemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
       while ((line = br.readLine()) != null) {
         String[] words = FileStemmer.parse(line);
         for (String word : words) {
-          index.add(file.toString(), stemmer.stem(word).toString(), iter++);
+          index.add(file.toString(), stemmer.stem(word).toString(), iter);
+          iter++;
         }
       }
       if (iter != 0) index.addCounts(file.toString(), iter);

@@ -1,7 +1,5 @@
 package edu.usfca.cs272;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -111,7 +109,7 @@ public class JsonWriter {
    */
   public static void writeArray(Collection<? extends Number> elements, Path path)
       throws IOException {
-    try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
+    try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
       writeArray(elements, writer, 0);
     }
   }
@@ -178,7 +176,7 @@ public class JsonWriter {
    */
   public static void writeObject(Map<String, ? extends Number> elements, Path path)
       throws IOException {
-    try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
+    try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
       writeObject(elements, writer, 0);
     }
   }
@@ -251,7 +249,7 @@ public class JsonWriter {
    */
   public static void writeObjectArrays(
       Map<String, ? extends Collection<? extends Number>> elements, Path path) throws IOException {
-    try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
+    try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
       writeObjectArrays(elements, writer, 0);
     }
   }
@@ -323,7 +321,7 @@ public class JsonWriter {
    */
   public static void writeArrayObjects(
       Collection<? extends Map<String, ? extends Number>> elements, Path path) throws IOException {
-    try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
+    try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
       writeArrayObjects(elements, writer, 0);
     }
   }
@@ -375,7 +373,7 @@ public class JsonWriter {
     if (path == null) {
       return;
     }
-    try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, UTF_8)) {
+    try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
       writeIndex(index, bufferedWriter, 0);
     }
   }

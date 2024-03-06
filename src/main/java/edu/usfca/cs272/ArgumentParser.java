@@ -27,7 +27,7 @@ public class ArgumentParser {
    */
   public ArgumentParser(String[] args) {
     this();
-    parse(args);
+    this.parse(args);
   }
 
   /**
@@ -170,7 +170,7 @@ public class ArgumentParser {
    * @see #getPath(String, Path)
    */
   public Path getPath(String flag) {
-    return getPath(flag, null);
+    return this.getPath(flag, null);
   }
 
   /**
@@ -201,7 +201,7 @@ public class ArgumentParser {
    * @see #getInteger(String, int)
    */
   public int getInteger(String flag) {
-    return getInteger(flag, 0);
+    return this.getInteger(flag, 0);
   }
 
   @Override

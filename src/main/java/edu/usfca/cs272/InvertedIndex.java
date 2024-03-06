@@ -67,7 +67,7 @@ public class InvertedIndex {
       stemMap.putIfAbsent(path, new TreeSet<>());
       var locationSet = stemMap.get(path);
       locationSet.add(location + 1);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       return false;
     }
     return true;
@@ -84,7 +84,8 @@ public class InvertedIndex {
     boolean done = false;
     int location = 0;
     for (String stem : stems) {
-      done = this.add(path, stem, location++);
+      done = this.add(path, stem, location);
+      location++;
     }
     return done;
   }
@@ -125,5 +126,10 @@ public class InvertedIndex {
    */
   public void addCounts(String file, int size) {
     this.countsMap.put(String.valueOf(file), size);
+  }
+
+  @Override
+  public String toString() {
+    return JsonWriter.writeIndex(this.map);
   }
 }

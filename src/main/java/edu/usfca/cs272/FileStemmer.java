@@ -1,9 +1,5 @@
 package edu.usfca.cs272;
 
-import opennlp.tools.stemmer.Stemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,9 +11,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM.ENGLISH;
+import opennlp.tools.stemmer.Stemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
 
 /**
  * Utility class for parsing, cleaning, and stemming text and text files into collections of
@@ -79,7 +75,7 @@ public class FileStemmer {
    * @see Stemmer#stem(CharSequence)
    * @see Collection#add(Object)
    */
-  public static void addStems(String line, Stemmer stemmer, Collection<String> stems) {
+  public static void addStems(String line, Stemmer stemmer, Collection<? super String> stems) {
     String[] words = parse(line);
     for (String word : words) {
       stems.add(stemmer.stem(word).toString());
@@ -112,7 +108,7 @@ public class FileStemmer {
    * @see #listStems(String, Stemmer)
    */
   public static ArrayList<String> listStems(String line) {
-    Stemmer stemmer = new SnowballStemmer(ENGLISH);
+    Stemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
     return listStems(line, stemmer);
   }
 
@@ -130,8 +126,8 @@ public class FileStemmer {
    */
   public static ArrayList<String> listStems(Path input) throws IOException {
     ArrayList<String> list = new ArrayList<>();
-    Stemmer stemmer = new SnowballStemmer(ENGLISH);
-    try (BufferedReader br = Files.newBufferedReader(input, UTF_8)) {
+    Stemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
+    try (BufferedReader br = Files.newBufferedReader(input, StandardCharsets.UTF_8)) {
       String line;
       while ((line = br.readLine()) != null) {
         addStems(line, stemmer, list);
@@ -167,7 +163,7 @@ public class FileStemmer {
    * @see #uniqueStems(String, Stemmer)
    */
   public static TreeSet<String> uniqueStems(String line) {
-    Stemmer stemmer = new SnowballStemmer(ENGLISH);
+    Stemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
     return uniqueStems(line, stemmer);
   }
 
@@ -185,7 +181,7 @@ public class FileStemmer {
    */
   public static TreeSet<String> uniqueStems(Path input) throws IOException {
     TreeSet<String> set = new TreeSet<>();
-    Stemmer stemmer = new SnowballStemmer(ENGLISH);
+    Stemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
     try (BufferedReader br = Files.newBufferedReader(input)) {
       String line;
       while ((line = br.readLine()) != null) {
@@ -215,7 +211,7 @@ public class FileStemmer {
       while ((line = br.readLine()) != null) {
         list.add(uniqueStems(line));
       }
-    } catch (Exception e) {
+    } catch (IOException e) {
       System.out.println("IO Issue");
     }
     return list;
@@ -252,7 +248,7 @@ public class FileStemmer {
     System.out.println("____STEMMER DEMO____");
     System.out.println();
 
-    Stemmer stemmer = new SnowballStemmer(ENGLISH);
+    Stemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
     String demo = "practicing";
     String stem = stemmer.stem(demo).toString();
 
@@ -282,7 +278,7 @@ public class FileStemmer {
 
     Path base = Path.of("src", "test", "resources", "stemmer");
     Path file = base.resolve("cleaner.txt");
-    String input = Files.readString(file, UTF_8);
+    String input = Files.readString(file, StandardCharsets.UTF_8);
 
     System.out.println("Original:\n" + input);
 
