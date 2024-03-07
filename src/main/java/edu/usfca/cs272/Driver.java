@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.TreeMap;
 
 /**
  * Class responsible for running this project based on the provided command-line arguments. See the
@@ -35,7 +36,10 @@ public class Driver {
 
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index = new InvertedIndex();
-    InvertedIndex.Searcher searcher = index.newSearcher(argParser.getPath("-query"));
+    InvertedIndex.Searcher searcher = null;
+    if (argParser.hasValue("-query")) {
+      searcher = index.newSearcher(argParser.getPath("-query"));
+    }
 
     Path indexOutput = null;
     Path countOutput = null;
@@ -78,12 +82,21 @@ public class Driver {
       searcher.search();
     }
 
+    Path results;
     if (argParser.hasFlag("-results")) {
-      Path results = argParser.getPath("-results", DEFAULT_RESULTS);
-      try {
-        searcher.toJson(results);
-      } catch (IOException e) {
-        // Do nothing.
+      results = argParser.getPath("-results", DEFAULT_RESULTS);
+      if (searcher != null) {
+        try {
+          searcher.toJson(results);
+        } catch (IOException e) {
+          // Do nothing.
+        }
+      } else {
+        try {
+          JsonWriter.writeSearch(new TreeMap<>(), results);
+        } catch (IOException e) {
+          System.err.println("nice");
+        }
       }
     }
 
