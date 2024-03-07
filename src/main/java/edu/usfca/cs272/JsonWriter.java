@@ -413,7 +413,7 @@ public class JsonWriter {
    * @param searchMap search results map
    * @return pretty Json or null if IOException is thrown.
    */
-  public static String writeSearch(TreeMap<String, Collection<TreeMap<String, String>>> searchMap) {
+  public static String writeSearch(TreeMap<String, List<TreeMap<String, String>>> searchMap) {
     try {
       StringWriter writer = new StringWriter();
       writeSearch(searchMap, writer, 0);
@@ -431,8 +431,7 @@ public class JsonWriter {
    * @throws IOException if unable to write to file.
    */
   public static void writeSearch(
-      TreeMap<String, Collection<TreeMap<String, String>>> searchMap, Path path)
-      throws IOException {
+      TreeMap<String, List<TreeMap<String, String>>> searchMap, Path path) throws IOException {
     if (path == null) {
       return;
     }
@@ -450,7 +449,7 @@ public class JsonWriter {
    * @throws IOException if unable to write to path.
    */
   public static void writeSearch(
-      TreeMap<String, Collection<TreeMap<String, String>>> searchMap, Writer writer, int indent)
+      TreeMap<String, List<TreeMap<String, String>>> searchMap, Writer writer, int indent)
       throws IOException {
     var entryIterator = searchMap.entrySet().iterator();
     writer.write("{");

@@ -171,8 +171,6 @@ public class InvertedIndex {
 
     public void search() {
       DecimalFormat formatter = new DecimalFormat("0.00000000");
-      System.out.println(map);
-      System.out.println(queries);
       for (var query : queries) {
         if (query.isEmpty()) continue;
         searchMap.putIfAbsent(query, new ArrayList<>());
@@ -182,14 +180,30 @@ public class InvertedIndex {
           if (locationData != null) {
             var set = locationData.entrySet();
             for (var entry : set) {
-              TreeMap<String, String> scoreMap = new TreeMap<>();
+              TreeMap<String, String> scoreMap = null;
               String file = entry.getKey();
-              scoreMap.put("where", file);
-              int total = countsMap.get(file);
-              double count = map.get(q).get(file).size();
-              scoreMap.put("count", String.valueOf((int) count));
-              scoreMap.put("score", String.valueOf(formatter.format(count / total)));
-              qList.add(scoreMap);
+              for (var whereCheck : qList) {
+                if (whereCheck.get("where").equals(file)) {
+                  scoreMap = whereCheck;
+                  break;
+                }
+              }
+              if (scoreMap == null) {
+                scoreMap = new TreeMap<>();
+                scoreMap.put("where", file);
+              }
+              int stemTotal = countsMap.get(file);
+              int count = map.get(q).get(file).size();
+              int totalCount = Integer.parseInt(scoreMap.getOrDefault("count", "0"));
+              double existingStemTotal = Double.parseDouble(scoreMap.getOrDefault("score", "0"));
+              scoreMap.put("count", String.valueOf((count + totalCount)));
+              scoreMap.put(
+                  "score",
+                  String.valueOf(
+                      formatter.format(Double.sum((double) count / stemTotal, existingStemTotal))));
+              if (!qList.contains(scoreMap)) {
+                qList.add(scoreMap);
+              }
               try {
                 sortFiles(qList);
               } catch (IOException e) {
@@ -199,7 +213,6 @@ public class InvertedIndex {
           }
         }
       }
-      System.out.println(searchMap);
     }
 
     /**
@@ -210,16 +223,18 @@ public class InvertedIndex {
       Collections.sort(
           qList,
           (mapOne, mapTwo) -> {
-            try {
-              FileSorter.FileMetadata fileMetadataOne =
-                  new FileSorter.FileMetadata(Path.of(mapOne.get("where")));
-              FileSorter.FileMetadata fileMetadataTwo =
-                  new FileSorter.FileMetadata(Path.of(mapTwo.get("where")));
-              return fileMetadataOne.compareTo(fileMetadataTwo);
-            } catch (IOException e) {
-              e.printStackTrace();
-              return 0;
-            }
+            int scoreCompare =
+                Double.compare(
+                    Double.parseDouble(mapTwo.get("score")),
+                    Double.parseDouble(mapOne.get("score")));
+            if (scoreCompare == 0) {
+              int countCompare =
+                  Integer.compare(
+                      Integer.parseInt(mapTwo.get("count")), Integer.parseInt(mapOne.get("count")));
+              if (countCompare == 0) {
+                return Path.of(mapOne.get("where")).compareTo(Path.of(mapTwo.get("where")));
+              } else return countCompare;
+            } else return scoreCompare;
           });
     }
 
