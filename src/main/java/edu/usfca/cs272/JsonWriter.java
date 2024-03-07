@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -413,7 +414,8 @@ public class JsonWriter {
    * @param searchMap search results map
    * @return pretty Json or null if IOException is thrown.
    */
-  public static String writeSearch(TreeMap<String, List<TreeMap<String, String>>> searchMap) {
+  public static String writeSearch(
+      TreeMap<String, List<InvertedIndex.Searcher.scoreMap>> searchMap) {
     try {
       StringWriter writer = new StringWriter();
       writeSearch(searchMap, writer, 0);
@@ -431,7 +433,8 @@ public class JsonWriter {
    * @throws IOException if unable to write to file.
    */
   public static void writeSearch(
-      TreeMap<String, List<TreeMap<String, String>>> searchMap, Path path) throws IOException {
+      TreeMap<String, List<InvertedIndex.Searcher.scoreMap>> searchMap, Path path)
+      throws IOException {
     if (path == null) {
       return;
     }
@@ -449,8 +452,9 @@ public class JsonWriter {
    * @throws IOException if unable to write to path.
    */
   public static void writeSearch(
-      TreeMap<String, List<TreeMap<String, String>>> searchMap, Writer writer, int indent)
+      TreeMap<String, List<InvertedIndex.Searcher.scoreMap>> searchMap, Writer writer, int indent)
       throws IOException {
+    DecimalFormat format = new DecimalFormat("0.00000000");
     var entryIterator = searchMap.entrySet().iterator();
     writer.write("{");
     if (entryIterator.hasNext()) {
@@ -467,15 +471,15 @@ public class JsonWriter {
         writer.write("\n");
         writeQuote("count", writer, indent + 3);
         writer.write(": ");
-        writer.write(map.get("count"));
+        writer.write(String.valueOf(map.getCount()));
         writer.write(",\n");
         writeQuote("score", writer, indent + 3);
         writer.write(": ");
-        writer.write(map.get("score"));
+        writer.write(format.format(map.getScore()));
         writer.write(",\n");
         writeQuote("where", writer, indent + 3);
         writer.write(": ");
-        writeQuote(map.get("where"), writer, indent);
+        writeQuote(map.getWhere(), writer, indent);
         writer.write("\n");
         writeIndent("}", writer, indent + 2);
       }
@@ -487,15 +491,15 @@ public class JsonWriter {
         writer.write("\n");
         writeQuote("count", writer, indent + 3);
         writer.write(": ");
-        writer.write(map.get("count"));
+        writer.write(String.valueOf(map.getCount()));
         writer.write(",\n");
         writeQuote("score", writer, indent + 3);
         writer.write(": ");
-        writer.write(map.get("score"));
+        writer.write(format.format(map.getScore()));
         writer.write(",\n");
         writeQuote("where", writer, indent + 3);
         writer.write(": ");
-        writeQuote(map.get("where"), writer, indent);
+        writeQuote(map.getWhere(), writer, indent);
         writer.write("\n");
         writeIndent("}", writer, indent + 2);
       }
@@ -517,15 +521,15 @@ public class JsonWriter {
         writer.write("\n");
         writeQuote("count", writer, indent + 3);
         writer.write(": ");
-        writer.write(map.get("count"));
+        writer.write(String.valueOf(map.getCount()));
         writer.write(",\n");
         writeQuote("score", writer, indent + 3);
         writer.write(": ");
-        writer.write(map.get("score"));
+        writer.write(format.format(map.getScore()));
         writer.write(",\n");
         writeQuote("where", writer, indent + 3);
         writer.write(": ");
-        writeQuote(map.get("where"), writer, indent);
+        writeQuote(map.getWhere(), writer, indent);
         writer.write("\n");
         writeIndent("}", writer, indent + 2);
       }
@@ -536,15 +540,15 @@ public class JsonWriter {
         writer.write("\n");
         writeQuote("count", writer, indent + 3);
         writer.write(": ");
-        writer.write(map.get("count"));
+        writer.write(String.valueOf(map.getCount()));
         writer.write(",\n");
         writeQuote("score", writer, indent + 3);
         writer.write(": ");
-        writer.write(map.get("score"));
+        writer.write(format.format(map.getScore()));
         writer.write(",\n");
         writeQuote("where", writer, indent + 3);
         writer.write(": ");
-        writeQuote(map.get("where"), writer, indent);
+        writeQuote(map.getWhere(), writer, indent);
         writer.write("\n");
         writeIndent("}", writer, indent + 2);
       }

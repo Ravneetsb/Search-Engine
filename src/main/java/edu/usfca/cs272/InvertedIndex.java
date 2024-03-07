@@ -140,9 +140,57 @@ public class InvertedIndex {
   }
 
   public class Searcher {
+
+    public class scoreMap implements Comparable<scoreMap> {
+      private Integer count;
+      private Double score;
+      private String where;
+
+      public scoreMap(int count, double score, String where) {
+        this.count = count;
+        this.score = score;
+        this.where = where;
+      }
+
+      public Integer getCount() {
+        return count;
+      }
+
+      public void setCount(int count) {
+        this.count = count;
+      }
+
+      public Double getScore() {
+        return score;
+      }
+
+      public void setScore(double score) {
+        this.score = score;
+      }
+
+      public String getWhere() {
+        return where;
+      }
+
+      public void setWhere(String where) {
+        this.where = where;
+      }
+
+      @Override
+      public int compareTo(scoreMap other) {
+        int scoreCompare = other.getScore().compareTo(score);
+        if (scoreCompare == 0) {
+          int countCompare = other.getCount().compareTo(count);
+          if (countCompare == 0) {
+            return Path.of(where).compareTo(Path.of(other.where));
+          } else return countCompare;
+        } else return scoreCompare;
+      }
+    }
+
     private final TreeSet<String> queries;
 
-    private final TreeMap<String, List<TreeMap<String, String>>> searchMap;
+    private final TreeMap<String, List<scoreMap>> searchMap;
 
     public Searcher(Path query) throws IOException {
       this.queries = parseQuery(query);
@@ -180,62 +228,31 @@ public class InvertedIndex {
           if (locationData != null) {
             var set = locationData.entrySet();
             for (var entry : set) {
-              TreeMap<String, String> scoreMap = null;
+              scoreMap scoreMap = null;
               String file = entry.getKey();
               for (var whereCheck : qList) {
-                if (whereCheck.get("where").equals(file)) {
+                if (whereCheck.getWhere().equals(file)) {
                   scoreMap = whereCheck;
                   break;
                 }
               }
               if (scoreMap == null) {
-                scoreMap = new TreeMap<>();
-                scoreMap.put("where", file);
+                scoreMap = new scoreMap(0, 0, file);
               }
               int stemTotal = countsMap.get(file);
               int count = map.get(q).get(file).size();
-              int totalCount = Integer.parseInt(scoreMap.getOrDefault("count", "0"));
-              double existingStemTotal = Double.parseDouble(scoreMap.getOrDefault("score", "0"));
-              scoreMap.put("count", String.valueOf((count + totalCount)));
-              scoreMap.put(
-                  "score",
-                  String.valueOf(
-                      formatter.format(Double.sum((double) count / stemTotal, existingStemTotal))));
+              Integer totalCount = scoreMap.getCount();
+              Double existingStemTotal = scoreMap.getScore();
+              scoreMap.setCount(count + totalCount);
+              scoreMap.setScore(Double.sum((double) count / stemTotal, existingStemTotal));
               if (!qList.contains(scoreMap)) {
                 qList.add(scoreMap);
               }
-              try {
-                sortFiles(qList);
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
+              Collections.sort(qList);
             }
           }
         }
       }
-    }
-
-    /**
-     * @param qList List
-     * @throws IOException noce
-     */
-    public void sortFiles(List<TreeMap<String, String>> qList) throws IOException {
-      Collections.sort(
-          qList,
-          (mapOne, mapTwo) -> {
-            int scoreCompare =
-                Double.compare(
-                    Double.parseDouble(mapTwo.get("score")),
-                    Double.parseDouble(mapOne.get("score")));
-            if (scoreCompare == 0) {
-              int countCompare =
-                  Integer.compare(
-                      Integer.parseInt(mapTwo.get("count")), Integer.parseInt(mapOne.get("count")));
-              if (countCompare == 0) {
-                return Path.of(mapOne.get("where")).compareTo(Path.of(mapTwo.get("where")));
-              } else return countCompare;
-            } else return scoreCompare;
-          });
     }
 
     public void toJson(Path path) throws IOException {
