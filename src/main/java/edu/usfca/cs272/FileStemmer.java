@@ -204,14 +204,14 @@ public class FileStemmer {
    * @see StandardCharsets#UTF_8
    * @see #uniqueStems(String, Stemmer)
    */
-  public static ArrayList<TreeSet<String>> listUniqueStems(Path input) {
+  public static ArrayList<TreeSet<String>> listUniqueStems(Path input) { // TODO Go back to throwing the exception here
     ArrayList<TreeSet<String>> list = new ArrayList<>();
     try (BufferedReader br = Files.newBufferedReader(input)) {
       String line;
       while ((line = br.readLine()) != null) {
-        list.add(uniqueStems(line));
+        list.add(uniqueStems(line)); // TODO Reuse a stemmer object here
       }
-    } catch (IOException e) {
+    } catch (IOException e) { // TODO Remove catch block, do not suppress the exception!
       System.out.println("IO Issue");
     }
     return list;
@@ -223,7 +223,7 @@ public class FileStemmer {
    * @param args unused
    * @throws IOException if an I/O error occurs
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException { // TODO Remove
     // demonstrates how to use split, clean, and parse
     System.out.println("____PARSING DEMO____");
     System.out.println();
