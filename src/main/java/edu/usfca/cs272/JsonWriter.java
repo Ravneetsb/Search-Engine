@@ -407,7 +407,13 @@ public class JsonWriter {
     writer.write("\n}");
   }
 
-  public static String writeSearch(Map<String, Collection<TreeMap<String, String>>> searchMap) {
+  /**
+   * Writes search results in pretty Json
+   *
+   * @param searchMap search results map
+   * @return pretty Json or null if IOException is thrown.
+   */
+  public static String writeSearch(TreeMap<String, Collection<TreeMap<String, String>>> searchMap) {
     try {
       StringWriter writer = new StringWriter();
       writeSearch(searchMap, writer, 0);
@@ -417,8 +423,16 @@ public class JsonWriter {
     }
   }
 
+  /**
+   * Writes search results in pretty Json
+   *
+   * @param searchMap search results map
+   * @param path output file.
+   * @throws IOException if unable to write to file.
+   */
   public static void writeSearch(
-      Map<String, Collection<TreeMap<String, String>>> searchMap, Path path) throws IOException {
+      TreeMap<String, Collection<TreeMap<String, String>>> searchMap, Path path)
+      throws IOException {
     if (path == null) {
       return;
     }
@@ -427,9 +441,117 @@ public class JsonWriter {
     }
   }
 
+  /**
+   * Writes Search Results in pretty Json
+   *
+   * @param searchMap Search results
+   * @param writer writer
+   * @param indent indent value
+   * @throws IOException if unable to write to path.
+   */
   public static void writeSearch(
-      Map<String, Collection<TreeMap<String, String>>> searchMap, Writer writer, int indent)
-      throws IOException {}
+      TreeMap<String, Collection<TreeMap<String, String>>> searchMap, Writer writer, int indent)
+      throws IOException {
+    var entryIterator = searchMap.entrySet().iterator();
+    writer.write("{");
+    if (entryIterator.hasNext()) {
+      var entry = entryIterator.next();
+      String stem = entry.getKey();
+      writer.write("\n");
+      writeQuote(stem, writer, indent + 1);
+      writer.write(": [");
+      var iterator = entry.getValue().iterator();
+      if (iterator.hasNext()) {
+        var map = iterator.next();
+        writer.write("\n");
+        writeIndent("{", writer, indent + 2);
+        writer.write("\n");
+        writeQuote("count", writer, indent + 3);
+        writer.write(": ");
+        writer.write(map.get("count"));
+        writer.write(",\n");
+        writeQuote("score", writer, indent + 3);
+        writer.write(": ");
+        writer.write(map.get("score"));
+        writer.write(",\n");
+        writeQuote("where", writer, indent + 3);
+        writer.write(": ");
+        writeQuote(map.get("where"), writer, indent + 3);
+        writeIndent("}", writer, indent + 2);
+      }
+      while (iterator.hasNext()) {
+        writer.write("\n");
+        var map = iterator.next();
+        writer.write(",\n");
+        writeIndent("{", writer, indent + 2);
+        writer.write("\n");
+        writeQuote("count", writer, indent + 3);
+        writer.write(": ");
+        writer.write(map.get("count"));
+        writer.write(",\n");
+        writeQuote("score", writer, indent + 3);
+        writer.write(": ");
+        writer.write(map.get("score"));
+        writer.write(",\n");
+        writeQuote("where", writer, indent + 3);
+        writer.write(": ");
+        writeQuote(map.get("where"), writer, indent + 3);
+        writeIndent("}", writer, indent + 2);
+      }
+      writer.write("\n");
+      writeIndent("]", writer, indent + 1);
+    }
+    while (entryIterator.hasNext()) {
+      writer.write(",");
+      var entry = entryIterator.next();
+      String stem = entry.getKey();
+      writer.write("\n");
+      writeQuote(stem, writer, indent + 1);
+      writer.write(": [");
+      var iterator = entry.getValue().iterator();
+      if (iterator.hasNext()) {
+        var map = iterator.next();
+        writer.write("\n");
+        writeIndent("{", writer, indent + 2);
+        writer.write("\n");
+        writeQuote("count", writer, indent + 3);
+        writer.write(": ");
+        writer.write(map.get("count"));
+        writer.write(",\n");
+        writeQuote("score", writer, indent + 3);
+        writer.write(": ");
+        writer.write(map.get("score"));
+        writer.write(",\n");
+        writeQuote("where", writer, indent + 3);
+        writer.write(": ");
+        writeQuote(map.get("where"), writer, indent);
+        writer.write("\n");
+        writeIndent("}", writer, indent + 2);
+      }
+      while (iterator.hasNext()) {
+        var map = iterator.next();
+        writer.write(",\n");
+        writeIndent("{", writer, indent + 2);
+        writer.write("\n");
+        writeQuote("count", writer, indent + 3);
+        writer.write(": ");
+        writer.write(map.get("count"));
+        writer.write(",\n");
+        writeQuote("score", writer, indent + 3);
+        writer.write(": ");
+        writer.write(map.get("score"));
+        writer.write(",\n");
+        writeQuote("where", writer, indent + 3);
+        writer.write(": ");
+        writeQuote(map.get("where"), writer, indent);
+        writer.write("\n");
+        writeIndent("}", writer, indent + 2);
+      }
+      writer.write("\n");
+      writeIndent("]", writer, indent + 1);
+    }
+    writer.write("\n}");
+  }
 
   /**
    * Demonstrates this class.

@@ -1,14 +1,13 @@
 package edu.usfca.cs272;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.stream.IntStream;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * InvertedIndex Data Structure for the Search Engine Project.
@@ -143,7 +142,7 @@ public class InvertedIndex {
   public class Searcher {
     private final TreeSet<String> queries;
 
-    private final Map<String, Collection<TreeMap<String, String>>> searchMap;
+    private final TreeMap<String, Collection<TreeMap<String, String>>> searchMap;
 
     public Searcher(Path query) throws IOException {
       this.queries = parseQuery(query);
@@ -181,13 +180,14 @@ public class InvertedIndex {
         for (String q : query.split(" ")) {
           var locationData = map.get(q);
           if (locationData != null) {
-            for (var entry : locationData.entrySet()) {
+            var set = locationData.entrySet();
+            for (var entry : set) {
               TreeMap<String, String> scoreMap = new TreeMap<>();
               String file = entry.getKey();
               scoreMap.put("where", file);
               int total = countsMap.get(file);
               double count = map.get(q).get(file).size();
-              scoreMap.put("count", String.valueOf(count));
+              scoreMap.put("count", String.valueOf((int) count));
               scoreMap.put("score", String.valueOf(formatter.format(count / total)));
               qList.add(scoreMap);
             }
