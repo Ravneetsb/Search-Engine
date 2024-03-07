@@ -142,7 +142,7 @@ public class InvertedIndex {
   public class Searcher {
     private final TreeSet<String> queries;
 
-    private final TreeMap<String, Collection<TreeMap<String, String>>> searchMap;
+    private final TreeMap<String, List<TreeMap<String, String>>> searchMap;
 
     public Searcher(Path query) throws IOException {
       this.queries = parseQuery(query);
@@ -190,11 +190,37 @@ public class InvertedIndex {
               scoreMap.put("count", String.valueOf((int) count));
               scoreMap.put("score", String.valueOf(formatter.format(count / total)));
               qList.add(scoreMap);
+              try {
+                sortFiles(qList);
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
             }
           }
         }
       }
       System.out.println(searchMap);
+    }
+
+    /**
+     * @param qList List
+     * @throws IOException noce
+     */
+    public void sortFiles(List<TreeMap<String, String>> qList) throws IOException {
+      Collections.sort(
+          qList,
+          (mapOne, mapTwo) -> {
+            try {
+              FileSorter.FileMetadata fileMetadataOne =
+                  new FileSorter.FileMetadata(Path.of(mapOne.get("where")));
+              FileSorter.FileMetadata fileMetadataTwo =
+                  new FileSorter.FileMetadata(Path.of(mapTwo.get("where")));
+              return fileMetadataOne.compareTo(fileMetadataTwo);
+            } catch (IOException e) {
+              e.printStackTrace();
+              return 0;
+            }
+          });
     }
 
     public void toJson(Path path) throws IOException {
