@@ -475,13 +475,14 @@ public class JsonWriter {
         writer.write(",\n");
         writeQuote("where", writer, indent + 3);
         writer.write(": ");
-        writeQuote(map.get("where"), writer, indent + 3);
+        writeQuote(map.get("where"), writer, indent);
+        writer.write("\n");
         writeIndent("}", writer, indent + 2);
       }
       while (iterator.hasNext()) {
-        writer.write("\n");
-        var map = iterator.next();
         writer.write(",\n");
+        var map = iterator.next();
+        //        writer.write(",");
         writeIndent("{", writer, indent + 2);
         writer.write("\n");
         writeQuote("count", writer, indent + 3);
@@ -494,7 +495,8 @@ public class JsonWriter {
         writer.write(",\n");
         writeQuote("where", writer, indent + 3);
         writer.write(": ");
-        writeQuote(map.get("where"), writer, indent + 3);
+        writeQuote(map.get("where"), writer, indent);
+        writer.write("\n");
         writeIndent("}", writer, indent + 2);
       }
       writer.write("\n");
