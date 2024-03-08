@@ -370,7 +370,7 @@ public class JsonWriter {
    */
   public static void writeIndex(Map<String, Map<String, Collection<Integer>>> index, Path path)
       throws IOException {
-    if (path == null) {
+    if (path == null) { // TODO Remove, suppresses a null bug. Let the exception get thrown, catch in main if needed
       return;
     }
     try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
@@ -387,8 +387,14 @@ public class JsonWriter {
    * @throws IOException if writer error.
    */
   public static void writeIndex(
-      Map<String, Map<String, Collection<Integer>>> index, Writer writer, int indent)
+      Map<String, Map<String, Collection<Integer>>> index, Writer writer, int indent) 
       throws IOException {
+	/*
+	 * TODO Make the parameter type more generic! Use the other methods as a clue.
+	 * It is important to use upcasting and the ? extends syntax when nesting types.
+	 */
+    
+    // TODO Use the same approach here as the others too!
     int size = index.size() - 1;
     if (size == -1) {
       writer.write("{\n}");
@@ -414,7 +420,7 @@ public class JsonWriter {
    *
    * @param args unused
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) { // TODO Can delete these old main methods used for debugging at this point!
     Set<Integer> empty = Collections.emptySet();
     Set<Integer> single = Set.of(42);
     List<Integer> simple = List.of(65, 66, 67);
