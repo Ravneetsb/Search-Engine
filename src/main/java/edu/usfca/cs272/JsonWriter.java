@@ -454,7 +454,6 @@ public class JsonWriter {
   public static void writeSearch(
       TreeMap<String, List<InvertedIndex.Searcher.ScoreMap>> searchMap, Writer writer, int indent)
       throws IOException {
-    DecimalFormat format = new DecimalFormat("0.00000000");
     var entryIterator = searchMap.entrySet().iterator();
     writer.write("{");
     if (entryIterator.hasNext()) {
@@ -467,41 +466,12 @@ public class JsonWriter {
       if (iterator.hasNext()) {
         var map = iterator.next();
         writer.write("\n");
-        writeIndent("{", writer, indent + 2);
-        writer.write("\n");
-        writeQuote("count", writer, indent + 3);
-        writer.write(": ");
-        writer.write(String.valueOf(map.getCount()));
-        writer.write(",\n");
-        writeQuote("score", writer, indent + 3);
-        writer.write(": ");
-        writer.write(format.format(map.getScore()));
-        writer.write(",\n");
-        writeQuote("where", writer, indent + 3);
-        writer.write(": ");
-        writeQuote(map.getWhere(), writer, indent);
-        writer.write("\n");
-        writeIndent("}", writer, indent + 2);
+        writeScoreMap(writer, indent, map);
       }
       while (iterator.hasNext()) {
         writer.write(",\n");
         var map = iterator.next();
-        //        writer.write(",");
-        writeIndent("{", writer, indent + 2);
-        writer.write("\n");
-        writeQuote("count", writer, indent + 3);
-        writer.write(": ");
-        writer.write(String.valueOf(map.getCount()));
-        writer.write(",\n");
-        writeQuote("score", writer, indent + 3);
-        writer.write(": ");
-        writer.write(format.format(map.getScore()));
-        writer.write(",\n");
-        writeQuote("where", writer, indent + 3);
-        writer.write(": ");
-        writeQuote(map.getWhere(), writer, indent);
-        writer.write("\n");
-        writeIndent("}", writer, indent + 2);
+        writeScoreMap(writer, indent, map);
       }
       writer.write("\n");
       writeIndent("]", writer, indent + 1);
@@ -517,40 +487,12 @@ public class JsonWriter {
       if (iterator.hasNext()) {
         var map = iterator.next();
         writer.write("\n");
-        writeIndent("{", writer, indent + 2);
-        writer.write("\n");
-        writeQuote("count", writer, indent + 3);
-        writer.write(": ");
-        writer.write(String.valueOf(map.getCount()));
-        writer.write(",\n");
-        writeQuote("score", writer, indent + 3);
-        writer.write(": ");
-        writer.write(format.format(map.getScore()));
-        writer.write(",\n");
-        writeQuote("where", writer, indent + 3);
-        writer.write(": ");
-        writeQuote(map.getWhere(), writer, indent);
-        writer.write("\n");
-        writeIndent("}", writer, indent + 2);
+        writeScoreMap(writer, indent, map);
       }
       while (iterator.hasNext()) {
         var map = iterator.next();
         writer.write(",\n");
-        writeIndent("{", writer, indent + 2);
-        writer.write("\n");
-        writeQuote("count", writer, indent + 3);
-        writer.write(": ");
-        writer.write(String.valueOf(map.getCount()));
-        writer.write(",\n");
-        writeQuote("score", writer, indent + 3);
-        writer.write(": ");
-        writer.write(format.format(map.getScore()));
-        writer.write(",\n");
-        writeQuote("where", writer, indent + 3);
-        writer.write(": ");
-        writeQuote(map.getWhere(), writer, indent);
-        writer.write("\n");
-        writeIndent("}", writer, indent + 2);
+        writeScoreMap(writer, indent, map);
       }
       writer.write("\n");
       writeIndent("]", writer, indent + 1);
@@ -559,35 +501,31 @@ public class JsonWriter {
   }
 
   /**
-   * Demonstrates this class.
+   * Writes the score map to writer.
    *
-   * @param args unused
+   * @param writer writer
+   * @param indent indent value
+   * @param map scoreMap
+   * @throws IOException if the writing fails.
    */
-  public static void main(String[] args) {
-    Set<Integer> empty = Collections.emptySet();
-    Set<Integer> single = Set.of(42);
-    List<Integer> simple = List.of(65, 66, 67);
-
-    System.out.println("\nArrays:");
-    System.out.println(writeArray(empty));
-    System.out.println(writeArray(single));
-    System.out.println(writeArray(simple));
-
-    System.out.println("\nObjects:");
-    System.out.println(writeObject(Collections.emptyMap()));
-    System.out.println(writeObject(Map.of("hello", 42)));
-    System.out.println(writeObject(Map.of("hello", 42, "world", 67)));
-
-    System.out.println("\nNested Arrays:");
-    System.out.println(writeObjectArrays(Collections.emptyMap()));
-    System.out.println(writeObjectArrays(Map.of("hello", single)));
-    System.out.println(writeObjectArrays(Map.of("hello", single, "world", simple)));
-
-    System.out.println("\nNested Objects:");
-    System.out.println(writeArrayObjects(Collections.emptyList()));
-    System.out.println(writeArrayObjects(Set.of(Map.of("hello", 3.12))));
-    System.out.println(
-        writeArrayObjects(Set.of(Map.of("hello", 3.12, "world", 2.04), Map.of("apple", 0.04))));
+  private static void writeScoreMap(Writer writer, int indent, InvertedIndex.Searcher.ScoreMap map)
+      throws IOException {
+    DecimalFormat format = new DecimalFormat("0.00000000");
+    writeIndent("{", writer, indent + 2);
+    writer.write("\n");
+    writeQuote("count", writer, indent + 3);
+    writer.write(": ");
+    writer.write(String.valueOf(map.getCount()));
+    writer.write(",\n");
+    writeQuote("score", writer, indent + 3);
+    writer.write(": ");
+    writer.write(format.format(map.getScore()));
+    writer.write(",\n");
+    writeQuote("where", writer, indent + 3);
+    writer.write(": ");
+    writeQuote(map.getWhere(), writer, indent);
+    writer.write("\n");
+    writeIndent("}", writer, indent + 2);
   }
 
   /** Prevent instantiating this class of static methods. */
