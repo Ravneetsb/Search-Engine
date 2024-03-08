@@ -6,7 +6,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -50,6 +49,7 @@ public class InvertedIndex {
    * Returns unmodifiable map where key is file path value is location of word.
    *
    * @param word key in the index.
+   * @param location file name.
    * @return unmodifiable map where key is file path value is location of word.
    */
   public Collection<? extends Number> getPositions(String word, String location) {
@@ -71,7 +71,7 @@ public class InvertedIndex {
       stemMap.putIfAbsent(path, new TreeSet<>());
       var locationSet = stemMap.get(path);
       locationSet.add(location + 1);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       return false;
     }
     return true;
@@ -111,6 +111,12 @@ public class InvertedIndex {
     return this.map.size();
   }
 
+  /**
+   * writes the index to output in pretty json
+   *
+   * @param output file name
+   * @throws IOException if error in writing to file.
+   */
   public void toJson(Path output) throws IOException {
     JsonWriter.writeIndex(this.map, output);
   }
@@ -130,6 +136,12 @@ public class InvertedIndex {
     return JsonWriter.writeIndex(map);
   }
 
+  /**
+   * create new instance of the inner Searcher class.
+   *
+   * @param query path of query
+   * @return new Searcher object.
+   */
   public Searcher newSearcher(Path query) {
     try {
       return new Searcher(query);
@@ -139,66 +151,140 @@ public class InvertedIndex {
     return null;
   }
 
+  /** Searcher class for the inverted index. */
   public class Searcher {
 
-    public class scoreMap implements Comparable<scoreMap> {
+    /** ScoreMap class to store the result */
+    public class ScoreMap implements Comparable<ScoreMap> {
       private Integer count;
       private Double score;
       private String where;
 
-      public scoreMap(int count, double score, String where) {
+      /**
+       * Constructor for the ScoreMap
+       *
+       * @param count number of times a query word was present in the file.
+       * @param score score of the query in the file.
+       * @param where the file where the query was searched.
+       */
+      public ScoreMap(int count, double score, String where) {
         this.count = count;
         this.score = score;
         this.where = where;
       }
 
+      /** Constructor for ScoreMap. Defaults Numbers to 0 and where to null.` */
+      public ScoreMap() {
+        this.count = 0;
+        this.score = 0.0;
+        this.where = null;
+      }
+
+      /**
+       * getter for count
+       *
+       * @return count
+       */
       public Integer getCount() {
         return count;
       }
 
+      /**
+       * setter for count
+       *
+       * @param count number of times query stem is present in the file.
+       */
       public void setCount(int count) {
         this.count = count;
       }
 
+      /**
+       * getter for score.
+       *
+       * @return the score of the query in the file.
+       */
       public Double getScore() {
         return score;
       }
 
+      /**
+       * sets the score for the query
+       *
+       * @param score score of the query. given by counts/total stems in file.
+       */
       public void setScore(double score) {
         this.score = score;
       }
 
+      /**
+       * getter for where
+       *
+       * @return the file path
+       */
       public String getWhere() {
         return where;
       }
 
+      /**
+       * stter for where
+       *
+       * @param where file path
+       */
       public void setWhere(String where) {
         this.where = where;
       }
 
       @Override
-      public int compareTo(scoreMap other) {
-        int scoreCompare = other.getScore().compareTo(score);
+      public int compareTo(ScoreMap other) {
+        int scoreCompare = other.getScore().compareTo(this.getScore());
         if (scoreCompare == 0) {
-          int countCompare = other.getCount().compareTo(count);
+          int countCompare = other.getCount().compareTo(this.getCount());
           if (countCompare == 0) {
-            return Path.of(where).compareTo(Path.of(other.where));
+            return Path.of(this.getWhere()).compareTo(Path.of(other.getWhere()));
           } else return countCompare;
         } else return scoreCompare;
       }
+
+      @Override
+      public String toString() {
+        return "ScoreMap{"
+            + "count="
+            + count
+            + ", score="
+            + score
+            + ", where='"
+            + where
+            + '\''
+            + '}';
+      }
     }
 
+    /** Queries TreeSet. */
     private final TreeSet<String> queries;
 
-    private final TreeMap<String, List<scoreMap>> searchMap;
+    /** Map of the query and its score */
+    private final TreeMap<String, List<ScoreMap>> searchMap;
 
+    /**
+     * Constructor for Searcher
+     *
+     * @param query path of the queries file.
+     * @throws IOException if the file doesn't exist or path is null.
+     */
     public Searcher(Path query) throws IOException {
       this.queries = parseQuery(query);
       this.searchMap = new TreeMap<>();
     }
 
+    /**
+     * gives the cleaned set of queries.
+     *
+     * @param query file path of queries file.
+     * @return Set of queries.
+     * @throws IOException if the file path is invalid.
+     */
     private TreeSet<String> parseQuery(Path query) throws IOException {
-      TreeSet<String> queries = new TreeSet<>();
+      TreeSet<String> treeSet = new TreeSet<>();
       try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
         String line;
         while ((line = br.readLine()) != null) {
@@ -209,16 +295,14 @@ public class InvertedIndex {
               sb.add(q);
             }
           }
-          queries.add(sb.toString());
+          treeSet.add(sb.toString());
         }
-      } catch (IOException e) {
-        // Do nothing
       }
-      return queries;
+      return treeSet;
     }
 
+    /** uses the queries to search through the inverted index and create the search results map. */
     public void search() {
-      DecimalFormat formatter = new DecimalFormat("0.00000000");
       for (var query : queries) {
         if (query.isEmpty()) continue;
         searchMap.putIfAbsent(query, new ArrayList<>());
@@ -228,7 +312,7 @@ public class InvertedIndex {
           if (locationData != null) {
             var set = locationData.entrySet();
             for (var entry : set) {
-              scoreMap scoreMap = null;
+              ScoreMap scoreMap = null;
               String file = entry.getKey();
               for (var whereCheck : qList) {
                 if (whereCheck.getWhere().equals(file)) {
@@ -237,7 +321,7 @@ public class InvertedIndex {
                 }
               }
               if (scoreMap == null) {
-                scoreMap = new scoreMap(0, 0, file);
+                scoreMap = new ScoreMap(0, 0, file);
               }
               int stemTotal = countsMap.get(file);
               int count = map.get(q).get(file).size();
@@ -255,8 +339,19 @@ public class InvertedIndex {
       }
     }
 
+    /**
+     * Writes the search results map to path in pretty json
+     *
+     * @param path Path of results output file
+     * @throws IOException if the file doesn't exist or path is null.
+     */
     public void toJson(Path path) throws IOException {
       JsonWriter.writeSearch(searchMap, path);
+    }
+
+    @Override
+    public String toString() {
+      return "Searcher{" + "searchMap=" + searchMap + '}';
     }
   }
 }
