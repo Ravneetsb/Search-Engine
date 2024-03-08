@@ -78,7 +78,7 @@ public class Driver {
       }
     }
 
-    if (argParser.hasFlag("-query")) {
+    if (argParser.hasFlag("-query") && searcher != null) {
       searcher.search();
     }
 
