@@ -304,7 +304,9 @@ public class InvertedIndex {
     /** uses the queries to search through the inverted index and create the search results map. */
     public void search() {
       for (var query : queries) {
-        if (query.isEmpty()) continue;
+        if (query.isEmpty()) {
+          continue;
+        }
         searchMap.putIfAbsent(query, new ArrayList<>());
         var qList = searchMap.get(query);
         for (String q : query.split(" ")) {
@@ -349,9 +351,14 @@ public class InvertedIndex {
       JsonWriter.writeSearch(searchMap, path);
     }
 
+    /**
+     * to String method for Searcher
+     *
+     * @return toString
+     */
     @Override
     public String toString() {
-      return "Searcher{" + "searchMap=" + searchMap + '}';
+      return JsonWriter.writeSearch(searchMap);
     }
   }
 }
