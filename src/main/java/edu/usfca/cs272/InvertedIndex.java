@@ -334,10 +334,12 @@ public class InvertedIndex {
               if (!qList.contains(scoreMap)) {
                 qList.add(scoreMap);
               }
-              Collections.sort(qList);
             }
           }
         }
+      }
+      for (var lists : searchMap.values()) {
+        Collections.sort(lists);
       }
     }
 
