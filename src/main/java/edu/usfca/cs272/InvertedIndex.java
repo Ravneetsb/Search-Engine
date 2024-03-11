@@ -142,9 +142,9 @@ public class InvertedIndex {
    * @param query path of query
    * @return new Searcher object.
    */
-  public Searcher newSearcher(Path query) {
+  public Searcher newSearcher(Path query, boolean partial) {
     try {
-      return new Searcher(query);
+      return new Searcher(query, partial);
     } catch (IOException e) {
       System.out.println("Query not found");
     }
@@ -265,15 +265,19 @@ public class InvertedIndex {
     /** Map of the query and its score */
     private final TreeMap<String, List<ScoreMap>> searchMap;
 
+    /** partial tag for the search. */
+    public final boolean PARTIAL;
+
     /**
      * Constructor for Searcher
      *
      * @param query path of the queries file.
      * @throws IOException if the file doesn't exist or path is null.
      */
-    public Searcher(Path query) throws IOException {
+    public Searcher(Path query, boolean partial) throws IOException {
       this.queries = parseQuery(query);
       this.searchMap = new TreeMap<>();
+      this.PARTIAL = partial;
     }
 
     /**
@@ -301,8 +305,73 @@ public class InvertedIndex {
       return treeSet;
     }
 
-    /** uses the queries to search through the inverted index and create the search results map. */
+    /** calls search based on partial flag. */
     public void search() {
+      if (!PARTIAL) {
+        exactSearch();
+      } else {
+        partialSearch();
+      }
+    }
+
+    /**
+     * uses the queries to search through the inverted index and create the search results map based
+     * on partial query results.
+     */
+    public void partialSearch() {
+      for (var query : queries) {
+        if (query.isEmpty()) {
+          continue;
+        }
+        searchMap.putIfAbsent(query, new ArrayList<>());
+        var qList = searchMap.get(query);
+        for (String q : query.split(" ")) {
+          ArrayList<String> possibleQueries = new ArrayList<>();
+          for (String indexStem : map.keySet()) { // get possible queries
+            if (indexStem.startsWith(q)) {
+              possibleQueries.add(indexStem);
+            }
+          }
+          //          System.out.println(possibleQueries);
+          for (var possibility : possibleQueries) {
+            var locationData = map.get(possibility);
+            if (locationData != null) {
+              var set = locationData.entrySet();
+              for (var entry : set) {
+                ScoreMap scoreMap = null;
+                String file = entry.getKey();
+                for (var whereCheck : qList) {
+                  if (whereCheck.getWhere().equals(file)) {
+                    scoreMap = whereCheck;
+                    break;
+                  }
+                }
+                if (scoreMap == null) {
+                  scoreMap = new ScoreMap(0, 0, file);
+                }
+                int stemTotal = countsMap.get(file);
+                int count = map.get(possibility).get(file).size();
+                Integer totalCount = scoreMap.getCount();
+                Double existingStemTotal = scoreMap.getScore();
+                scoreMap.setCount(count + totalCount);
+                var finalScore = Double.sum((double) count / stemTotal, existingStemTotal);
+                scoreMap.setScore(finalScore);
+                if (!qList.contains(scoreMap)) {
+                  qList.add(scoreMap);
+                }
+              }
+            }
+          }
+        }
+      }
+      for (var list : searchMap.values()) {
+        Collections.sort(list);
+      }
+      searchMap.get("b").forEach(System.out::println);
+    }
+
+    /** uses the queries to search through the inverted index and create the search results map. */
+    public void exactSearch() {
       for (var query : queries) {
         if (query.isEmpty()) {
           continue;
