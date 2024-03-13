@@ -307,10 +307,10 @@ public class InvertedIndex {
 
     /** calls search based on partial flag. */
     public void search() {
-      if (!PARTIAL) {
-        exactSearch();
-      } else {
+      if (PARTIAL) {
         partialSearch();
+      } else {
+        exactSearch();
       }
     }
 
@@ -354,7 +354,9 @@ public class InvertedIndex {
                 Integer totalCount = scoreMap.getCount();
                 Double existingStemTotal = scoreMap.getScore();
                 scoreMap.setCount(count + totalCount);
-                var finalScore = Double.sum((double) count / stemTotal, existingStemTotal);
+                //                var finalScore = Double.sum((double) count / stemTotal,
+                // existingStemTotal);
+                double finalScore = (double) (count + totalCount) / stemTotal;
                 scoreMap.setScore(finalScore);
                 if (!qList.contains(scoreMap)) {
                   qList.add(scoreMap);
@@ -367,7 +369,6 @@ public class InvertedIndex {
       for (var list : searchMap.values()) {
         Collections.sort(list);
       }
-      searchMap.get("b").forEach(System.out::println);
     }
 
     /** uses the queries to search through the inverted index and create the search results map. */
