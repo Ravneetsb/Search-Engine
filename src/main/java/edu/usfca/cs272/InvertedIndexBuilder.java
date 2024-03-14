@@ -16,8 +16,6 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  * @version Spring 2024
  */
 public class InvertedIndexBuilder {
-  /** Input path for directory/file. */
-  private final Path input; // TODO Make this a method parameter instead of a member, it is not needed in multiple methods
 
   /** InvertedIndex data structure to build. */
   private final InvertedIndex index;
@@ -25,20 +23,19 @@ public class InvertedIndexBuilder {
   /**
    * Constructor for InvertedIndexBuilder Class.
    *
-   * @param input file/directory path
    * @param index InvertedIndex
    */
-  public InvertedIndexBuilder(Path input, InvertedIndex index) { // TODO Remove Path input from here
-    this.input = input;
+  public InvertedIndexBuilder(InvertedIndex index) {
     this.index = index;
   }
 
   /**
    * Build function for InvertedIndex
    *
+   * @param input Path of input file.
    * @throws IOException if file can't be read.
    */
-  public void build() throws IOException { // TODO Add Path input to here
+  public void build(Path input) throws IOException {
     if (Files.isDirectory(input)) {
       readDirectory(input);
     } else readFile(input);
@@ -61,8 +58,6 @@ public class InvertedIndexBuilder {
           }
         }
       }
-    } catch (IOException e) { // TODO Only produce console output in Driver.main! Remove catch block
-      System.err.println("Unable to parse directory at: " + directory);
     }
   }
 
@@ -85,7 +80,9 @@ public class InvertedIndexBuilder {
           iter++;
         }
       }
-      if (iter != 0) index.addCounts(file.toString(), iter); // TODO iter != 0 check should be in addCounts instead
+      if (iter != 0) {
+        index.addCounts(file.toString(), iter);
+      }
     }
   }
 

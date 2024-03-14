@@ -33,23 +33,27 @@ public class Driver {
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index = new InvertedIndex();
 
-    Path indexOutput = null; // TODO Declare these in the scope they are defined and used (see comments below)
+    Path indexOutput =
+        null; // TODO Declare these in the scope they are defined and used (see comments below)
     Path countOutput = null;
 
-    if (argParser.hasFlag("-index")) { // TODO Move, the block this is needed is now split from where you do this test
+    if (argParser.hasFlag(
+        "-index")) { // TODO Move, the block this is needed is now split from where you do this test
       indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
     }
 
-    if (argParser.hasFlag("-counts")) { // TODO Move, the block this is needed is now split from where you do this test
+    if (argParser.hasFlag(
+        "-counts")) { // TODO Move, the block this is needed is now split from where you do this
+      // test
       countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
     }
 
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
-      InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder(path, index);
+      InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder(index);
 
       try {
-        invertedIndexBuilder.build();
+        invertedIndexBuilder.build(path);
       } catch (IOException e) {
         System.err.printf("Unable to build Index from path: %s", path);
       }
@@ -66,7 +70,7 @@ public class Driver {
 
     if (indexOutput != null) { // TODO if (argParser.hasFlag("-index")) {
       // TODO Path indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
-      
+
       try {
         index.toJson(indexOutput);
       } catch (IOException e) {
