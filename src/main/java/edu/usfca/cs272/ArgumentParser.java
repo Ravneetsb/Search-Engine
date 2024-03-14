@@ -68,6 +68,7 @@ public class ArgumentParser {
    * @param args the command line arguments to parse
    */
   public void parse(String[] args) {
+    // TODO Due to how bug prone it is, most modern code style guides disallow 1 line if/else statements without { } curly braces
     if (args.length == 0) return;
     int i;
     for (i = 1; i < args.length; i++) {
@@ -214,7 +215,7 @@ public class ArgumentParser {
    *
    * @param args the arguments to test
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) { // TODO Remove
     // Feel free to modify or delete this method for debugging
     if (args.length < 1) {
       args =
