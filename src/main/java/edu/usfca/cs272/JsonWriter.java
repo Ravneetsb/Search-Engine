@@ -368,7 +368,7 @@ public class JsonWriter {
       throws IOException {
     if (path
         == null) { // TODO Remove, suppresses a null bug. Let the exception get thrown, catch in
-                   // main if needed
+      // main if needed
       return;
     }
     try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
@@ -385,7 +385,7 @@ public class JsonWriter {
    * @throws IOException if writer error.
    */
   public static void writeIndex(
-      Map<String, Map<String, Collection<Integer>>> index, Writer writer, int indent)
+      TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, Writer writer, int indent)
       throws IOException {
     /*
      * TODO Make the parameter type more generic! Use the other methods as a clue.

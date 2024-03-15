@@ -14,10 +14,6 @@ public class InvertedIndex {
   /** Map for Index. */
   private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> map;
 
-  // TODO Too early to upcast just yet---usually wait until have full functionality (which is
-  // project 2)
-  // private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
-
   /** Map for counts. */
   private final Map<String, Integer> counts;
 
@@ -70,11 +66,10 @@ public class InvertedIndex {
    * @return true if added successfully.
    */
   public boolean add(String stem, String path, int location) {
-    this.map.putIfAbsent(stem, new TreeMap<>());
-    var stemMap = this.map.get(stem);
-    stemMap.putIfAbsent(path, new TreeSet<>());
-    var locationSet = stemMap.get(path);
-    locationSet.add(location + 1);
+    this.map
+        .computeIfAbsent(stem, s -> new TreeMap<>())
+        .computeIfAbsent(path, p -> new TreeSet<>())
+        .add(location + 1);
     return true;
 
     /*
@@ -101,13 +96,12 @@ public class InvertedIndex {
    * @return true if successful.
    */
   public boolean addAll(String path, Collection<String> stems) {
-    boolean done = false;
     int location = 0;
     for (String stem : stems) {
-      done = this.add(stem, path, location);
+      this.add(stem, path, location);
       location++;
     }
-    return done;
+    return true;
   }
 
   /**
@@ -163,11 +157,12 @@ public class InvertedIndex {
    * @param file path of file.
    * @param size number of stems.
    */
-  public void addCounts(String file, int size) {
+  public boolean addCounts(String file, int size) {
     if (size < 1) {
-      return;
+      return false;
     }
     this.counts.put(file, size);
+    return true;
   }
 
   @Override
