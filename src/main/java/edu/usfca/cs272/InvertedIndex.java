@@ -176,25 +176,6 @@ public class InvertedIndex {
     return this.counts.containsKey(location);
   }
 
-  /*
-   * TODO This class is still missing some has/contains methods and num/size
-   * methods, and one get/view method (choose a naming scheme and stick to it).
-   * For example:
-   *
-   * hasWord(String word) → does the inverted index have this word?
-   *
-   * hasLocation(String word, String location) → does the inverted index have this
-   * location for this word?
-   *
-   * hasPosition(String word, String location, Integer position) → does the
-   * inverted index have this position for the given location and word?
-   *
-   * hasCount(String location) → does the word counts map have a count for this
-   * location?
-   *
-   * There are usually the same number of get, has, and num methods.
-   */
-
   /**
    * writes index in pretty Json to output file.
    *
@@ -209,9 +190,4 @@ public class InvertedIndex {
   public String toString() {
     return JsonWriter.writeIndex(this.map);
   }
-
-  /*
-   * TODO Use the outline view to reorder and group your methods so
-   * the add methods are grouped together
-   */
 }
