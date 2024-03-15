@@ -33,21 +33,6 @@ public class Driver {
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index = new InvertedIndex();
 
-    Path indexOutput =
-        null; // TODO Declare these in the scope they are defined and used (see comments below)
-    Path countOutput = null;
-
-    if (argParser.hasFlag(
-        "-index")) { // TODO Move, the block this is needed is now split from where you do this test
-      indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
-    }
-
-    if (argParser.hasFlag(
-        "-counts")) { // TODO Move, the block this is needed is now split from where you do this
-      // test
-      countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
-    }
-
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
       InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder(index);
@@ -59,8 +44,8 @@ public class Driver {
       }
     }
 
-    if (countOutput != null) { // TODO check flag
-      // TODO get flag value here, where it is used
+    if (argParser.hasFlag("-counts")) {
+      Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
       try {
         JsonWriter.writeObject(index.getCounts(), countOutput);
       } catch (IOException e) {
@@ -68,9 +53,8 @@ public class Driver {
       }
     }
 
-    if (indexOutput != null) { // TODO if (argParser.hasFlag("-index")) {
-      // TODO Path indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
-
+    if (argParser.hasFlag("-index")) {
+      Path indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
       try {
         index.toJson(indexOutput);
       } catch (IOException e) {
