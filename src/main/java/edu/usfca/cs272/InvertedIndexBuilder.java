@@ -23,10 +23,10 @@ public class InvertedIndexBuilder {
   /**
    * Constructor for InvertedIndexBuilder Class.
    *
-   * @param index InvertedIndex
+   * @param invertedIndex InvertedIndex
    */
-  public InvertedIndexBuilder(InvertedIndex index) {
-    this.index = index;
+  public InvertedIndexBuilder(InvertedIndex invertedIndex) {
+    this.index = invertedIndex;
   }
 
   /**
@@ -95,5 +95,15 @@ public class InvertedIndexBuilder {
   public static boolean fileIsTXT(Path path) {
     String clean = path.toString().toLowerCase();
     return clean.endsWith(".txt") || clean.endsWith(".text");
+  }
+
+  /**
+   * to Stirng for the index builder
+   *
+   * @return index in pretty json.
+   */
+  @Override
+  public String toString() {
+    return index.toString();
   }
 }
