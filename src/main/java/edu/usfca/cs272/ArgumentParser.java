@@ -68,8 +68,9 @@ public class ArgumentParser {
    * @param args the command line arguments to parse
    */
   public void parse(String[] args) {
-    // TODO Due to how bug prone it is, most modern code style guides disallow 1 line if/else statements without { } curly braces
-    if (args.length == 0) return;
+    if (args.length == 0) {
+      return;
+    }
     int i;
     for (i = 1; i < args.length; i++) {
       if (isFlag(args[i - 1]) && isValue(args[i])) {
@@ -208,35 +209,5 @@ public class ArgumentParser {
   @Override
   public String toString() {
     return this.map.toString();
-  }
-
-  /**
-   * Demonstrates this class.
-   *
-   * @param args the arguments to test
-   */
-  public static void main(String[] args) { // TODO Remove
-    // Feel free to modify or delete this method for debugging
-    if (args.length < 1) {
-      args =
-          new String[] {
-            "-max",
-            "false",
-            "-min",
-            "0",
-            "-min",
-            "-10",
-            "hello",
-            "-@debug",
-            "-f",
-            "output.txt",
-            "-verbose"
-          };
-    }
-
-    // expected output:
-    // {-max=false, -min=-10, -verbose=null, -f=output.txt, -@debug=null}
-    ArgumentParser map = new ArgumentParser(args);
-    System.out.println(map);
   }
 }
