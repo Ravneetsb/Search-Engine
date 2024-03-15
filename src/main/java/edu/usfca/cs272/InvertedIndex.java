@@ -12,20 +12,19 @@ import java.util.*;
  */
 public class InvertedIndex {
   /** Map for Index. */
-  private final Map<String, Map<String, Collection<Integer>>> map;
+  private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> map;
 
   // TODO Too early to upcast just yet---usually wait until have full functionality (which is
   // project 2)
   // private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
 
   /** Map for counts. */
-  private final Map<String, Integer>
-      countsMap; // TODO Just name counts, don't include the type in the variable name
+  private final Map<String, Integer> counts;
 
   /** Constructor for InvertedIndex */
   public InvertedIndex() {
     this.map = new TreeMap<>();
-    this.countsMap = new TreeMap<>();
+    this.counts = new TreeMap<>();
   }
 
   /**
@@ -43,7 +42,7 @@ public class InvertedIndex {
    * @return unmodifiable map of files and their stem counts.
    */
   public Map<String, Integer> getCounts() {
-    return Collections.unmodifiableMap(this.countsMap);
+    return Collections.unmodifiableMap(this.counts);
   }
 
   /**
@@ -53,46 +52,29 @@ public class InvertedIndex {
    * @param location the file in which word is located.
    * @return unmodifiable map where key is file path value is location of word.
    */
-  public Collection<? extends Number> getPositions(
-      String word, String location) { // TODO Return Set<Integer> or something more specific
-    /*
-     * TODO Usually upcast as much as possible in parameter types, but as little as possible in return types
-     * Don't want to lose type-specific functionality when possible
-     */
-    return Collections.unmodifiableCollection(
-        this.map
-            .get(word)
-            .get(location)); // TODO Use Collections.unmodifiableSet or something more specific
-
-    /*
-     * TODO What happens if the get methods return null? How do you fix the issue?
-     */
+  public Set<Integer> getPositions(String word, String location) {
+    var set = this.map.get(word).get(location);
+    if (set != null) {
+      return Collections.unmodifiableSet(set);
+    } else {
+      return new TreeSet<>();
+    }
   }
 
   /**
    * add stem to index.
    *
-   * @param path file path
    * @param stem word stem
+   * @param path file path
    * @param location index in stemList
    * @return true if added successfully.
    */
-  public boolean add(
-      String path,
-      String stem,
-      int
-          location) { // TODO Use the "Refactor" and "Method Signature" feature to change the order
-                      // of parameters to match the order the data is stored in the map (stem first)
+  public boolean add(String stem, String path, int location) {
     this.map.putIfAbsent(stem, new TreeMap<>());
-    try {
-      var stemMap = this.map.get(stem);
-      stemMap.putIfAbsent(path, new TreeSet<>());
-      var locationSet = stemMap.get(path);
-      locationSet.add(location + 1);
-    } catch (
-        RuntimeException e) { // TODO Why is this try catch here? What do you expect to go wrong?
-      return false;
-    }
+    var stemMap = this.map.get(stem);
+    stemMap.putIfAbsent(path, new TreeSet<>());
+    var locationSet = stemMap.get(path);
+    locationSet.add(location + 1);
     return true;
 
     /*
@@ -122,7 +104,7 @@ public class InvertedIndex {
     boolean done = false;
     int location = 0;
     for (String stem : stems) {
-      done = this.add(path, stem, location);
+      done = this.add(stem, path, location);
       location++;
     }
     return done;
@@ -185,7 +167,7 @@ public class InvertedIndex {
     if (size < 1) {
       return;
     }
-    this.countsMap.put(file, size);
+    this.counts.put(file, size);
   }
 
   @Override

@@ -76,7 +76,7 @@ public class InvertedIndexBuilder {
       while ((line = br.readLine()) != null) {
         String[] words = FileStemmer.parse(line);
         for (String word : words) {
-          index.add(file.toString(), stemmer.stem(word).toString(), iter);
+          index.add(stemmer.stem(word).toString(), file.toString(), iter);
           iter++;
         }
       }
