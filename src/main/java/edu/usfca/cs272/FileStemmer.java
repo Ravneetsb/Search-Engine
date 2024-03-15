@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
@@ -203,88 +202,18 @@ public class FileStemmer {
    * @see ALGORITHM#ENGLISH
    * @see StandardCharsets#UTF_8
    * @see #uniqueStems(String, Stemmer)
+   * @throws IOException if the path is null or invalid.
    */
-  public static ArrayList<TreeSet<String>> listUniqueStems(Path input) { // TODO Go back to throwing the exception here
+  public static ArrayList<TreeSet<String>> listUniqueStems(Path input) throws IOException {
     ArrayList<TreeSet<String>> list = new ArrayList<>();
     try (BufferedReader br = Files.newBufferedReader(input)) {
       String line;
+      Stemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
       while ((line = br.readLine()) != null) {
-        list.add(uniqueStems(line)); // TODO Reuse a stemmer object here
+        list.add(uniqueStems(line, stemmer));
       }
-    } catch (IOException e) { // TODO Remove catch block, do not suppress the exception!
-      System.out.println("IO Issue");
     }
     return list;
-  }
-
-  /**
-   * Demonstrates this class.
-   *
-   * @param args unused
-   * @throws IOException if an I/O error occurs
-   */
-  public static void main(String[] args) throws IOException { // TODO Remove
-    // demonstrates how to use split, clean, and parse
-    System.out.println("____PARSING DEMO____");
-    System.out.println();
-
-    String sally = """
-				Sally Sue...\t sells 76 sea-shells
-				at THE sEa_shorE soirée!""";
-
-    System.out.println("Original:");
-    System.out.println(sally);
-    System.out.println();
-
-    System.out.println("Cleaned:");
-    System.out.println(clean(sally));
-    System.out.println();
-
-    System.out.println(" Split: " + Arrays.toString(split(sally)));
-    System.out.println("Parsed: " + Arrays.toString(parse(sally)));
-    System.out.println();
-
-    // demonstrates how to use stemmer
-    System.out.println("____STEMMER DEMO____");
-    System.out.println();
-
-    Stemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
-    String demo = "practicing";
-    String stem = stemmer.stem(demo).toString();
-
-    System.out.println("Word: " + demo);
-    System.out.println("Stem: " + stem);
-    System.out.println();
-
-    // demonstrates how to use list/uniqueStems methods
-    System.out.println("____STEMMING TEXT____");
-    System.out.println();
-
-    String practice =
-        """
-				practic practical practice practiced practicer practices
-				practicing practis practisants practise practised practiser
-				practisers practises practising practitioner practitioners
-				""";
-
-    System.out.println("Original: \n" + practice);
-    System.out.println("  List: " + listStems(practice));
-    System.out.println("Unique: " + uniqueStems(practice));
-    System.out.println();
-
-    // demonstrates stemming files
-    System.out.println("____STEMMING FILE____");
-    System.out.println();
-
-    Path base = Path.of("src", "test", "resources", "stemmer");
-    Path file = base.resolve("cleaner.txt");
-    String input = Files.readString(file, StandardCharsets.UTF_8);
-
-    System.out.println("Original:\n" + input);
-
-    System.out.println("       List: " + listStems(file));
-    System.out.println("     Unique: " + uniqueStems(file));
-    System.out.println("List Unique: " + listUniqueStems(file));
   }
 
   /** Prevent instantiating this class of static methods. */
