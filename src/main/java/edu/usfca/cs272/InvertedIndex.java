@@ -71,21 +71,6 @@ public class InvertedIndex {
         .computeIfAbsent(path, p -> new TreeSet<>())
         .add(location + 1);
     return true;
-
-    /*
-     * TODO Time to refactor this add method. It can be either more compact, more
-     * efficient, or both:
-     *
-     * 1. Focus on making the most compact code possible with a 3 line solution and
-     * putIfAbsent, but extra get calls. 2. Focus on making the most efficient code
-     * possible by reducing the number of times the underlying data is accessed
-     * (without using putIfAbsent or containsKey methods). 3. Focus on making the
-     * most compact and efficient code by using lambda expressions and the
-     * computeIfAbsent method.
-     *
-     * Choose one option, then make the same design choice in all your other
-     * methods!
-     */
   }
 
   /**
@@ -105,6 +90,21 @@ public class InvertedIndex {
   }
 
   /**
+   * add file path and the number of stems in that file to countsMap.
+   *
+   * @param file path of file.
+   * @param size number of stems.
+   * @return true if size was valid.
+   */
+  public boolean addCounts(String file, int size) {
+    if (size < 1) {
+      return false;
+    }
+    this.counts.put(file, size);
+    return true;
+  }
+
+  /**
    * Returns true if index is empty.
    *
    * @return true if index is empty.
@@ -120,6 +120,60 @@ public class InvertedIndex {
    */
   public int size() {
     return this.map.size();
+  }
+
+  /**
+   * Returns the number of locations for which there is a stem count.
+   *
+   * @return the number of locations for which there is a stem count.
+   */
+  public int sizeOfCounts() {
+    return this.counts.size();
+  }
+
+  /**
+   * Returns the number of locations where a word occurs.
+   *
+   * @param word stem to be searched.
+   * @return the number of locations where a word occurs.
+   */
+  public int numOfLocations(String word) {
+    return this.map.get(word).size();
+  }
+
+  /**
+   * checks if word is in the index or not.
+   *
+   * @param word stem to be looked up
+   * @return true if word is in the index.
+   */
+  public boolean hasWord(String word) {
+    return this.map.containsKey(word);
+  }
+
+  /**
+   * checks if the index has a location for the word.
+   *
+   * @param word stem in the index.
+   * @param location location of the stem.
+   * @return true if the stem has that location. false if the word or location is not in the index.
+   */
+  public boolean hasLocation(String word, String location) {
+    if (hasWord(word)) {
+      return this.map.get(word).containsKey(location);
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * checks if stem counts for a location is present.
+   *
+   * @param location path of file.
+   * @return true if there is a stem count for the location.
+   */
+  public boolean hasCount(String location) {
+    return this.counts.containsKey(location);
   }
 
   /*
@@ -149,20 +203,6 @@ public class InvertedIndex {
    */
   public void toJson(Path output) throws IOException {
     JsonWriter.writeIndex(this.map, output);
-  }
-
-  /**
-   * add file path and the number of stems in that file to countsMap.
-   *
-   * @param file path of file.
-   * @param size number of stems.
-   */
-  public boolean addCounts(String file, int size) {
-    if (size < 1) {
-      return false;
-    }
-    this.counts.put(file, size);
-    return true;
   }
 
   @Override
