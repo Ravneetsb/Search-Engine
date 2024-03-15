@@ -386,25 +386,24 @@ public class JsonWriter {
       Writer writer,
       int indent)
       throws IOException {
-    // TODO Use the same approach here as the others too!
-    int size = index.size() - 1;
-    if (size == -1) {
-      writer.write("{\n}");
-      return;
-    }
-    writer.write("{\n");
-    int iter = 0;
-    for (var entry : index.entrySet()) {
-      String key = entry.getKey();
-      var value = entry.getValue();
-      writeQuote(key, writer, indent + 1);
+    writer.write("{");
+    var iterator = index.entrySet().iterator();
+    if (iterator.hasNext()) {
+      var element = iterator.next();
+      writer.write("\n");
+      writeQuote(element.getKey(), writer, indent + 1);
       writer.write(": ");
-      writeObjectArrays(value, writer, indent + 1);
-      if (iter++ < size) {
-        writer.write(",\n");
-      }
+      writeObjectArrays(element.getValue(), writer, indent + 1);
     }
-    writer.write("\n}");
+    while (iterator.hasNext()) {
+      var element = iterator.next();
+      writer.write(",\n");
+      writeQuote(element.getKey(), writer, indent + 1);
+      writer.write(": ");
+      writeObjectArrays(element.getValue(), writer, indent + 1);
+    }
+    writer.write("\n");
+    writeIndent("}", writer, indent);
   }
 
   /** Prevent instantiating this class of static methods. */
