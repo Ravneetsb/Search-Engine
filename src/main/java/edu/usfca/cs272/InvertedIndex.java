@@ -186,6 +186,11 @@ public class InvertedIndex {
     JsonWriter.writeIndex(this.map, output);
   }
 
+  /**
+   * Returns Inverted Index in pretty Json.
+   *
+   * @return Inverted Index in pretty Json.
+   */
   @Override
   public String toString() {
     return JsonWriter.writeIndex(this.map);
