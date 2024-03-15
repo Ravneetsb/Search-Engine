@@ -347,7 +347,8 @@ public class JsonWriter {
    * @param index InvertedIndex
    * @return null if exception.
    */
-  public static String writeIndex(TreeMap<String, TreeMap<String, TreeSet<Integer>>> index) {
+  public static String writeIndex(
+      Map<String, ? extends Map<String, ? extends Set<? extends Number>>> index) {
     try {
       StringWriter writer = new StringWriter();
       writeIndex(index, writer, 0);
@@ -364,13 +365,9 @@ public class JsonWriter {
    * @param path path of output file.
    * @throws IOException if BufferedWriter error.
    */
-  public static void writeIndex(TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, Path path)
+  public static void writeIndex(
+      Map<String, ? extends Map<String, ? extends Set<? extends Number>>> index, Path path)
       throws IOException {
-    if (path
-        == null) { // TODO Remove, suppresses a null bug. Let the exception get thrown, catch in
-      // main if needed
-      return;
-    }
     try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
       writeIndex(index, bufferedWriter, 0);
     }
@@ -385,13 +382,10 @@ public class JsonWriter {
    * @throws IOException if writer error.
    */
   public static void writeIndex(
-      TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, Writer writer, int indent)
+      Map<String, ? extends Map<String, ? extends Set<? extends Number>>> index,
+      Writer writer,
+      int indent)
       throws IOException {
-    /*
-     * TODO Make the parameter type more generic! Use the other methods as a clue.
-     * It is important to use upcasting and the ? extends syntax when nesting types.
-     */
-
     // TODO Use the same approach here as the others too!
     int size = index.size() - 1;
     if (size == -1) {
@@ -411,39 +405,6 @@ public class JsonWriter {
       }
     }
     writer.write("\n}");
-  }
-
-  /**
-   * Demonstrates this class.
-   *
-   * @param args unused
-   */
-  public static void main(
-      String[] args) { // TODO Can delete these old main methods used for debugging at this point!
-    Set<Integer> empty = Collections.emptySet();
-    Set<Integer> single = Set.of(42);
-    List<Integer> simple = List.of(65, 66, 67);
-
-    System.out.println("\nArrays:");
-    System.out.println(writeArray(empty));
-    System.out.println(writeArray(single));
-    System.out.println(writeArray(simple));
-
-    System.out.println("\nObjects:");
-    System.out.println(writeObject(Collections.emptyMap()));
-    System.out.println(writeObject(Map.of("hello", 42)));
-    System.out.println(writeObject(Map.of("hello", 42, "world", 67)));
-
-    System.out.println("\nNested Arrays:");
-    System.out.println(writeObjectArrays(Collections.emptyMap()));
-    System.out.println(writeObjectArrays(Map.of("hello", single)));
-    System.out.println(writeObjectArrays(Map.of("hello", single, "world", simple)));
-
-    System.out.println("\nNested Objects:");
-    System.out.println(writeArrayObjects(Collections.emptyList()));
-    System.out.println(writeArrayObjects(Set.of(Map.of("hello", 3.12))));
-    System.out.println(
-        writeArrayObjects(Set.of(Map.of("hello", 3.12, "world", 2.04), Map.of("apple", 0.04))));
   }
 
   /** Prevent instantiating this class of static methods. */
