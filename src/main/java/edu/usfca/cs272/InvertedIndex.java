@@ -49,14 +49,31 @@ public class InvertedIndex {
    * @return unmodifiable map where key is file path value is location of word.
    */
   public Set<Integer> getPositions(String word, String location) {
-    var set = this.map.get(word).get(location);
+    var set = this.map.get(word).get(location); // TODO Throws a null pointer if get(word) is null! Could have a better name
     if (set != null) {
       return Collections.unmodifiableSet(set);
     } else {
-      return new TreeSet<>();
+      return new TreeSet<>(); // TODO Collections.emptySet();
     }
+    
+    /* TODO Have to nest get and null checks, like this:
+    var locations = this.map.get(word);
+    
+    if (locations != null) {
+        var positions = locations.get(location);
+        
+        if (positions != null) {
+            return Collections.unmodifiableSet(set);
+        }
+        
+    }
+    
+    return Collections.emptySet(); 
+    */
   }
 
+  // TODO Missing a getLocations(String word) method?
+  
   /**
    * add stem to index.
    *
@@ -80,7 +97,7 @@ public class InvertedIndex {
    * @param stems Collection of stems
    * @return true if successful.
    */
-  public boolean addAll(String path, Collection<String> stems) {
+  public boolean addAll(String path, Collection<String> stems) { // TODO List<String> stems... must have order!
     int location = 0;
     for (String stem : stems) {
       this.add(stem, path, location);
@@ -138,8 +155,10 @@ public class InvertedIndex {
    * @return the number of locations where a word occurs.
    */
   public int numOfLocations(String word) {
-    return this.map.get(word).size();
+    return this.map.get(word).size(); // TODO exception if get(word) is null
   }
+  
+  // TODO Missing numOfPositions(String word, String location)
 
   /**
    * checks if word is in the index or not.
@@ -159,12 +178,15 @@ public class InvertedIndex {
    * @return true if the stem has that location. false if the word or location is not in the index.
    */
   public boolean hasLocation(String word, String location) {
+  	// TODO Nice reuse, but not efficient (and since you have the most efficient add, need most efficient implementations in the rest too)
     if (hasWord(word)) {
       return this.map.get(word).containsKey(location);
     } else {
       return false;
     }
   }
+  
+  // TODO Missing hasPosition
 
   /**
    * checks if stem counts for a location is present.
