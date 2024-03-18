@@ -140,6 +140,7 @@ public class InvertedIndex {
    * create new instance of the inner Searcher class.
    *
    * @param query path of query
+   * @param partial true if partial search is to be performed.
    * @return new Searcher object.
    */
   public Searcher newSearcher(Path query, boolean partial) {
@@ -266,18 +267,19 @@ public class InvertedIndex {
     private final TreeMap<String, List<ScoreMap>> searchMap;
 
     /** partial tag for the search. */
-    public final boolean PARTIAL;
+    public final boolean partial;
 
     /**
      * Constructor for Searcher
      *
      * @param query path of the queries file.
+     * @param partial true if partial search is to be performed.
      * @throws IOException if the file doesn't exist or path is null.
      */
     public Searcher(Path query, boolean partial) throws IOException {
       this.queries = parseQuery(query);
       this.searchMap = new TreeMap<>();
-      this.PARTIAL = partial;
+      this.partial = partial;
     }
 
     /**
@@ -307,7 +309,7 @@ public class InvertedIndex {
 
     /** calls search based on partial flag. */
     public void search() {
-      if (PARTIAL) {
+      if (partial) {
         partialSearch();
       } else {
         exactSearch();
