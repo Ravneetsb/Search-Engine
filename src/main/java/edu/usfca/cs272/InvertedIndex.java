@@ -49,31 +49,30 @@ public class InvertedIndex {
    * @return unmodifiable map where key is file path value is location of word.
    */
   public Set<Integer> getPositions(String word, String location) {
-    var set = this.map.get(word).get(location); // TODO Throws a null pointer if get(word) is null! Could have a better name
-    if (set != null) {
-      return Collections.unmodifiableSet(set);
-    } else {
-      return new TreeSet<>(); // TODO Collections.emptySet();
-    }
-    
-    /* TODO Have to nest get and null checks, like this:
     var locations = this.map.get(word);
-    
     if (locations != null) {
-        var positions = locations.get(location);
-        
-        if (positions != null) {
-            return Collections.unmodifiableSet(set);
-        }
-        
+      var positions = locations.get(location);
+      if (positions != null) {
+        return Collections.unmodifiableSet(positions);
+      }
     }
-    
-    return Collections.emptySet(); 
-    */
+    return Collections.emptySet();
   }
 
-  // TODO Missing a getLocations(String word) method?
-  
+  /**
+   * returns the locations in which a word occurs
+   *
+   * @param word stem to be searched
+   * @return locations.
+   */
+  public Set<String> getLocations(String word) {
+    var locations = this.map.get(word);
+    if (locations != null) {
+      return Collections.unmodifiableSet(locations.keySet());
+    }
+    return Collections.emptySet();
+  }
+
   /**
    * add stem to index.
    *
@@ -97,7 +96,7 @@ public class InvertedIndex {
    * @param stems Collection of stems
    * @return true if successful.
    */
-  public boolean addAll(String path, Collection<String> stems) { // TODO List<String> stems... must have order!
+  public boolean addAll(String path, List<String> stems) {
     int location = 0;
     for (String stem : stems) {
       this.add(stem, path, location);
@@ -155,10 +154,28 @@ public class InvertedIndex {
    * @return the number of locations where a word occurs.
    */
   public int numOfLocations(String word) {
-    return this.map.get(word).size(); // TODO exception if get(word) is null
+    var locations = this.map.get(word);
+    if (locations != null) {
+      return locations.size();
+    }
+    return 0;
   }
-  
-  // TODO Missing numOfPositions(String word, String location)
+
+  /**
+   * Returns the number of positions where a word occurs in a location.
+   *
+   * @param word stem to be searched.
+   * @param location file path.
+   * @return the number of positions where the word occurs in location.
+   */
+  public int numOfPositions(String word, String location) {
+    var locations = this.map.get(word);
+    if (locations != null) {
+      var positions = locations.get(location);
+      return positions.size();
+    }
+    return 0;
+  }
 
   /**
    * checks if word is in the index or not.
@@ -178,15 +195,31 @@ public class InvertedIndex {
    * @return true if the stem has that location. false if the word or location is not in the index.
    */
   public boolean hasLocation(String word, String location) {
-  	// TODO Nice reuse, but not efficient (and since you have the most efficient add, need most efficient implementations in the rest too)
-    if (hasWord(word)) {
-      return this.map.get(word).containsKey(location);
-    } else {
-      return false;
+    var locations = this.map.get(word);
+    if (locations != null) {
+      return locations.containsKey(location);
     }
+    return false;
   }
-  
-  // TODO Missing hasPosition
+
+  /**
+   * Checks to see if a word is present in location at specified position
+   *
+   * @param word stem to be checked
+   * @param location file path
+   * @param position position in file to be checked.
+   * @return true if the word is found in the location at specified location.
+   */
+  public boolean hasPosition(String word, String location, int position) {
+    var locations = this.map.get(word);
+    if (locations != null) {
+      var positions = locations.get(location);
+      if (positions != null) {
+        return positions.contains(position);
+      }
+    }
+    return false;
+  }
 
   /**
    * checks if stem counts for a location is present.

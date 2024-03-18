@@ -80,9 +80,7 @@ public class InvertedIndexBuilder {
           iter++;
         }
       }
-      if (iter != 0) { // TODO Remove check, this is done by your addCounts method
-        index.addCounts(file.toString(), iter);
-      }
+      index.addCounts(file.toString(), iter);
     }
   }
 
