@@ -354,10 +354,7 @@ public class InvertedIndex {
                 int stemTotal = countsMap.get(file);
                 int count = map.get(possibility).get(file).size();
                 Integer totalCount = scoreMap.getCount();
-                Double existingStemTotal = scoreMap.getScore();
                 scoreMap.setCount(count + totalCount);
-                //                var finalScore = Double.sum((double) count / stemTotal,
-                // existingStemTotal);
                 double finalScore = (double) (count + totalCount) / stemTotal;
                 scoreMap.setScore(finalScore);
                 if (!qList.contains(scoreMap)) {
