@@ -82,17 +82,10 @@ public class InvertedIndex {
    * @return true if added successfully.
    */
   public boolean add(String stem, String path, int location) {
-    this.map
-        .computeIfAbsent(stem, s -> new TreeMap<>())
-        .computeIfAbsent(path, p -> new TreeSet<>())
-        .add(location + 1);
-    return true;
-    
-    /* TODO You can still return a true/false from the add:
     return this.map
         .computeIfAbsent(stem, s -> new TreeMap<>())
         .computeIfAbsent(path, p -> new TreeSet<>())
-        .add(location + 1);*/
+        .add(location + 1);
   }
 
   /**
