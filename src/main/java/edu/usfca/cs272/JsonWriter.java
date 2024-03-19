@@ -1,5 +1,7 @@
 package edu.usfca.cs272;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -7,11 +9,8 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
 import java.text.DecimalFormat;
 import java.util.*;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Outputs several simple data structures in "pretty" JSON format where newlines are used to
@@ -408,7 +407,6 @@ public class JsonWriter {
     }
     writer.write("\n");
     writeIndent("}", writer, indent);
-    writer.write("\n}");
   }
 
   /**
