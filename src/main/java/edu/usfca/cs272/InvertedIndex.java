@@ -1,6 +1,10 @@
 package edu.usfca.cs272;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -247,6 +251,303 @@ public class InvertedIndex {
    */
   @Override
   public String toString() {
-    return JsonWriter.writeIndex(this.map);
+    return JsonWriter.writeIndex(map);
+  }
+
+  /**
+   * create new instance of the inner Searcher class.
+   *
+   * @param query path of query
+   * @param partial true if partial search is to be performed.
+   * @return new Searcher object.
+   */
+  public Searcher newSearcher(Path query, boolean partial) {
+    try {
+      return new Searcher(query, partial);
+    } catch (IOException e) {
+      System.out.println("Query not found");
+    }
+    return null;
+  }
+
+  /** Searcher class for the inverted index. */
+  public class Searcher {
+
+    /** ScoreMap class to store the result */
+    public class ScoreMap implements Comparable<ScoreMap> {
+      private Integer count;
+      private Double score;
+      private String where;
+
+      /**
+       * Constructor for the ScoreMap
+       *
+       * @param count number of times a query word was present in the file.
+       * @param score score of the query in the file.
+       * @param where the file where the query was searched.
+       */
+      public ScoreMap(int count, double score, String where) {
+        this.count = count;
+        this.score = score;
+        this.where = where;
+      }
+
+      /** Constructor for ScoreMap. Defaults Numbers to 0 and where to null.` */
+      public ScoreMap() {
+        this.count = 0;
+        this.score = 0.0;
+        this.where = null;
+      }
+
+      /**
+       * getter for count
+       *
+       * @return count
+       */
+      public Integer getCount() {
+        return count;
+      }
+
+      /**
+       * setter for count
+       *
+       * @param count number of times query stem is present in the file.
+       */
+      public void setCount(int count) {
+        this.count = count;
+      }
+
+      /**
+       * getter for score.
+       *
+       * @return the score of the query in the file.
+       */
+      public Double getScore() {
+        return score;
+      }
+
+      /**
+       * sets the score for the query
+       *
+       * @param score score of the query. given by counts/total stems in file.
+       */
+      public void setScore(double score) {
+        this.score = score;
+      }
+
+      /**
+       * getter for where
+       *
+       * @return the file path
+       */
+      public String getWhere() {
+        return where;
+      }
+
+      /**
+       * stter for where
+       *
+       * @param where file path
+       */
+      public void setWhere(String where) {
+        this.where = where;
+      }
+
+      @Override
+      public int compareTo(ScoreMap other) {
+        int scoreCompare = other.getScore().compareTo(this.getScore());
+        if (scoreCompare == 0) {
+          int countCompare = other.getCount().compareTo(this.getCount());
+          if (countCompare == 0) {
+            return Path.of(this.getWhere()).compareTo(Path.of(other.getWhere()));
+          } else return countCompare;
+        } else return scoreCompare;
+      }
+
+      @Override
+      public String toString() {
+        return "ScoreMap{"
+            + "count="
+            + count
+            + ", score="
+            + score
+            + ", where='"
+            + where
+            + '\''
+            + '}';
+      }
+    }
+
+    /** Queries TreeSet. */
+    private final TreeSet<String> queries;
+
+    /** Map of the query and its score */
+    private final TreeMap<String, List<ScoreMap>> searchMap;
+
+    /** partial tag for the search. */
+    public final boolean partial;
+
+    /**
+     * Constructor for Searcher
+     *
+     * @param query path of the queries file.
+     * @param partial true if partial search is to be performed.
+     * @throws IOException if the file doesn't exist or path is null.
+     */
+    public Searcher(Path query, boolean partial) throws IOException {
+      this.queries = parseQuery(query);
+      this.searchMap = new TreeMap<>();
+      this.partial = partial;
+    }
+
+    /**
+     * gives the cleaned set of queries.
+     *
+     * @param query file path of queries file.
+     * @return Set of queries.
+     * @throws IOException if the file path is invalid.
+     */
+    private TreeSet<String> parseQuery(Path query) throws IOException {
+      TreeSet<String> treeSet = new TreeSet<>();
+      try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
+        String line;
+        while ((line = br.readLine()) != null) {
+          var stems = FileStemmer.uniqueStems(line);
+          StringJoiner sb = new StringJoiner(" ");
+          for (var q : stems) {
+            if (!q.isEmpty()) {
+              sb.add(q);
+            }
+          }
+          treeSet.add(sb.toString());
+        }
+      }
+      return treeSet;
+    }
+
+    /** calls search based on partial flag. */
+    public void search() {
+      if (partial) {
+        partialSearch();
+      } else {
+        exactSearch();
+      }
+    }
+
+    /**
+     * uses the queries to search through the inverted index and create the search results map based
+     * on partial query results.
+     */
+    public void partialSearch() {
+      for (var query : queries) {
+        if (query.isEmpty()) {
+          continue;
+        }
+        searchMap.putIfAbsent(query, new ArrayList<>());
+        var qList = searchMap.get(query);
+        for (String q : query.split(" ")) {
+          ArrayList<String> possibleQueries = new ArrayList<>();
+          for (String indexStem : map.keySet()) { // get possible queries
+            if (indexStem.startsWith(q)) {
+              possibleQueries.add(indexStem);
+            }
+          }
+          //          System.out.println(possibleQueries);
+          for (var possibility : possibleQueries) {
+            var locationData = map.get(possibility);
+            if (locationData != null) {
+              var set = locationData.entrySet();
+              for (var entry : set) {
+                ScoreMap scoreMap = null;
+                String file = entry.getKey();
+                for (var whereCheck : qList) {
+                  if (whereCheck.getWhere().equals(file)) {
+                    scoreMap = whereCheck;
+                    break;
+                  }
+                }
+                if (scoreMap == null) {
+                  scoreMap = new ScoreMap(0, 0, file);
+                }
+                int stemTotal = counts.get(file);
+                int count = map.get(possibility).get(file).size();
+                Integer totalCount = scoreMap.getCount();
+                scoreMap.setCount(count + totalCount);
+                double finalScore = (double) (count + totalCount) / stemTotal;
+                scoreMap.setScore(finalScore);
+                if (!qList.contains(scoreMap)) {
+                  qList.add(scoreMap);
+                }
+              }
+            }
+          }
+        }
+      }
+      for (var list : searchMap.values()) {
+        Collections.sort(list);
+      }
+    }
+
+    /** uses the queries to search through the inverted index and create the search results map. */
+    public void exactSearch() {
+      for (var query : queries) {
+        if (query.isEmpty()) {
+          continue;
+        }
+        searchMap.putIfAbsent(query, new ArrayList<>());
+        var qList = searchMap.get(query);
+        for (String q : query.split(" ")) {
+          var locationData = map.get(q);
+          if (locationData != null) {
+            var set = locationData.entrySet();
+            for (var entry : set) {
+              ScoreMap scoreMap = null;
+              String file = entry.getKey();
+              for (var whereCheck : qList) {
+                if (whereCheck.getWhere().equals(file)) {
+                  scoreMap = whereCheck;
+                  break;
+                }
+              }
+              if (scoreMap == null) {
+                scoreMap = new ScoreMap(0, 0, file);
+              }
+              int stemTotal = counts.get(file);
+              int count = map.get(q).get(file).size();
+              Integer totalCount = scoreMap.getCount();
+              Double existingStemTotal = scoreMap.getScore();
+              scoreMap.setCount(count + totalCount);
+              scoreMap.setScore(Double.sum((double) count / stemTotal, existingStemTotal));
+              if (!qList.contains(scoreMap)) {
+                qList.add(scoreMap);
+              }
+            }
+          }
+        }
+      }
+      for (var lists : searchMap.values()) {
+        Collections.sort(lists);
+      }
+    }
+
+    /**
+     * Writes the search results map to path in pretty json
+     *
+     * @param path Path of results output file
+     * @throws IOException if the file doesn't exist or path is null.
+     */
+    public void toJson(Path path) throws IOException {
+      JsonWriter.writeSearch(searchMap, path);
+    }
+
+    /**
+     * to String method for Searcher
+     *
+     * @return toString
+     */
+    @Override
+    public String toString() {
+      return JsonWriter.writeSearch(searchMap);
+    }
   }
 }

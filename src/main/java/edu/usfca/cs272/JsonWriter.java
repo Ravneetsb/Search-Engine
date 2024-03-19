@@ -8,6 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.text.DecimalFormat;
+import java.util.*;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Outputs several simple data structures in "pretty" JSON format where newlines are used to
@@ -105,7 +109,7 @@ public class JsonWriter {
    */
   public static void writeArray(Collection<? extends Number> elements, Path path)
       throws IOException {
-    try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+    try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
       writeArray(elements, writer, 0);
     }
   }
@@ -172,7 +176,7 @@ public class JsonWriter {
    */
   public static void writeObject(Map<String, ? extends Number> elements, Path path)
       throws IOException {
-    try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+    try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
       writeObject(elements, writer, 0);
     }
   }
@@ -245,7 +249,7 @@ public class JsonWriter {
    */
   public static void writeObjectArrays(
       Map<String, ? extends Collection<? extends Number>> elements, Path path) throws IOException {
-    try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+    try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
       writeObjectArrays(elements, writer, 0);
     }
   }
@@ -317,7 +321,7 @@ public class JsonWriter {
    */
   public static void writeArrayObjects(
       Collection<? extends Map<String, ? extends Number>> elements, Path path) throws IOException {
-    try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+    try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
       writeArrayObjects(elements, writer, 0);
     }
   }
@@ -368,7 +372,7 @@ public class JsonWriter {
   public static void writeIndex(
       Map<String, ? extends Map<String, ? extends Set<? extends Number>>> index, Path path)
       throws IOException {
-    try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+    try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, UTF_8)) {
       writeIndex(index, bufferedWriter, 0);
     }
   }
@@ -404,6 +408,127 @@ public class JsonWriter {
     }
     writer.write("\n");
     writeIndent("}", writer, indent);
+    writer.write("\n}");
+  }
+
+  /**
+   * Writes search results in pretty Json
+   *
+   * @param searchMap search results map
+   * @return pretty Json or null if IOException is thrown.
+   */
+  public static String writeSearch(
+      TreeMap<String, List<InvertedIndex.Searcher.ScoreMap>> searchMap) {
+    try {
+      StringWriter writer = new StringWriter();
+      writeSearch(searchMap, writer, 0);
+      return writer.toString();
+    } catch (IOException e) {
+      return null;
+    }
+  }
+
+  /**
+   * Writes search results in pretty Json
+   *
+   * @param searchMap search results map
+   * @param path output file.
+   * @throws IOException if unable to write to file.
+   */
+  public static void writeSearch(
+      TreeMap<String, List<InvertedIndex.Searcher.ScoreMap>> searchMap, Path path)
+      throws IOException {
+    if (path == null) {
+      return;
+    }
+    try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, UTF_8)) {
+      writeSearch(searchMap, bufferedWriter, 0);
+    }
+  }
+
+  /**
+   * Writes Search Results in pretty Json
+   *
+   * @param searchMap Search results
+   * @param writer writer
+   * @param indent indent value
+   * @throws IOException if unable to write to path.
+   */
+  public static void writeSearch(
+      TreeMap<String, List<InvertedIndex.Searcher.ScoreMap>> searchMap, Writer writer, int indent)
+      throws IOException {
+    var entryIterator = searchMap.entrySet().iterator();
+    writer.write("{");
+    if (entryIterator.hasNext()) {
+      var entry = entryIterator.next();
+      String stem = entry.getKey();
+      writer.write("\n");
+      writeQuote(stem, writer, indent + 1);
+      writer.write(": [");
+      var iterator = entry.getValue().iterator();
+      if (iterator.hasNext()) {
+        var map = iterator.next();
+        writer.write("\n");
+        writeScoreMap(writer, indent, map);
+      }
+      while (iterator.hasNext()) {
+        writer.write(",\n");
+        var map = iterator.next();
+        writeScoreMap(writer, indent, map);
+      }
+      writer.write("\n");
+      writeIndent("]", writer, indent + 1);
+    }
+    while (entryIterator.hasNext()) {
+      writer.write(",");
+      var entry = entryIterator.next();
+      String stem = entry.getKey();
+      writer.write("\n");
+      writeQuote(stem, writer, indent + 1);
+      writer.write(": [");
+      var iterator = entry.getValue().iterator();
+      if (iterator.hasNext()) {
+        var map = iterator.next();
+        writer.write("\n");
+        writeScoreMap(writer, indent, map);
+      }
+      while (iterator.hasNext()) {
+        var map = iterator.next();
+        writer.write(",\n");
+        writeScoreMap(writer, indent, map);
+      }
+      writer.write("\n");
+      writeIndent("]", writer, indent + 1);
+    }
+    writer.write("\n}");
+  }
+
+  /**
+   * Writes the score map to writer.
+   *
+   * @param writer writer
+   * @param indent indent value
+   * @param map scoreMap
+   * @throws IOException if the writing fails.
+   */
+  private static void writeScoreMap(Writer writer, int indent, InvertedIndex.Searcher.ScoreMap map)
+      throws IOException {
+    DecimalFormat format = new DecimalFormat("0.00000000");
+    writeIndent("{", writer, indent + 2);
+    writer.write("\n");
+    writeQuote("count", writer, indent + 3);
+    writer.write(": ");
+    writer.write(String.valueOf(map.getCount()));
+    writer.write(",\n");
+    writeQuote("score", writer, indent + 3);
+    writer.write(": ");
+    writer.write(format.format(map.getScore()));
+    writer.write(",\n");
+    writeQuote("where", writer, indent + 3);
+    writer.write(": ");
+    writeQuote(map.getWhere(), writer, indent);
+    writer.write("\n");
+    writeIndent("}", writer, indent + 2);
   }
 
   /** Prevent instantiating this class of static methods. */

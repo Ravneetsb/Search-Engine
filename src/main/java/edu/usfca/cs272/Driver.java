@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.TreeMap;
 
 /**
  * Class responsible for running this project based on the provided command-line arguments. See the
@@ -20,6 +21,9 @@ public class Driver {
   /** Default path for output file for counts. */
   public static final Path DEFAULT_COUNTS = Path.of("counts.json");
 
+  /** Default path for output file for results. */
+  public static final Path DEFAULT_RESULTS = Path.of("results.json");
+
   /**
    * Initializes the classes necessary based on the provided command-line arguments. This includes
    * (but is not limited to) how to build or search an inverted index.
@@ -32,6 +36,10 @@ public class Driver {
 
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index = new InvertedIndex();
+    InvertedIndex.Searcher searcher = null;
+    if (argParser.hasValue("-query")) {
+      searcher = index.newSearcher(argParser.getPath("-query"), argParser.hasFlag("-partial"));
+    }
 
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
@@ -59,6 +67,28 @@ public class Driver {
         index.toJson(indexOutput);
       } catch (IOException e) {
         System.err.printf("Unable to write Inverted Index to path: %s", indexOutput);
+      }
+    }
+
+    if (argParser.hasFlag("-query") && searcher != null) {
+      searcher.search();
+    }
+
+    Path results;
+    if (argParser.hasFlag("-results")) {
+      results = argParser.getPath("-results", DEFAULT_RESULTS);
+      if (searcher != null) {
+        try {
+          searcher.toJson(results);
+        } catch (IOException e) {
+          // Do nothing.
+        }
+      } else {
+        try {
+          JsonWriter.writeSearch(new TreeMap<>(), results);
+        } catch (IOException e) {
+          System.err.println("nice");
+        }
       }
     }
 
