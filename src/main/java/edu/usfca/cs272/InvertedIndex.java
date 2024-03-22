@@ -16,14 +16,14 @@ import java.util.*;
  */
 public class InvertedIndex {
   /** Map for Index. */
-  private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> map;
+  private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
 
   /** Map for counts. */
   private final Map<String, Integer> counts;
 
   /** Constructor for InvertedIndex */
   public InvertedIndex() {
-    this.map = new TreeMap<>();
+    this.index = new TreeMap<>();
     this.counts = new TreeMap<>();
   }
 
@@ -33,7 +33,7 @@ public class InvertedIndex {
    * @return unmodifiable set of keys in the index.
    */
   public Set<String> getWords() {
-    return Collections.unmodifiableSet(this.map.keySet());
+    return Collections.unmodifiableSet(this.index.keySet());
   }
 
   /**
@@ -53,7 +53,7 @@ public class InvertedIndex {
    * @return unmodifiable map where key is file path value is location of word.
    */
   public Set<Integer> getPositions(String word, String location) {
-    var locations = this.map.get(word);
+    var locations = this.index.get(word);
     if (locations != null) {
       var positions = locations.get(location);
       if (positions != null) {
@@ -70,7 +70,7 @@ public class InvertedIndex {
    * @return locations.
    */
   public Set<String> getLocations(String word) {
-    var locations = this.map.get(word);
+    var locations = this.index.get(word);
     if (locations != null) {
       return Collections.unmodifiableSet(locations.keySet());
     }
@@ -86,7 +86,7 @@ public class InvertedIndex {
    * @return true if added successfully.
    */
   public boolean add(String stem, String path, int location) {
-    return this.map
+    return this.index
         .computeIfAbsent(stem, s -> new TreeMap<>())
         .computeIfAbsent(path, p -> new TreeSet<>())
         .add(location + 1);
@@ -129,7 +129,7 @@ public class InvertedIndex {
    * @return true if index is empty.
    */
   public boolean isEmpty() {
-    return this.map.isEmpty();
+    return this.index.isEmpty();
   }
 
   /**
@@ -138,7 +138,7 @@ public class InvertedIndex {
    * @return the number of stems in the index.
    */
   public int size() {
-    return this.map.size();
+    return this.index.size();
   }
 
   /**
@@ -157,7 +157,7 @@ public class InvertedIndex {
    * @return the number of locations where a word occurs.
    */
   public int numOfLocations(String word) {
-    var locations = this.map.get(word);
+    var locations = this.index.get(word);
     if (locations != null) {
       return locations.size();
     }
@@ -172,7 +172,7 @@ public class InvertedIndex {
    * @return the number of positions where the word occurs in location.
    */
   public int numOfPositions(String word, String location) {
-    var locations = this.map.get(word);
+    var locations = this.index.get(word);
     if (locations != null) {
       var positions = locations.get(location);
       return positions.size();
@@ -187,7 +187,7 @@ public class InvertedIndex {
    * @return true if word is in the index.
    */
   public boolean hasWord(String word) {
-    return this.map.containsKey(word);
+    return this.index.containsKey(word);
   }
 
   /**
@@ -198,7 +198,7 @@ public class InvertedIndex {
    * @return true if the stem has that location. false if the word or location is not in the index.
    */
   public boolean hasLocation(String word, String location) {
-    var locations = this.map.get(word);
+    var locations = this.index.get(word);
     if (locations != null) {
       return locations.containsKey(location);
     }
@@ -214,7 +214,7 @@ public class InvertedIndex {
    * @return true if the word is found in the location at specified location.
    */
   public boolean hasPosition(String word, String location, int position) {
-    var locations = this.map.get(word);
+    var locations = this.index.get(word);
     if (locations != null) {
       var positions = locations.get(location);
       if (positions != null) {
@@ -241,7 +241,7 @@ public class InvertedIndex {
    * @throws IOException if path is invalid.
    */
   public void toJson(Path output) throws IOException {
-    JsonWriter.writeIndex(this.map, output);
+    JsonWriter.writeIndex(this.index, output);
   }
 
   /**
@@ -251,7 +251,7 @@ public class InvertedIndex {
    */
   @Override
   public String toString() {
-    return JsonWriter.writeIndex(map);
+    return JsonWriter.writeIndex(index);
   }
 
   /**
@@ -342,13 +342,13 @@ public class InvertedIndex {
         var qList = searches.get(query);
         for (String q : query.split(" ")) {
           ArrayList<String> possibleQueries = new ArrayList<>();
-          for (String indexStem : map.keySet()) { // get possible queries
+          for (String indexStem : index.keySet()) { // get possible queries
             if (indexStem.startsWith(q)) {
               possibleQueries.add(indexStem);
             }
           }
           for (var possibility : possibleQueries) {
-            var locationData = map.get(possibility);
+            var locationData = index.get(possibility);
             if (locationData != null) {
               var set = locationData.entrySet();
               for (var entry : set) {
@@ -364,7 +364,7 @@ public class InvertedIndex {
                   score = new Score(0, 0, file);
                 }
                 int stemTotal = counts.get(file);
-                int count = map.get(possibility).get(file).size();
+                int count = index.get(possibility).get(file).size();
                 Integer totalCount = score.getCount();
                 score.setCount(count + totalCount);
                 double finalScore = (double) (count + totalCount) / stemTotal;
@@ -391,7 +391,7 @@ public class InvertedIndex {
         searches.putIfAbsent(query, new ArrayList<>());
         var qList = searches.get(query);
         for (String q : query.split(" ")) {
-          var locationData = map.get(q);
+          var locationData = index.get(q);
           if (locationData != null) {
             var set = locationData.entrySet();
             for (var entry : set) {
@@ -407,7 +407,7 @@ public class InvertedIndex {
                 score = new Score(0, 0, file);
               }
               int stemTotal = counts.get(file);
-              int count = map.get(q).get(file).size();
+              int count = index.get(q).get(file).size();
               Integer totalCount = score.getCount();
               Double existingStemTotal = score.getScore();
               score.setCount(count + totalCount);
