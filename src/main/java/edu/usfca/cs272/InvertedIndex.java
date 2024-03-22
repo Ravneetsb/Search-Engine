@@ -274,7 +274,7 @@ public class InvertedIndex {
   public class Searcher {
 
     /** ScoreMap class to store the result */
-    public class ScoreMap implements Comparable<ScoreMap> {
+    public class Score implements Comparable<Score> {
       private Integer count;
       private Double score;
       private String where;
@@ -286,17 +286,17 @@ public class InvertedIndex {
        * @param score score of the query in the file.
        * @param where the file where the query was searched.
        */
-      public ScoreMap(int count, double score, String where) {
+      public Score(int count, double score, String where) {
         this.count = count;
         this.score = score;
         this.where = where;
       }
 
       /** Constructor for ScoreMap. Defaults Numbers to 0 and where to null.` */
-      public ScoreMap() {
+      public Score() {
         this.count = 0;
         this.score = 0.0;
-        this.where = null;
+        this.where = "";
       }
 
       /**
@@ -345,7 +345,7 @@ public class InvertedIndex {
       }
 
       /**
-       * stter for where
+       * setter for where
        *
        * @param where file path
        */
@@ -354,7 +354,7 @@ public class InvertedIndex {
       }
 
       @Override
-      public int compareTo(ScoreMap other) {
+      public int compareTo(Score other) {
         int scoreCompare = other.getScore().compareTo(this.getScore());
         if (scoreCompare == 0) {
           int countCompare = other.getCount().compareTo(this.getCount());
@@ -382,7 +382,7 @@ public class InvertedIndex {
     private final TreeSet<String> queries;
 
     /** Map of the query and its score */
-    private final TreeMap<String, List<ScoreMap>> searchMap;
+    private final TreeMap<String, List<Score>> searches;
 
     /** partial tag for the search. */
     public final boolean partial;
@@ -396,7 +396,7 @@ public class InvertedIndex {
      */
     public Searcher(Path query, boolean partial) throws IOException {
       this.queries = parseQuery(query);
-      this.searchMap = new TreeMap<>();
+      this.searches = new TreeMap<>();
       this.partial = partial;
     }
 
@@ -443,8 +443,8 @@ public class InvertedIndex {
         if (query.isEmpty()) {
           continue;
         }
-        searchMap.putIfAbsent(query, new ArrayList<>());
-        var qList = searchMap.get(query);
+        searches.putIfAbsent(query, new ArrayList<>());
+        var qList = searches.get(query);
         for (String q : query.split(" ")) {
           ArrayList<String> possibleQueries = new ArrayList<>();
           for (String indexStem : map.keySet()) { // get possible queries
@@ -452,38 +452,37 @@ public class InvertedIndex {
               possibleQueries.add(indexStem);
             }
           }
-          //          System.out.println(possibleQueries);
           for (var possibility : possibleQueries) {
             var locationData = map.get(possibility);
             if (locationData != null) {
               var set = locationData.entrySet();
               for (var entry : set) {
-                ScoreMap scoreMap = null;
+                Score score = null;
                 String file = entry.getKey();
                 for (var whereCheck : qList) {
                   if (whereCheck.getWhere().equals(file)) {
-                    scoreMap = whereCheck;
+                    score = whereCheck;
                     break;
                   }
                 }
-                if (scoreMap == null) {
-                  scoreMap = new ScoreMap(0, 0, file);
+                if (score == null) {
+                  score = new Score(0, 0, file);
                 }
                 int stemTotal = counts.get(file);
                 int count = map.get(possibility).get(file).size();
-                Integer totalCount = scoreMap.getCount();
-                scoreMap.setCount(count + totalCount);
+                Integer totalCount = score.getCount();
+                score.setCount(count + totalCount);
                 double finalScore = (double) (count + totalCount) / stemTotal;
-                scoreMap.setScore(finalScore);
-                if (!qList.contains(scoreMap)) {
-                  qList.add(scoreMap);
+                score.setScore(finalScore);
+                if (!qList.contains(score)) {
+                  qList.add(score);
                 }
               }
             }
           }
         }
       }
-      for (var list : searchMap.values()) {
+      for (var list : searches.values()) {
         Collections.sort(list);
       }
     }
@@ -494,38 +493,38 @@ public class InvertedIndex {
         if (query.isEmpty()) {
           continue;
         }
-        searchMap.putIfAbsent(query, new ArrayList<>());
-        var qList = searchMap.get(query);
+        searches.putIfAbsent(query, new ArrayList<>());
+        var qList = searches.get(query);
         for (String q : query.split(" ")) {
           var locationData = map.get(q);
           if (locationData != null) {
             var set = locationData.entrySet();
             for (var entry : set) {
-              ScoreMap scoreMap = null;
+              Score score = null;
               String file = entry.getKey();
               for (var whereCheck : qList) {
                 if (whereCheck.getWhere().equals(file)) {
-                  scoreMap = whereCheck;
+                  score = whereCheck;
                   break;
                 }
               }
-              if (scoreMap == null) {
-                scoreMap = new ScoreMap(0, 0, file);
+              if (score == null) {
+                score = new Score(0, 0, file);
               }
               int stemTotal = counts.get(file);
               int count = map.get(q).get(file).size();
-              Integer totalCount = scoreMap.getCount();
-              Double existingStemTotal = scoreMap.getScore();
-              scoreMap.setCount(count + totalCount);
-              scoreMap.setScore(Double.sum((double) count / stemTotal, existingStemTotal));
-              if (!qList.contains(scoreMap)) {
-                qList.add(scoreMap);
+              Integer totalCount = score.getCount();
+              Double existingStemTotal = score.getScore();
+              score.setCount(count + totalCount);
+              score.setScore(Double.sum((double) count / stemTotal, existingStemTotal));
+              if (!qList.contains(score)) {
+                qList.add(score);
               }
             }
           }
         }
       }
-      for (var lists : searchMap.values()) {
+      for (var lists : searches.values()) {
         Collections.sort(lists);
       }
     }
@@ -537,7 +536,7 @@ public class InvertedIndex {
      * @throws IOException if the file doesn't exist or path is null.
      */
     public void toJson(Path path) throws IOException {
-      JsonWriter.writeSearch(searchMap, path);
+      JsonWriter.writeSearch(searches, path);
     }
 
     /**
@@ -547,7 +546,7 @@ public class InvertedIndex {
      */
     @Override
     public String toString() {
-      return JsonWriter.writeSearch(searchMap);
+      return JsonWriter.writeSearch(searches);
     }
   }
 }
