@@ -277,7 +277,7 @@ public class InvertedIndex {
     private final TreeSet<String> queries;
 
     /** Map of the query and its score */
-    private final TreeMap<String, List<Score>> searches;
+    private final TreeMap<String, ArrayList<Score>> searches;
 
     /** partial tag for the search. */
     public final boolean partial;
@@ -317,6 +317,7 @@ public class InvertedIndex {
           treeSet.add(sb.toString());
         }
       }
+      treeSet.remove(" ");
       return treeSet;
     }
 
@@ -421,6 +422,22 @@ public class InvertedIndex {
       }
       for (var lists : searches.values()) {
         Collections.sort(lists);
+      }
+    }
+
+    /** A different approach to exact search */
+    public void newExactSearch() {
+      for (String query : queries) {
+        String[] parts = query.split(" ");
+        searches.putIfAbsent(query, new ArrayList<>());
+        String firstQuery = parts[0];
+        var locationData = index.get(firstQuery);
+        if (locationData != null) {
+          var set = locationData.entrySet();
+          for (var entry : set) {
+            Score score = new Score(entry.getKey());
+          }
+        }
       }
     }
 

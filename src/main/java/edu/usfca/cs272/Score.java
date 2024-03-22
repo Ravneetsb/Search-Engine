@@ -29,6 +29,18 @@ public class Score implements Comparable<Score> {
   }
 
   /**
+   * Constructor for Score with a given location. This constructor is needed because our
+   * requirements call for unique location values in the scoreList of a query.
+   *
+   * @param location file path
+   */
+  public Score(String location) {
+    this.count = 0;
+    this.score = 0.0;
+    this.where = location;
+  }
+
+  /**
    * getter for count
    *
    * @return count
