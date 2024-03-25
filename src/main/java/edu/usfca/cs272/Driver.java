@@ -81,13 +81,13 @@ public class Driver {
         try {
           searcher.toJson(results);
         } catch (IOException e) {
-          // Do nothing.
+          System.err.printf("Unable to write to file %s.", results);
         }
       } else {
         try {
           JsonWriter.writeSearch(new TreeMap<>(), results);
         } catch (IOException e) {
-          System.err.println("nice");
+          System.err.printf("Unable to write to file %s.", results);
         }
       }
     }
