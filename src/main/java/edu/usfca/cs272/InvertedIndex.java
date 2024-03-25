@@ -425,22 +425,6 @@ public class InvertedIndex {
       }
     }
 
-    /** A different approach to exact search */
-    public void newExactSearch() {
-      for (String query : queries) {
-        String[] parts = query.split(" ");
-        searches.putIfAbsent(query, new ArrayList<>());
-        String firstQuery = parts[0];
-        var locationData = index.get(firstQuery);
-        if (locationData != null) {
-          var set = locationData.entrySet();
-          for (var entry : set) {
-            Score score = new Score(entry.getKey());
-          }
-        }
-      }
-    }
-
     /**
      * Writes the search results map to path in pretty json
      *
