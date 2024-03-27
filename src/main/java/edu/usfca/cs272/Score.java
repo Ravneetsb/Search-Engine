@@ -110,3 +110,12 @@ public class Score implements Comparable<Score> {
     return "ScoreMap{" + "count=" + count + ", score=" + score + ", where='" + where + '\'' + '}';
   }
 }
+
+/*
+ * TODO Warnings!
+ * 
+Description	Resource	Path	Location	Type
+Javadoc: Missing comment for private declaration	Score.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 7	Java Problem
+Javadoc: Missing comment for private declaration	Score.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 8	Java Problem
+Javadoc: Missing comment for private declaration	Score.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 9	Java Problem
+*/
