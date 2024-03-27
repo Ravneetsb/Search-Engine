@@ -2,6 +2,10 @@ package edu.usfca.cs272;
 
 import java.nio.file.Path;
 
+/*
+ * TODO Make this a non-static inner class inside of InvertedIndex
+ */
+
 /** ScoreMap class to store the result */
 public class Score implements Comparable<Score> {
   private Integer count;
