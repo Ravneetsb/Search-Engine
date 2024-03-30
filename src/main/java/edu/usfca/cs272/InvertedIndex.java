@@ -253,6 +253,16 @@ public class InvertedIndex {
   public String toString() {
     return JsonWriter.writeIndex(index);
   }
+  
+  /* TODO 
+  public ArrayList<Score> exactSeach(Set<String> queries) {
+  		this is all of the search logic for just 1 query line
+  }
+  
+  public ArrayList<Score> partialSeach(Set<String> queries) {
+  		this is all of the search logic for just 1 query line
+  }
+  */
 
   /**
    * create new instance of the inner Searcher class.
@@ -271,7 +281,7 @@ public class InvertedIndex {
   }
 
   /** Searcher class for the inverted index. */
-  public class Searcher {
+  public class Searcher { // TODO Make this a stand-alone QueryProcessor class
 
     /** Queries TreeSet. */
     private final TreeSet<String> queries;
@@ -295,6 +305,24 @@ public class InvertedIndex {
       this.partial = partial;
     }
 
+    /* TODO 
+    public void parseQuery(Path query) throws IOException {
+      try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
+        String line;
+        while ((line = br.readLine()) != null) {
+        		parseQuery(line);
+        }
+      }
+    }
+    
+    public void parseQuery(String line) {
+    		get the stems
+    		join the line
+    		get the search results from the index
+    		and store them
+    }
+    */
+    
     /**
      * gives the cleaned set of queries.
      *
@@ -308,6 +336,7 @@ public class InvertedIndex {
         String line;
         while ((line = br.readLine()) != null) {
           var stems = FileStemmer.uniqueStems(line);
+          // TODO String joined = String.join(stems, " ");
           StringJoiner sb = new StringJoiner(" ");
           for (var q : stems) {
             if (!q.isEmpty()) {
