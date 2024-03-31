@@ -82,7 +82,8 @@ public class QueryProcessor {
    */
   public void parseQuery(Path query) throws IOException {
     try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
-      SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH); // re-using the stemmer.
+      SnowballStemmer stemmer =
+          new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH); // re-using the stemmer.
       String line;
       while ((line = br.readLine()) != null) {
         var stems = FileStemmer.uniqueStems(line, stemmer);
@@ -105,10 +106,11 @@ public class QueryProcessor {
     }
   }
 
-/**
-* Perform a search for the exact query given.
- * @param queryLine query to the index.
-*/
+  /**
+   * Perform a search for the exact query given.
+   *
+   * @param queryLine query to the index.
+   */
   private void exactSearch(String queryLine) {
     if (queryLine.isBlank() || queryLine.isEmpty()) {
       return;
@@ -141,6 +143,55 @@ public class QueryProcessor {
     Collections.sort(scores);
   }
 
+  /**
+   * Performs partial search on the index.
+   *
+   * @param queryLine query
+   */
+  private void partialSearch(String queryLine) {
+    if (queryLine.isBlank() || queryLine.isEmpty()) {
+      return;
+    }
+    if (searches.containsKey(queryLine)) {
+      return;
+    }
+    searches.putIfAbsent(queryLine, new ArrayList<>());
+    ArrayList<Score> scores = searches.get(queryLine);
+
+    for (String rootQuery: queryLine.split(" ")) {
+      ArrayList<String> queries = getPartialQueries(rootQuery);
+      for (String query: queries) {
+        Set<String> locations = index.getLocations(query);
+        for (String location : locations) {
+          Score score = scores.stream()
+                  .filter(score1 -> score1.getWhere().equals(location))
+                  .findFirst()
+                  .orElse(new Score(0, 0, location));
+
+          int stemTotal = counts.get(location);
+          int count = index.numOfPositions(query, location);
+          Integer totalCount = score.getCount();
+          Double existingStemTotal = score.getScore();
+          score.setCount(count + totalCount);
+          score.setScore(Double.sum((double) count / stemTotal, existingStemTotal));
+          if (!scores.contains(score)) {
+            scores.add(score);
+          }
+        }
+      }
+    }
+    Collections.sort(scores);
+  }
+
+  private ArrayList<String> getPartialQueries(String query) {
+    ArrayList<String> queries = new ArrayList<>();
+    for (String stem: index.getWords()) {
+      if (stem.startsWith(query)) {
+        queries.add(stem);
+      }
+    }
+    return queries;
+  }
 
   /*
    * uses the queries to search through the inverted index and create the search results map based
