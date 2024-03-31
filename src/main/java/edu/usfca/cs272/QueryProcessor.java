@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /** Process query for each line. */
 public class QueryProcessor {
@@ -81,9 +82,12 @@ public class QueryProcessor {
    */
   public void parseQuery(Path query) throws IOException {
     try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
+      SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH); // re-using the stemmer.
       String line;
       while ((line = br.readLine()) != null) {
-        parseQuery(line);
+        var stems = FileStemmer.uniqueStems(line, stemmer);
+        String queryLine = String.join(" ", stems);
+        parseQuery(queryLine);
       }
     }
   }
@@ -91,14 +95,20 @@ public class QueryProcessor {
   /**
    * Logic for populating scores for every line
    *
-   * @param line query.
+   * @param query query.
    */
-  public void parseQuery(String line) {
-    //    exactSearch(line);
-    var stems = FileStemmer.uniqueStems(line);
-    exactSearch(String.join(" ", stems));
+  public void parseQuery(String query) {
+    if (partialSearch) {
+      partialSearch(query);
+    } else {
+      exactSearch(query);
+    }
   }
 
+/**
+* Perform a search for the exact query given.
+ * @param queryLine query to the index.
+*/
   private void exactSearch(String queryLine) {
     if (queryLine.isBlank() || queryLine.isEmpty()) {
       return;
@@ -131,25 +141,6 @@ public class QueryProcessor {
     Collections.sort(scores);
   }
 
-  //  /**
-  //   * gives the cleaned set of queries.
-  //   *
-  //   * @param query file path of queries file.
-  //   * @return Set of queries.
-  //   * @throws IOException if the file path is invalid.
-  //   */
-  /*private TreeSet<String> parseQuery(Path query) throws IOException {
-    TreeSet<String> treeSet = new TreeSet<>();
-    try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
-      String line;
-      while ((line = br.readLine()) != null) {
-        var stems = FileStemmer.uniqueStems(line);
-        String joined = String.join(" ", stems);
-        treeSet.add(joined);
-      }
-    }
-    return treeSet;
-  }*/
 
   /*
    * uses the queries to search through the inverted index and create the search results map based
