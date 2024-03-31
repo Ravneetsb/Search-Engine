@@ -75,11 +75,16 @@ public class QueryProcessor {
    * @param query query.
    */
   public void parseQuery(String query) {
-    if (partialSearch) {
-      partialSearch(query);
-    } else {
-      exactSearch(query);
+    if ((query.isEmpty() || query.isBlank()) || searches.containsKey(query)) {
+      return;
     }
+    ArrayList<Score> scores;
+    if (partialSearch) {
+      scores = partialSearch(query);
+    } else {
+      scores = exactSearch(query);
+    }
+    searches.put(query, scores);
   }
 
   /**
@@ -87,15 +92,8 @@ public class QueryProcessor {
    *
    * @param queryLine query to the index.
    */
-  private void exactSearch(String queryLine) {
-    if (queryLine.isBlank() || queryLine.isEmpty()) {
-      return;
-    }
-    if (searches.containsKey(queryLine)) {
-      return;
-    }
-    searches.putIfAbsent(queryLine, new ArrayList<>());
-    ArrayList<Score> scores = searches.get(queryLine);
+  private ArrayList<Score> exactSearch(String queryLine) {
+    ArrayList<Score> scores = new ArrayList<>();
     for (String query : queryLine.split(" ")) {
       Set<String> locations = index.getLocations(query);
       for (String location : locations) {
@@ -117,6 +115,7 @@ public class QueryProcessor {
       }
     }
     Collections.sort(scores);
+    return scores;
   }
 
   /**
