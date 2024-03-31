@@ -123,15 +123,8 @@ public class QueryProcessor {
    *
    * @param queryLine query
    */
-  private void partialSearch(String queryLine) {
-    if (queryLine.isBlank() || queryLine.isEmpty()) {
-      return;
-    }
-    if (searches.containsKey(queryLine)) {
-      return;
-    }
-    searches.putIfAbsent(queryLine, new ArrayList<>());
-    ArrayList<Score> scores = searches.get(queryLine);
+  private ArrayList<Score> partialSearch(String queryLine) {
+    ArrayList<Score> scores = new ArrayList<>();
 
     for (String rootQuery : queryLine.split(" ")) {
       ArrayList<String> queries = getPartialQueries(rootQuery);
@@ -156,6 +149,7 @@ public class QueryProcessor {
       }
     }
     Collections.sort(scores);
+    return scores;
   }
 
   private ArrayList<String> getPartialQueries(String query) {
