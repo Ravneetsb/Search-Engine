@@ -78,12 +78,7 @@ public class QueryProcessor {
     if ((query.isEmpty() || query.isBlank()) || searches.containsKey(query)) {
       return;
     }
-    ArrayList<Score> scores;
-    if (partialSearch) {
-      scores = partialSearch(query);
-    } else {
-      scores = exactSearch(query);
-    }
+    ArrayList<Score> scores = partialSearch ? partialSearch(query) : exactSearch(query);
     searches.put(query, scores);
   }
 
@@ -106,9 +101,8 @@ public class QueryProcessor {
         int stemTotal = counts.get(location);
         int count = index.numOfPositions(query, location);
         Integer totalCount = score.getCount();
-        Double existingStemTotal = score.getScore();
         score.setCount(count + totalCount);
-        score.setScore(Double.sum((double) count / stemTotal, existingStemTotal));
+        score.setScore(((double) count + totalCount) / stemTotal);
         if (!scores.contains(score)) {
           scores.add(score);
         }
