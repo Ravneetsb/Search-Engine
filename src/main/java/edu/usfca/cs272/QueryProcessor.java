@@ -12,9 +12,6 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
 /** Process query for each line. */
 public class QueryProcessor {
 
-  //  /** Queries TreeSet. */
-  //  private final TreeSet<String> queries;
-
   /** Map of the query and its score */
   private final TreeMap<String, ArrayList<Score>> searches;
 
@@ -35,7 +32,6 @@ public class QueryProcessor {
    * @throws IOException if the file doesn't exist or path is null.
    */
   public QueryProcessor(InvertedIndex invertedIndex, boolean partial) throws IOException {
-    //    this.queries = parseQuery(query);
     this.searches = new TreeMap<>();
     this.partialSearch = partial;
     this.index = invertedIndex;
@@ -46,33 +42,13 @@ public class QueryProcessor {
    * Constructor for QueryProcessor which always runs an exact search.
    *
    * @param invertedIndex index to be searched
-   * @throws IOException if the file doesn't exist or the path is null.
    */
-  public QueryProcessor(InvertedIndex invertedIndex) throws IOException {
-    //    this.queries = parseQuery(query);
+  public QueryProcessor(InvertedIndex invertedIndex) {
     this.searches = new TreeMap<>();
     this.index = invertedIndex;
     this.partialSearch = false;
     this.counts = index.getCounts();
   }
-
-  /* TODO
-  public void parseQuery(Path query) throws IOException {
-    try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
-      String line;
-      while ((line = br.readLine()) != null) {
-      		parseQuery(line);
-      }
-    }
-  }
-
-  public void parseQuery(String line) {
-  		get the stems
-  		join the line
-  		get the search results from the index
-  		and store them
-  }
-  */
 
   /**
    * Read queries from the path.
@@ -158,12 +134,13 @@ public class QueryProcessor {
     searches.putIfAbsent(queryLine, new ArrayList<>());
     ArrayList<Score> scores = searches.get(queryLine);
 
-    for (String rootQuery: queryLine.split(" ")) {
+    for (String rootQuery : queryLine.split(" ")) {
       ArrayList<String> queries = getPartialQueries(rootQuery);
-      for (String query: queries) {
+      for (String query : queries) {
         Set<String> locations = index.getLocations(query);
         for (String location : locations) {
-          Score score = scores.stream()
+          Score score =
+              scores.stream()
                   .filter(score1 -> score1.getWhere().equals(location))
                   .findFirst()
                   .orElse(new Score(0, 0, location));
@@ -171,9 +148,8 @@ public class QueryProcessor {
           int stemTotal = counts.get(location);
           int count = index.numOfPositions(query, location);
           Integer totalCount = score.getCount();
-          Double existingStemTotal = score.getScore();
           score.setCount(count + totalCount);
-          score.setScore(Double.sum((double) count / stemTotal, existingStemTotal));
+          score.setScore((double) (count + totalCount) / stemTotal);
           if (!scores.contains(score)) {
             scores.add(score);
           }
@@ -185,7 +161,7 @@ public class QueryProcessor {
 
   private ArrayList<String> getPartialQueries(String query) {
     ArrayList<String> queries = new ArrayList<>();
-    for (String stem: index.getWords()) {
+    for (String stem : index.getWords()) {
       if (stem.startsWith(query)) {
         queries.add(stem);
       }
@@ -193,63 +169,6 @@ public class QueryProcessor {
     return queries;
   }
 
-  /*
-   * uses the queries to search through the inverted index and create the search results map based
-   * on partial query results.
-   */
-  /*
-  public void partialSearch() {
-    for (var query : queries) {
-      if (query.isEmpty()) {
-        continue;
-      }
-      searches.putIfAbsent(query, new ArrayList<>());
-      var qList = searches.get(query);
-      for (String q : query.split(" ")) {
-        ArrayList<String> possibleQueries = new ArrayList<>();
-        getPossibleQueries(q, possibleQueries);
-        for (var possibility : possibleQueries) {
-          var locationData = index.getLocations(possibility);
-          if (locationData != null) {
-            for (var entry : locationData) {
-              Score score = null;
-              String file = entry;
-              for (var whereCheck : qList) {
-                if (whereCheck.getWhere().equals(file)) {
-                  score = whereCheck;
-                  break;
-                }
-              }
-              if (score == null) {
-                score = new Score(0, 0, file);
-              }
-              int stemTotal = counts.get(file);
-              int count = index.numOfPositions(possibility, file);
-              Integer totalCount = score.getCount();
-              score.setCount(count + totalCount);
-              double finalScore = (double) (count + totalCount) / stemTotal;
-              score.setScore(finalScore);
-              if (!qList.contains(score)) {
-                qList.add(score);
-              }
-            }
-          }
-        }
-      }
-    }
-    for (var list : searches.values()) {
-      Collections.sort(list);
-    }
-  }
-
-  private void getPossibleQueries(String q, ArrayList<String> possibleQueries) {
-    for (String indexStem : index.getWords()) { // get possible queries
-      if (indexStem.startsWith(q)) {
-        possibleQueries.add(indexStem);
-      }
-    }
-  }
-  */
   /**
    * Writes the search results map to path in pretty json
    *
