@@ -1,0 +1,224 @@
+package edu.usfca.cs272;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+
+/** Process query for each line. */
+public class QueryProcessor {
+
+  /** Queries TreeSet. */
+  private final TreeSet<String> queries;
+
+  /** Map of the query and its score */
+  private final TreeMap<String, ArrayList<Score>> searches;
+
+  /** partial tag for the search. */
+  public final boolean partialSearch;
+
+  /** Inverted Index to search through. */
+  private final InvertedIndex index;
+
+  /** Counts map from the invertedIndex. */
+  private final Map<String, Integer> counts;
+
+  /**
+   * Constructor for Searcher
+   *
+   * @param query path of the queries file.
+   * @param invertedIndex The index to be searched.
+   * @param partial true if partial search is to be performed.
+   * @throws IOException if the file doesn't exist or path is null.
+   */
+  public QueryProcessor(Path query, InvertedIndex invertedIndex, boolean partial)
+      throws IOException {
+    this.queries = parseQuery(query);
+    this.searches = new TreeMap<>();
+    this.partialSearch = partial;
+    this.index = invertedIndex;
+    this.counts = index.getCounts();
+  }
+
+  /**
+   * Constructor for QueryProcessor which always runs an exact search.
+   *
+   * @param query path of the queries file
+   * @param invertedIndex index to be searched
+   * @throws IOException if the file doesn't exist or the path is null.
+   */
+  public QueryProcessor(Path query, InvertedIndex invertedIndex) throws IOException {
+    this.queries = parseQuery(query);
+    this.searches = new TreeMap<>();
+    this.index = invertedIndex;
+    this.partialSearch = false;
+    this.counts = index.getCounts();
+  }
+
+  /* TODO
+  public void parseQuery(Path query) throws IOException {
+    try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
+      String line;
+      while ((line = br.readLine()) != null) {
+      		parseQuery(line);
+      }
+    }
+  }
+
+  public void parseQuery(String line) {
+  		get the stems
+  		join the line
+  		get the search results from the index
+  		and store them
+  }
+  */
+
+  /**
+   * gives the cleaned set of queries.
+   *
+   * @param query file path of queries file.
+   * @return Set of queries.
+   * @throws IOException if the file path is invalid.
+   */
+  private TreeSet<String> parseQuery(Path query) throws IOException {
+    TreeSet<String> treeSet = new TreeSet<>();
+    try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        var stems = FileStemmer.uniqueStems(line);
+        String joined = String.join(" ", stems);
+        treeSet.add(joined);
+      }
+    }
+    return treeSet;
+  }
+
+  /** calls search based on partial flag. */
+  public void search() {
+    if (partialSearch) {
+      partialSearch();
+    } else {
+      exactSearch();
+    }
+  }
+
+  /**
+   * uses the queries to search through the inverted index and create the search results map based
+   * on partial query results.
+   */
+  public void partialSearch() {
+    for (var query : queries) {
+      if (query.isEmpty()) {
+        continue;
+      }
+      searches.putIfAbsent(query, new ArrayList<>());
+      var qList = searches.get(query);
+      for (String q : query.split(" ")) {
+        ArrayList<String> possibleQueries = new ArrayList<>();
+        getPossibleQueries(q, possibleQueries);
+        for (var possibility : possibleQueries) {
+          var locationData = index.getLocations(possibility);
+          if (locationData != null) {
+            for (var entry : locationData) {
+              Score score = null;
+              String file = entry;
+              for (var whereCheck : qList) {
+                if (whereCheck.getWhere().equals(file)) {
+                  score = whereCheck;
+                  break;
+                }
+              }
+              if (score == null) {
+                score = new Score(0, 0, file);
+              }
+              int stemTotal = counts.get(file);
+              int count = index.numOfPositions(possibility, file);
+              Integer totalCount = score.getCount();
+              score.setCount(count + totalCount);
+              double finalScore = (double) (count + totalCount) / stemTotal;
+              score.setScore(finalScore);
+              if (!qList.contains(score)) {
+                qList.add(score);
+              }
+            }
+          }
+        }
+      }
+    }
+    for (var list : searches.values()) {
+      Collections.sort(list);
+    }
+  }
+
+  private void getPossibleQueries(String q, ArrayList<String> possibleQueries) {
+    for (String indexStem : index.getWords()) { // get possible queries
+      if (indexStem.startsWith(q)) {
+        possibleQueries.add(indexStem);
+      }
+    }
+  }
+
+  /** uses the queries to search through the inverted index and create the search results map. */
+  public void exactSearch() {
+    for (var query : queries) {
+      if (query.isEmpty()) {
+        continue;
+      }
+      searches.putIfAbsent(query, new ArrayList<>());
+      var qList = searches.get(query);
+      for (String q : query.split(" ")) {
+        var locationData = index.getLocations(q);
+        if (locationData != null) {
+          for (var entry : locationData) {
+            Score score = null;
+            String file = entry;
+            for (var whereCheck : qList) {
+              if (whereCheck.getWhere().equals(file)) {
+                score = whereCheck;
+                break;
+              }
+            }
+            if (score == null) {
+              score = new Score(0, 0, file);
+            }
+            int stemTotal = counts.get(file);
+            int count = index.numOfPositions(q, file);
+            Integer totalCount = score.getCount();
+            Double existingStemTotal = score.getScore();
+            score.setCount(count + totalCount);
+            score.setScore(Double.sum((double) count / stemTotal, existingStemTotal));
+            if (!qList.contains(score)) {
+              qList.add(score);
+            }
+          }
+        }
+      }
+    }
+    for (var lists : searches.values()) {
+      Collections.sort(lists);
+    }
+  }
+
+  /**
+   * Writes the search results map to path in pretty json
+   *
+   * @param path Path of results output file
+   * @throws IOException if the file doesn't exist or path is null.
+   */
+  public void toJson(Path path) throws IOException {
+    JsonWriter.writeSearch(searches, path);
+  }
+
+  /**
+   * to String method for Searcher
+   *
+   * @return toString
+   */
+  @Override
+  public String toString() {
+    return JsonWriter.writeSearch(searches);
+  }
+}

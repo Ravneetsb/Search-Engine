@@ -1,5 +1,7 @@
 package edu.usfca.cs272;
 
+import org.eclipse.jetty.util.IO;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -36,10 +38,7 @@ public class Driver {
 
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index = new InvertedIndex();
-    InvertedIndex.Searcher searcher = null;
-    if (argParser.hasValue("-query")) {
-      searcher = index.newSearcher(argParser.getPath("-query"), argParser.hasFlag("-partial"));
-    }
+    QueryProcessor processor = null;
 
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
@@ -70,16 +69,25 @@ public class Driver {
       }
     }
 
-    if (argParser.hasFlag("-query") && searcher != null) {
-      searcher.search();
+    if (argParser.hasValue("-query")) {
+      try {
+        processor =
+            new QueryProcessor(argParser.getPath("-query"), index, argParser.hasFlag("-partial"));
+      } catch (IOException e) {
+        System.err.printf("Unable to read from file %s.", argParser.getPath("query"));
+      }
+    }
+
+    if (argParser.hasFlag("-query") && processor != null) {
+      processor.search();
     }
 
     Path results;
     if (argParser.hasFlag("-results")) {
       results = argParser.getPath("-results", DEFAULT_RESULTS);
-      if (searcher != null) {
+      if (processor != null) {
         try {
-          searcher.toJson(results);
+          processor.toJson(results);
         } catch (IOException e) {
           System.err.printf("Unable to write to file %s.", results);
         }
