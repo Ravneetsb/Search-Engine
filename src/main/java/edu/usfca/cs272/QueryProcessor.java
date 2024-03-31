@@ -11,8 +11,8 @@ import java.util.*;
 /** Process query for each line. */
 public class QueryProcessor {
 
-  /** Queries TreeSet. */
-  private final TreeSet<String> queries;
+  //  /** Queries TreeSet. */
+  //  private final TreeSet<String> queries;
 
   /** Map of the query and its score */
   private final TreeMap<String, ArrayList<Score>> searches;
@@ -29,14 +29,12 @@ public class QueryProcessor {
   /**
    * Constructor for Searcher
    *
-   * @param query path of the queries file.
    * @param invertedIndex The index to be searched.
    * @param partial true if partial search is to be performed.
    * @throws IOException if the file doesn't exist or path is null.
    */
-  public QueryProcessor(Path query, InvertedIndex invertedIndex, boolean partial)
-      throws IOException {
-    this.queries = parseQuery(query);
+  public QueryProcessor(InvertedIndex invertedIndex, boolean partial) throws IOException {
+    //    this.queries = parseQuery(query);
     this.searches = new TreeMap<>();
     this.partialSearch = partial;
     this.index = invertedIndex;
@@ -46,12 +44,11 @@ public class QueryProcessor {
   /**
    * Constructor for QueryProcessor which always runs an exact search.
    *
-   * @param query path of the queries file
    * @param invertedIndex index to be searched
    * @throws IOException if the file doesn't exist or the path is null.
    */
-  public QueryProcessor(Path query, InvertedIndex invertedIndex) throws IOException {
-    this.queries = parseQuery(query);
+  public QueryProcessor(InvertedIndex invertedIndex) throws IOException {
+    //    this.queries = parseQuery(query);
     this.searches = new TreeMap<>();
     this.index = invertedIndex;
     this.partialSearch = false;
@@ -77,13 +74,71 @@ public class QueryProcessor {
   */
 
   /**
-   * gives the cleaned set of queries.
+   * Read queries from the path.
    *
-   * @param query file path of queries file.
-   * @return Set of queries.
-   * @throws IOException if the file path is invalid.
+   * @param query path of the file which contains the queries.
+   * @throws IOException if the path is null or doesn't exist.
    */
-  private TreeSet<String> parseQuery(Path query) throws IOException {
+  public void parseQuery(Path query) throws IOException {
+    try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        parseQuery(line);
+      }
+    }
+  }
+
+  /**
+   * Logic for populating scores for every line
+   *
+   * @param line query.
+   */
+  public void parseQuery(String line) {
+    //    exactSearch(line);
+    var stems = FileStemmer.uniqueStems(line);
+    exactSearch(String.join(" ", stems));
+  }
+
+  private void exactSearch(String queryLine) {
+    if (queryLine.isBlank() || queryLine.isEmpty()) {
+      return;
+    }
+    if (searches.containsKey(queryLine)) {
+      return;
+    }
+    searches.putIfAbsent(queryLine, new ArrayList<>());
+    ArrayList<Score> scores = searches.get(queryLine);
+    for (String query : queryLine.split(" ")) {
+      Set<String> locations = index.getLocations(query);
+      for (String location : locations) {
+        Score score =
+            scores.stream()
+                .filter(score1 -> score1.getWhere().equals(location))
+                .findFirst()
+                .orElse(new Score(0, 0, location));
+
+        int stemTotal = counts.get(location);
+        int count = index.numOfPositions(query, location);
+        Integer totalCount = score.getCount();
+        Double existingStemTotal = score.getScore();
+        score.setCount(count + totalCount);
+        score.setScore(Double.sum((double) count / stemTotal, existingStemTotal));
+        if (!scores.contains(score)) {
+          scores.add(score);
+        }
+      }
+    }
+    Collections.sort(scores);
+  }
+
+  //  /**
+  //   * gives the cleaned set of queries.
+  //   *
+  //   * @param query file path of queries file.
+  //   * @return Set of queries.
+  //   * @throws IOException if the file path is invalid.
+  //   */
+  /*private TreeSet<String> parseQuery(Path query) throws IOException {
     TreeSet<String> treeSet = new TreeSet<>();
     try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
       String line;
@@ -94,21 +149,13 @@ public class QueryProcessor {
       }
     }
     return treeSet;
-  }
+  }*/
 
-  /** calls search based on partial flag. */
-  public void search() {
-    if (partialSearch) {
-      partialSearch();
-    } else {
-      exactSearch();
-    }
-  }
-
-  /**
+  /*
    * uses the queries to search through the inverted index and create the search results map based
    * on partial query results.
    */
+  /*
   public void partialSearch() {
     for (var query : queries) {
       if (query.isEmpty()) {
@@ -160,48 +207,7 @@ public class QueryProcessor {
       }
     }
   }
-
-  /** uses the queries to search through the inverted index and create the search results map. */
-  public void exactSearch() {
-    for (var query : queries) {
-      if (query.isEmpty()) {
-        continue;
-      }
-      searches.putIfAbsent(query, new ArrayList<>());
-      var qList = searches.get(query);
-      for (String q : query.split(" ")) {
-        var locationData = index.getLocations(q);
-        if (locationData != null) {
-          for (var entry : locationData) {
-            Score score = null;
-            String file = entry;
-            for (var whereCheck : qList) {
-              if (whereCheck.getWhere().equals(file)) {
-                score = whereCheck;
-                break;
-              }
-            }
-            if (score == null) {
-              score = new Score(0, 0, file);
-            }
-            int stemTotal = counts.get(file);
-            int count = index.numOfPositions(q, file);
-            Integer totalCount = score.getCount();
-            Double existingStemTotal = score.getScore();
-            score.setCount(count + totalCount);
-            score.setScore(Double.sum((double) count / stemTotal, existingStemTotal));
-            if (!qList.contains(score)) {
-              qList.add(score);
-            }
-          }
-        }
-      }
-    }
-    for (var lists : searches.values()) {
-      Collections.sort(lists);
-    }
-  }
-
+  */
   /**
    * Writes the search results map to path in pretty json
    *

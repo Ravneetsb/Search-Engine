@@ -71,15 +71,18 @@ public class Driver {
 
     if (argParser.hasValue("-query")) {
       try {
-        processor =
-            new QueryProcessor(argParser.getPath("-query"), index, argParser.hasFlag("-partial"));
+        processor = new QueryProcessor(index, argParser.hasFlag("-partial"));
       } catch (IOException e) {
         System.err.printf("Unable to read from file %s.", argParser.getPath("query"));
       }
     }
 
     if (argParser.hasFlag("-query") && processor != null) {
-      processor.search();
+      try {
+        processor.parseQuery(argParser.getPath("-query"));
+      } catch (IOException e) {
+        System.err.printf("Can't read from file %s", processor);
+      }
     }
 
     Path results;
