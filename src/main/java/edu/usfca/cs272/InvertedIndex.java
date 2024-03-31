@@ -250,14 +250,125 @@ public class InvertedIndex {
     return JsonWriter.writeIndex(index);
   }
 
-  /* TODO
-  public ArrayList<Score> exactSeach(Set<String> queries) {
-  		this is all of the search logic for just 1 query line
+  /**
+   * Creates a new Score and returns it
+   *
+   * @param count number of times stem is present in file.
+   * @param score count / total stems in file
+   * @param where file path
+   * @return new Score object
+   */
+  public Score newScore(int count, double score, String where) {
+    return new Score(count, score, where);
   }
 
-  public ArrayList<Score> partialSeach(Set<String> queries) {
-  		this is all of the search logic for just 1 query line
-  }
-  */
+  /** ScoreMap class to store the result */
+  public class Score implements Comparable<Score> {
+    /** Number of times query is present in file. */
+    private Integer count;
 
+    /** Score for the query. Given by count / totalNumOfStems */
+    private Double score;
+
+    /** File path where query word is located. */
+    private String location;
+
+    /**
+     * Constructor for the ScoreMap
+     *
+     * @param count number of times a query word was present in the file.
+     * @param score score of the query in the file.
+     * @param stemLocation the file where the query was searched.
+     */
+    public Score(int count, double score, String stemLocation) {
+      this.count = count;
+      this.score = score;
+      this.location = stemLocation;
+    }
+
+    /** Constructor for ScoreMap. Defaults Numbers to 0 and location to null.` */
+    public Score() {
+      this.count = 0;
+      this.score = 0.0;
+      this.location = "";
+    }
+
+    /**
+     * getter for count
+     *
+     * @return count
+     */
+    public Integer getCount() {
+      return count;
+    }
+
+    /**
+     * setter for count
+     *
+     * @param count number of times query stem is present in the file.
+     */
+    public void setCount(int count) {
+      this.count = count;
+    }
+
+    /**
+     * getter for score.
+     *
+     * @return the score of the query in the file.
+     */
+    public Double getScore() {
+      return score;
+    }
+
+    /**
+     * sets the score for the query
+     *
+     * @param score score of the query. given by counts/total stems in file.
+     */
+    public void setScore(double score) {
+      this.score = score;
+    }
+
+    /**
+     * getter for where
+     *
+     * @return the file path
+     */
+    public String getLocation() {
+      return location;
+    }
+
+    /**
+     * setter for where
+     *
+     * @param location file path
+     */
+    public void setLocation(String location) {
+      this.location = location;
+    }
+
+    @Override
+    public int compareTo(Score other) {
+      int scoreCompare = other.getScore().compareTo(this.getScore());
+      if (scoreCompare == 0) {
+        int countCompare = other.getCount().compareTo(this.getCount());
+        if (countCompare == 0) {
+          return Path.of(this.getLocation()).compareTo(Path.of(other.getLocation()));
+        } else return countCompare;
+      } else return scoreCompare;
+    }
+
+    @Override
+    public String toString() {
+      return "ScoreMap{"
+          + "count="
+          + count
+          + ", score="
+          + score
+          + ", location='"
+          + location
+          + '\''
+          + '}';
+    }
+  }
 }

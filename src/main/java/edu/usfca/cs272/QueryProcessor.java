@@ -13,7 +13,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
 public class QueryProcessor {
 
   /** Map of the query and its score */
-  private final TreeMap<String, ArrayList<Score>> searches;
+  private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
 
   /** partial tag for the search. */
   public final boolean partialSearch;
@@ -78,7 +78,8 @@ public class QueryProcessor {
     if ((query.isEmpty() || query.isBlank()) || searches.containsKey(query)) {
       return;
     }
-    ArrayList<Score> scores = partialSearch ? partialSearch(query) : exactSearch(query);
+    ArrayList<InvertedIndex.Score> scores =
+        partialSearch ? partialSearch(query) : exactSearch(query);
     searches.put(query, scores);
   }
 
@@ -87,16 +88,16 @@ public class QueryProcessor {
    *
    * @param queryLine query to the index.
    */
-  private ArrayList<Score> exactSearch(String queryLine) {
-    ArrayList<Score> scores = new ArrayList<>();
+  private ArrayList<InvertedIndex.Score> exactSearch(String queryLine) {
+    ArrayList<InvertedIndex.Score> scores = new ArrayList<>();
     for (String query : queryLine.split(" ")) {
       Set<String> locations = index.getLocations(query);
       for (String location : locations) {
-        Score score =
+        InvertedIndex.Score score =
             scores.stream()
-                .filter(score1 -> score1.getWhere().equals(location))
+                .filter(score1 -> score1.getLocation().equals(location))
                 .findFirst()
-                .orElse(new Score(0, 0, location));
+                .orElse(index.newScore(0, 0, location));
 
         int stemTotal = counts.get(location);
         int count = index.numOfPositions(query, location);
@@ -117,19 +118,19 @@ public class QueryProcessor {
    *
    * @param queryLine query
    */
-  private ArrayList<Score> partialSearch(String queryLine) {
-    ArrayList<Score> scores = new ArrayList<>();
+  private ArrayList<InvertedIndex.Score> partialSearch(String queryLine) {
+    ArrayList<InvertedIndex.Score> scores = new ArrayList<>();
 
     for (String rootQuery : queryLine.split(" ")) {
       ArrayList<String> queries = getPartialQueries(rootQuery);
       for (String query : queries) {
         Set<String> locations = index.getLocations(query);
         for (String location : locations) {
-          Score score =
+          InvertedIndex.Score score =
               scores.stream()
-                  .filter(score1 -> score1.getWhere().equals(location))
+                  .filter(score1 -> score1.getLocation().equals(location))
                   .findFirst()
-                  .orElse(new Score(0, 0, location));
+                  .orElse(index.newScore(0, 0, location));
 
           int stemTotal = counts.get(location);
           int count = index.numOfPositions(query, location);

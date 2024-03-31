@@ -415,7 +415,7 @@ public class JsonWriter {
    * @param searchMap search results map
    * @return pretty Json or null if IOException is thrown.
    */
-  public static String writeSearch(TreeMap<String, ArrayList<Score>> searchMap) {
+  public static String writeSearch(TreeMap<String, ArrayList<InvertedIndex.Score>> searchMap) {
     try {
       StringWriter writer = new StringWriter();
       writeSearch(searchMap, writer, 0);
@@ -432,8 +432,8 @@ public class JsonWriter {
    * @param path output file.
    * @throws IOException if unable to write to file.
    */
-  public static void writeSearch(TreeMap<String, ArrayList<Score>> searchMap, Path path)
-      throws IOException {
+  public static void writeSearch(
+      TreeMap<String, ArrayList<InvertedIndex.Score>> searchMap, Path path) throws IOException {
     if (path == null) {
       return;
     }
@@ -451,7 +451,8 @@ public class JsonWriter {
    * @throws IOException if unable to write to path.
    */
   public static void writeSearch(
-      TreeMap<String, ArrayList<Score>> searchMap, Writer writer, int indent) throws IOException {
+      TreeMap<String, ArrayList<InvertedIndex.Score>> searchMap, Writer writer, int indent)
+      throws IOException {
     var entryIterator = searchMap.entrySet().iterator();
     writer.write("{");
     if (entryIterator.hasNext()) {
@@ -506,7 +507,8 @@ public class JsonWriter {
    * @param map scoreMap
    * @throws IOException if the writing fails.
    */
-  private static void writeScore(Writer writer, int indent, Score map) throws IOException {
+  private static void writeScore(Writer writer, int indent, InvertedIndex.Score map)
+      throws IOException {
     DecimalFormat format = new DecimalFormat("0.00000000");
     writeIndent("{", writer, indent + 2);
     writer.write("\n");
@@ -520,7 +522,7 @@ public class JsonWriter {
     writer.write(",\n");
     writeQuote("where", writer, indent + 3);
     writer.write(": ");
-    writeQuote(map.getWhere(), writer, indent);
+    writeQuote(map.getLocation(), writer, indent);
     writer.write("\n");
     writeIndent("}", writer, indent + 2);
   }
