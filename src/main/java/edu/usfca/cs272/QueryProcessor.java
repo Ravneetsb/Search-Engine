@@ -22,7 +22,7 @@ public class QueryProcessor {
   private final InvertedIndex index;
 
   /** Counts map from the invertedIndex. */
-  private final Map<String, Integer> counts;
+  private final Map<String, Integer> counts; // TODO Remove
 
   /**
    * Constructor for Searcher
@@ -59,11 +59,11 @@ public class QueryProcessor {
   public void parseQuery(Path query) throws IOException {
     try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
       SnowballStemmer stemmer =
-          new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH); // re-using the stemmer.
+          new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH); // re-using the stemmer. TODO Use 1 stemmer for the entire class
       String line;
       while ((line = br.readLine()) != null) {
-        var stems = FileStemmer.uniqueStems(line, stemmer);
-        String queryLine = String.join(" ", stems);
+        var stems = FileStemmer.uniqueStems(line, stemmer); // TODO Remove
+        String queryLine = String.join(" ", stems); // TODO Remove
         parseQuery(queryLine);
       }
     }
@@ -75,9 +75,13 @@ public class QueryProcessor {
    * @param query query.
    */
   public void parseQuery(String query) {
-    if ((query.isEmpty() || query.isBlank()) || searches.containsKey(query)) {
+  	// TODO Split and join inside of here instead
+  	
+    if ((query.isEmpty() || query.isBlank()) || searches.containsKey(query)) { // TODO Just check isBLank
       return;
     }
+    // TODO Move the logic to decide search into a convenience method like:
+    // TODO public List<Score> search(Set<String> queries, boolean partial) <-- inside of the inverted index
     ArrayList<InvertedIndex.Score> scores =
         partialSearch ? partialSearch(query) : exactSearch(query);
     searches.put(query, scores);
@@ -88,7 +92,7 @@ public class QueryProcessor {
    *
    * @param queryLine query to the index.
    */
-  private ArrayList<InvertedIndex.Score> exactSearch(String queryLine) {
+  private ArrayList<InvertedIndex.Score> exactSearch(String queryLine) { // TODO Move this into InvertedIndex
     ArrayList<InvertedIndex.Score> scores = new ArrayList<>();
     for (String query : queryLine.split(" ")) {
       Set<String> locations = index.getLocations(query);
@@ -118,13 +122,27 @@ public class QueryProcessor {
    *
    * @param queryLine query
    */
-  private ArrayList<InvertedIndex.Score> partialSearch(String queryLine) {
+  // TODO public ArrayList<Score> partialSearch(Set<String> queries) {
+  private ArrayList<InvertedIndex.Score> partialSearch(String queryLine) { // TODO Move this into InvertedIndex
     ArrayList<InvertedIndex.Score> scores = new ArrayList<>();
 
+    /* TODO 
+    for (String query : queries) {
+    		for (String stem : index.getWords()) { // TODO Use tailMap + break
+    			if (stem.startsWith(query)) {
+    				Set<String> locations = index.getLocations(query);
+    				for (String location : locations) {
+    					
+    				}
+    			}
+    		}
+    }
+    */
+    
     for (String rootQuery : queryLine.split(" ")) {
       ArrayList<String> queries = getPartialQueries(rootQuery);
       for (String query : queries) {
-        Set<String> locations = index.getLocations(query);
+        Set<String> locations = index.getLocations(query); // TODO Directly access the index instead
         for (String location : locations) {
           InvertedIndex.Score score =
               scores.stream()
@@ -176,4 +194,6 @@ public class QueryProcessor {
   public String toString() {
     return JsonWriter.writeSearch(searches);
   }
+  
+  // TODO Think about other generally useful methods
 }

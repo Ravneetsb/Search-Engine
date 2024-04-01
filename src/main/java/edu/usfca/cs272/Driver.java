@@ -38,7 +38,7 @@ public class Driver {
 
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index = new InvertedIndex();
-    QueryProcessor processor = null;
+    QueryProcessor processor = null; // TODO new QueryProcessor(index, argParser.hasFlag("-partial"));
 
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
@@ -69,7 +69,7 @@ public class Driver {
       }
     }
 
-    if (argParser.hasValue("-query")) {
+    if (argParser.hasValue("-query")) { // TODO Remove
       try {
         processor = new QueryProcessor(index, argParser.hasFlag("-partial"));
       } catch (IOException e) {
@@ -77,7 +77,7 @@ public class Driver {
       }
     }
 
-    if (argParser.hasFlag("-query") && processor != null) {
+    if (argParser.hasFlag("-query") && processor != null) { // TODO Remove processor != null
       try {
         processor.parseQuery(argParser.getPath("-query"));
       } catch (IOException e) {
@@ -85,7 +85,7 @@ public class Driver {
       }
     }
 
-    Path results;
+    Path results; // TODO Move this inside of the if block
     if (argParser.hasFlag("-results")) {
       results = argParser.getPath("-results", DEFAULT_RESULTS);
       if (processor != null) {
@@ -109,3 +109,13 @@ public class Driver {
     System.out.printf("Elapsed: %f seconds%n", seconds);
   }
 }
+
+/*
+ * TODO
+
+Description	Resource	Path	Location	Type
+Javadoc: Missing comment for private declaration	QueryProcessor.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 150	Java Problem
+Javadoc: Missing tag for return type	QueryProcessor.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 91	Java Problem
+Javadoc: Missing tag for return type	QueryProcessor.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 121	Java Problem
+The import org.eclipse.jetty.util.IO is never used	Driver.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 3	Java Problem
+*/
