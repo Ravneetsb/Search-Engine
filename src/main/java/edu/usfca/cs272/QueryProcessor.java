@@ -31,7 +31,7 @@ public class QueryProcessor {
    * @param partial true if partial search is to be performed.
    * @throws IOException if the file doesn't exist or path is null.
    */
-  public QueryProcessor(InvertedIndex invertedIndex, boolean partial) throws IOException {
+  public QueryProcessor(InvertedIndex invertedIndex, boolean partial) {
     this.searches = new TreeMap<>();
     this.partialSearch = partial;
     this.index = invertedIndex;
@@ -59,7 +59,9 @@ public class QueryProcessor {
   public void parseQuery(Path query) throws IOException {
     try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
       SnowballStemmer stemmer =
-          new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH); // re-using the stemmer. TODO Use 1 stemmer for the entire class
+          new SnowballStemmer(
+              SnowballStemmer.ALGORITHM
+                  .ENGLISH); // re-using the stemmer. TODO Use 1 stemmer for the entire class
       String line;
       while ((line = br.readLine()) != null) {
         var stems = FileStemmer.uniqueStems(line, stemmer); // TODO Remove
@@ -75,46 +77,18 @@ public class QueryProcessor {
    * @param query query.
    */
   public void parseQuery(String query) {
-  	// TODO Split and join inside of here instead
-  	
-    if ((query.isEmpty() || query.isBlank()) || searches.containsKey(query)) { // TODO Just check isBLank
+    // TODO Split and join inside of here instead
+
+    if ((query.isEmpty() || query.isBlank())
+        || searches.containsKey(query)) { // TODO Just check isBLank
       return;
     }
     // TODO Move the logic to decide search into a convenience method like:
-    // TODO public List<Score> search(Set<String> queries, boolean partial) <-- inside of the inverted index
+    // TODO public List<Score> search(Set<String> queries, boolean partial) <-- inside of the
+    // inverted index
     ArrayList<InvertedIndex.Score> scores =
-        partialSearch ? partialSearch(query) : exactSearch(query);
+        partialSearch ? partialSearch(query) : index.exactSearch(FileStemmer.uniqueStems(query));
     searches.put(query, scores);
-  }
-
-  /**
-   * Perform a search for the exact query given.
-   *
-   * @param queryLine query to the index.
-   */
-  private ArrayList<InvertedIndex.Score> exactSearch(String queryLine) { // TODO Move this into InvertedIndex
-    ArrayList<InvertedIndex.Score> scores = new ArrayList<>();
-    for (String query : queryLine.split(" ")) {
-      Set<String> locations = index.getLocations(query);
-      for (String location : locations) {
-        InvertedIndex.Score score =
-            scores.stream()
-                .filter(score1 -> score1.getLocation().equals(location))
-                .findFirst()
-                .orElse(index.newScore(0, 0, location));
-
-        int stemTotal = counts.get(location);
-        int count = index.numOfPositions(query, location);
-        Integer totalCount = score.getCount();
-        score.setCount(count + totalCount);
-        score.setScore(((double) count + totalCount) / stemTotal);
-        if (!scores.contains(score)) {
-          scores.add(score);
-        }
-      }
-    }
-    Collections.sort(scores);
-    return scores;
   }
 
   /**
@@ -123,22 +97,23 @@ public class QueryProcessor {
    * @param queryLine query
    */
   // TODO public ArrayList<Score> partialSearch(Set<String> queries) {
-  private ArrayList<InvertedIndex.Score> partialSearch(String queryLine) { // TODO Move this into InvertedIndex
+  private ArrayList<InvertedIndex.Score> partialSearch(
+      String queryLine) { // TODO Move this into InvertedIndex
     ArrayList<InvertedIndex.Score> scores = new ArrayList<>();
 
-    /* TODO 
+    /* TODO
     for (String query : queries) {
     		for (String stem : index.getWords()) { // TODO Use tailMap + break
     			if (stem.startsWith(query)) {
     				Set<String> locations = index.getLocations(query);
     				for (String location : locations) {
-    					
+
     				}
     			}
     		}
     }
     */
-    
+
     for (String rootQuery : queryLine.split(" ")) {
       ArrayList<String> queries = getPartialQueries(rootQuery);
       for (String query : queries) {
@@ -194,6 +169,6 @@ public class QueryProcessor {
   public String toString() {
     return JsonWriter.writeSearch(searches);
   }
-  
+
   // TODO Think about other generally useful methods
 }

@@ -231,6 +231,42 @@ public class InvertedIndex {
   }
 
   /**
+   * Performs exact search on a set of queries
+   *
+   * @param queries set of queries.
+   * @return ArrayList of Scores.
+   */
+  public ArrayList<Score> exactSearch(Set<String> queries) {
+    ArrayList<Score> scores = new ArrayList<>();
+    for (String query : queries) {
+      var locations = index.get(query);
+      if (locations != null) {
+        for (String location : locations.keySet()) {
+          Score score = null;
+          for (var existingScore : scores) {
+            if (existingScore.getLocation().equals(location)) {
+              score = existingScore;
+            }
+          }
+          if (score == null) {
+            score = new Score(0, 0, location);
+          }
+          int stemTotal = counts.get(location);
+          int count = index.get(query).get(location).size();
+          int totalCount = score.getCount();
+          score.setCount(count + totalCount);
+          score.setScore(((double) count + totalCount) / stemTotal);
+          if (!scores.contains(score)) {
+            scores.add(score);
+          }
+        }
+      }
+    }
+    Collections.sort(scores);
+    return scores;
+  }
+
+  /**
    * writes index in pretty Json to output file.
    *
    * @param output Path of output file.
