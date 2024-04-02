@@ -87,7 +87,9 @@ public class QueryProcessor {
     // TODO public List<Score> search(Set<String> queries, boolean partial) <-- inside of the
     // inverted index
     ArrayList<InvertedIndex.Score> scores =
-        partialSearch ? partialSearch(query) : index.exactSearch(FileStemmer.uniqueStems(query));
+        partialSearch
+            ? index.partialSearch(FileStemmer.uniqueStems(query))
+            : index.exactSearch(FileStemmer.uniqueStems(query));
     searches.put(query, scores);
   }
 
