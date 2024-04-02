@@ -1,12 +1,9 @@
 package edu.usfca.cs272;
 
-import org.eclipse.jetty.util.IO;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.TreeMap;
 
 /**
  * Class responsible for running this project based on the provided command-line arguments. See the
@@ -38,7 +35,7 @@ public class Driver {
 
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index = new InvertedIndex();
-    QueryProcessor processor = null; // TODO new QueryProcessor(index, argParser.hasFlag("-partial"));
+    QueryProcessor processor = new QueryProcessor(index, argParser.hasFlag("-partial"));
 
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
@@ -69,37 +66,21 @@ public class Driver {
       }
     }
 
-    if (argParser.hasValue("-query")) { // TODO Remove
+    if (argParser.hasValue("-query")) {
+      Path query = argParser.getPath("-query");
       try {
-        processor = new QueryProcessor(index, argParser.hasFlag("-partial"));
+        processor.parseQuery(query);
       } catch (IOException e) {
-        System.err.printf("Unable to read from file %s.", argParser.getPath("query"));
+        System.err.printf("Can't read from file %s", query);
       }
     }
 
-    if (argParser.hasFlag("-query") && processor != null) { // TODO Remove processor != null
-      try {
-        processor.parseQuery(argParser.getPath("-query"));
-      } catch (IOException e) {
-        System.err.printf("Can't read from file %s", processor);
-      }
-    }
-
-    Path results; // TODO Move this inside of the if block
     if (argParser.hasFlag("-results")) {
-      results = argParser.getPath("-results", DEFAULT_RESULTS);
-      if (processor != null) {
-        try {
-          processor.toJson(results);
-        } catch (IOException e) {
-          System.err.printf("Unable to write to file %s.", results);
-        }
-      } else {
-        try {
-          JsonWriter.writeSearch(new TreeMap<>(), results);
-        } catch (IOException e) {
-          System.err.printf("Unable to write to file %s.", results);
-        }
+      Path results = argParser.getPath("-results", DEFAULT_RESULTS);
+      try {
+        processor.toJson(results);
+      } catch (IOException e) {
+        System.err.printf("Unable to write to file %s.", results);
       }
     }
 
@@ -109,13 +90,3 @@ public class Driver {
     System.out.printf("Elapsed: %f seconds%n", seconds);
   }
 }
-
-/*
- * TODO
-
-Description	Resource	Path	Location	Type
-Javadoc: Missing comment for private declaration	QueryProcessor.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 150	Java Problem
-Javadoc: Missing tag for return type	QueryProcessor.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 91	Java Problem
-Javadoc: Missing tag for return type	QueryProcessor.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 121	Java Problem
-The import org.eclipse.jetty.util.IO is never used	Driver.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 3	Java Problem
-*/
