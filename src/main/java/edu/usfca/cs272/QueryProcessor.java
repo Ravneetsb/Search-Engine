@@ -21,21 +21,18 @@ public class QueryProcessor {
   /** Inverted Index to search through. */
   private final InvertedIndex index;
 
-  /** Counts map from the invertedIndex. */
-  private final Map<String, Integer> counts; // TODO Remove
+  private final SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
 
   /**
    * Constructor for Searcher
    *
    * @param invertedIndex The index to be searched.
    * @param partial true if partial search is to be performed.
-   * @throws IOException if the file doesn't exist or path is null.
    */
   public QueryProcessor(InvertedIndex invertedIndex, boolean partial) {
     this.searches = new TreeMap<>();
     this.partialSearch = partial;
     this.index = invertedIndex;
-    this.counts = index.getCounts();
   }
 
   /**
@@ -47,7 +44,6 @@ public class QueryProcessor {
     this.searches = new TreeMap<>();
     this.index = invertedIndex;
     this.partialSearch = false;
-    this.counts = index.getCounts();
   }
 
   /**
@@ -58,10 +54,6 @@ public class QueryProcessor {
    */
   public void parseQuery(Path query) throws IOException {
     try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
-      SnowballStemmer stemmer =
-          new SnowballStemmer(
-              SnowballStemmer.ALGORITHM
-                  .ENGLISH); // re-using the stemmer. TODO Use 1 stemmer for the entire class
       String line;
       while ((line = br.readLine()) != null) {
         var stems = FileStemmer.uniqueStems(line, stemmer); // TODO Remove
@@ -79,10 +71,10 @@ public class QueryProcessor {
    * @param query query.
    */
   public void parseQuery(String query) {
-    // TODO Split and join inside of here instead
+    var stems = FileStemmer.uniqueStems(query, stemmer);
+    query = String.join(" ", stems);
 
-    if ((query.isEmpty() || query.isBlank())
-        || searches.containsKey(query)) { // TODO Just check isBLank
+    if (query.isBlank() || searches.containsKey(query)) {
       return;
     }
     // TODO Move the logic to decide search into a convenience method like:
@@ -129,7 +121,7 @@ public class QueryProcessor {
                   .findFirst()
                   .orElse(index.newScore(0, 0, location));
 
-          int stemTotal = counts.get(location);
+          int stemTotal = index.getCounts().get(location);
           int count = index.numOfPositions(query, location);
           Integer totalCount = score.getCount();
           score.setCount(count + totalCount);

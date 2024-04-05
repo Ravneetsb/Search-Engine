@@ -230,6 +230,14 @@ public class InvertedIndex {
     return this.counts.containsKey(location);
   }
 
+  public ArrayList<Score> search(Set<String> queries, boolean partial) {
+    if (partial) {
+      return partialSearch(queries);
+    } else {
+      return exactSearch(queries);
+    }
+  }
+
   /**
    * Performs exact search on a set of queries
    *
