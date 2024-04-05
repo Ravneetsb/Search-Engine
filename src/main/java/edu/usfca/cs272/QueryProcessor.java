@@ -66,7 +66,9 @@ public class QueryProcessor {
       while ((line = br.readLine()) != null) {
         var stems = FileStemmer.uniqueStems(line, stemmer); // TODO Remove
         String queryLine = String.join(" ", stems); // TODO Remove
-        parseQuery(queryLine);
+        if (!searches.containsKey(queryLine)) {
+          parseQuery(queryLine);
+        }
       }
     }
   }

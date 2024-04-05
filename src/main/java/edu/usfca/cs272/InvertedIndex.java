@@ -275,22 +275,24 @@ public class InvertedIndex {
   public ArrayList<Score> partialSearch(Set<String> queries) {
     ArrayList<Score> scores = new ArrayList<>();
     for (String query : queries) {
-      for (String stem : index.navigableKeySet().tailSet(query, true)) {
+      var set = index.navigableKeySet().tailSet(query, true);
+      for (String stem : set) {
         if (stem.startsWith(query)) {
-          var locations = index.get(query);
+          var locations = index.get(stem);
           if (locations != null) {
             for (String location : locations.keySet()) {
               Score score = null;
               for (var existingScore : scores) {
                 if (existingScore.getLocation().equals(location)) {
                   score = existingScore;
+                  break;
                 }
               }
               if (score == null) {
                 score = new Score(0, 0, location);
               }
               int stemTotal = counts.get(location);
-              int count = index.get(query).get(location).size();
+              int count = index.get(stem).get(location).size();
               int totalCount = score.getCount();
               score.setCount(count + totalCount);
               score.setScore(((double) count + totalCount) / stemTotal);
