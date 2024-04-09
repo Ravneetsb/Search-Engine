@@ -140,4 +140,35 @@ public class QueryProcessor {
   public Set<String> getQueries() {
     return Collections.unmodifiableSet(searches.keySet());
   }
+
+  /**
+   * Returns true if a query is in the searches map.
+   *
+   * @param query the query to find.
+   * @return true if a query is in the searches map.
+   */
+  public boolean hasQuery(String query) {
+    return searches.containsKey(query);
+  }
+
+  /**
+   * Returns if there is a score for a query in a specific location.
+   *
+   * @param query the query to be looked up.
+   * @param location the file path
+   * @return true if there is a score for a query in a specific location.
+   */
+  public boolean hasScoreLocation(String query, String location) {
+    if (searches.containsKey(query)) {
+      var scores = searches.get(query);
+      if (scores != null) {
+        for (var score : scores) {
+          if (score.getLocation().equals(location)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
 }
