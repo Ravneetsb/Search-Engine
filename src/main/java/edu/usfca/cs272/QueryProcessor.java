@@ -21,6 +21,7 @@ public class QueryProcessor {
   /** Inverted Index to search through. */
   private final InvertedIndex index;
 
+  /** Stemmer for the processor. */
   private final SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
 
   /**
@@ -96,8 +97,6 @@ public class QueryProcessor {
   public String toString() {
     return JsonWriter.writeSearch(searches);
   }
-
-  // TODO Think about other generally useful methods
 
   /**
    * Returns the number of queries in the searches
