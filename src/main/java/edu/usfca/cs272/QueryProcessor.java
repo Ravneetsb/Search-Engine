@@ -77,16 +77,6 @@ public class QueryProcessor {
     searches.put(query, scores);
   }
 
-  private ArrayList<String> getPartialQueries(String query) {
-    ArrayList<String> queries = new ArrayList<>();
-    for (String stem : index.getWords()) {
-      if (stem.startsWith(query)) {
-        queries.add(stem);
-      }
-    }
-    return queries;
-  }
-
   /**
    * Writes the search results map to path in pretty json
    *

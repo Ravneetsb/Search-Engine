@@ -230,6 +230,13 @@ public class InvertedIndex {
     return this.counts.containsKey(location);
   }
 
+  /**
+   * Method to determine if partial or exact search needs to be performed.
+   *
+   * @param queries set of stems in the query.
+   * @param partial partial flag.
+   * @return ArrayList of scores
+   */
   public ArrayList<Score> search(Set<String> queries, boolean partial) {
     if (partial) {
       return partialSearch(queries);
@@ -336,18 +343,6 @@ public class InvertedIndex {
   @Override
   public String toString() {
     return JsonWriter.writeIndex(index);
-  }
-
-  /**
-   * Creates a new Score and returns it
-   *
-   * @param count number of times stem is present in file.
-   * @param score count / total stems in file
-   * @param where file path
-   * @return new Score object
-   */
-  public Score newScore(int count, double score, String where) {
-    return new Score(count, score, where);
   }
 
   /** ScoreMap class to store the result */
