@@ -56,11 +56,7 @@ public class QueryProcessor {
     try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
       String line;
       while ((line = br.readLine()) != null) {
-        var stems = FileStemmer.uniqueStems(line, stemmer); // TODO Remove
-        String queryLine = String.join(" ", stems); // TODO Remove
-        if (!searches.containsKey(queryLine)) {
-          parseQuery(queryLine);
-        }
+        parseQuery(line);
       }
     }
   }
@@ -77,63 +73,8 @@ public class QueryProcessor {
     if (query.isBlank() || searches.containsKey(query)) {
       return;
     }
-    // TODO Move the logic to decide search into a convenience method like:
-    // TODO public List<Score> search(Set<String> queries, boolean partial) <-- inside of the
-    // inverted index
-    ArrayList<InvertedIndex.Score> scores =
-        partialSearch
-            ? index.partialSearch(FileStemmer.uniqueStems(query))
-            : index.exactSearch(FileStemmer.uniqueStems(query));
+    ArrayList<InvertedIndex.Score> scores = index.search(stems, partialSearch);
     searches.put(query, scores);
-  }
-
-  /**
-   * Performs partial search on the index.
-   *
-   * @param queryLine query
-   */
-  // TODO public ArrayList<Score> partialSearch(Set<String> queries) {
-  private ArrayList<InvertedIndex.Score> partialSearch(
-      String queryLine) { // TODO Move this into InvertedIndex
-    ArrayList<InvertedIndex.Score> scores = new ArrayList<>();
-
-    /* TODO
-    for (String query : queries) {
-    		for (String stem : index.getWords()) { // TODO Use tailMap + break
-    			if (stem.startsWith(query)) {
-    				Set<String> locations = index.getLocations(query);
-    				for (String location : locations) {
-
-    				}
-    			}
-    		}
-    }
-    */
-
-    for (String rootQuery : queryLine.split(" ")) {
-      ArrayList<String> queries = getPartialQueries(rootQuery);
-      for (String query : queries) {
-        Set<String> locations = index.getLocations(query); // TODO Directly access the index instead
-        for (String location : locations) {
-          InvertedIndex.Score score =
-              scores.stream()
-                  .filter(score1 -> score1.getLocation().equals(location))
-                  .findFirst()
-                  .orElse(index.newScore(0, 0, location));
-
-          int stemTotal = index.getCounts().get(location);
-          int count = index.numOfPositions(query, location);
-          Integer totalCount = score.getCount();
-          score.setCount(count + totalCount);
-          score.setScore((double) (count + totalCount) / stemTotal);
-          if (!scores.contains(score)) {
-            scores.add(score);
-          }
-        }
-      }
-    }
-    Collections.sort(scores);
-    return scores;
   }
 
   private ArrayList<String> getPartialQueries(String query) {
