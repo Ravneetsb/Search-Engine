@@ -98,4 +98,46 @@ public class QueryProcessor {
   }
 
   // TODO Think about other generally useful methods
+
+  /**
+   * Returns the number of queries in the searches
+   *
+   * @return the number of queries in the searches
+   */
+  public int numOfResults() {
+    return searches.size();
+  }
+
+  /**
+   * Returns the number of scores for a query
+   *
+   * @param query the query for which the scores need to be found.
+   * @return the number of scores for a query.
+   */
+  public int numOfScores(String query) {
+    return searches.containsKey(query) && searches.get(query) != null
+        ? searches.get(query).size()
+        : 0;
+  }
+
+  /**
+   * Returns the scores for a query
+   *
+   * @param query the query for which the scores are returned
+   * @return the scores for a query
+   */
+  public List<InvertedIndex.Score> getScores(String query) {
+    return searches.containsKey(query)
+        ? Collections.unmodifiableList(searches.get(query))
+        : Collections.emptyList();
+  }
+
+  /**
+   * Returns a set of the queries in the searches map.
+   *
+   * @return a set of the queries in the searches map.
+   */
+  public Set<String> getQueries() {
+    return Collections.unmodifiableSet(searches.keySet());
+  }
 }
