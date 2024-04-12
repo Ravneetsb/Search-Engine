@@ -50,7 +50,7 @@ public class QueryProcessor {
     this.searches = new TreeMap<>();
     this.index = invertedIndex;
     this.partialSearch = false;
-    searchMethod = partialSearch ? index::partialSearch : index::exactSearch;
+    searchMethod = index::exactSearch;
   }
 
   /**
