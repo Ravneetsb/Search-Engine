@@ -86,6 +86,14 @@ public class InvertedIndex {
         .computeIfAbsent(stem, s -> new TreeMap<>())
         .computeIfAbsent(path, p -> new TreeSet<>())
         .add(location + 1);
+    
+    /*
+     * TODO Update the count here per word instead
+     * 
+     * 1) if you added a new word, increment the count by 1 (easier now, harder later)
+     * 
+     * 2) use the max location as the count (harder now, easier later)
+     */
   }
 
   /**
@@ -253,10 +261,24 @@ public class InvertedIndex {
    */
   public ArrayList<Score> exactSearch(Set<String> queries) {
     ArrayList<Score> scores = new ArrayList<>();
+    // TODO Map<String, Score> lookup = ...
+    
     for (String query : queries) {
       var locations = index.get(query);
       if (locations != null) {
-        for (String location : locations.keySet()) {
+        for (String location : locations.keySet()) { // TODO entrySet
+        		/* TODO
+        	  Score score = lookup.get(location);
+        	  
+        	  if (score == null) {
+        	  		score = new Score(...);
+        	  		scores.add(score);
+        	  		lookup.put(location, score);
+        	  }
+        	  
+        	  score.updateCount(...);
+        	  */
+        	
           Score score = null;
           for (var existingScore : scores) {
             if (existingScore.getLocation().equals(location)) {
@@ -279,6 +301,10 @@ public class InvertedIndex {
     }
     Collections.sort(scores);
     return scores;
+    
+    /*
+     * TODO Then put the common logic in both search methods in a private helper method
+     */
   }
 
   /**
@@ -290,6 +316,7 @@ public class InvertedIndex {
   public ArrayList<Score> partialSearch(Set<String> queries) {
     ArrayList<Score> scores = new ArrayList<>();
     for (String query : queries) {
+    	// TODO for (var entry : index.tailMap(query).entrySet())
       var set = index.navigableKeySet().tailSet(query, true);
       for (String stem : set) {
         if (stem.startsWith(query)) {
@@ -348,13 +375,13 @@ public class InvertedIndex {
   /** ScoreMap class to store the result */
   public class Score implements Comparable<Score> {
     /** Number of times query is present in file. */
-    private Integer count;
+    private Integer count; // TODO int
 
     /** Score for the query. Given by count / totalNumOfStems */
-    private Double score;
+    private Double score; // TODO double
 
     /** File path where query word is located. */
-    private String location;
+    private String location; // TODO final
 
     /**
      * Constructor for the ScoreMap
@@ -363,6 +390,7 @@ public class InvertedIndex {
      * @param score score of the query in the file.
      * @param stemLocation the file where the query was searched.
      */
+    // TODO public Score(String location) {
     public Score(int count, double score, String stemLocation) {
       this.count = count;
       this.score = score;
@@ -370,7 +398,7 @@ public class InvertedIndex {
     }
 
     /** Constructor for ScoreMap. Defaults Numbers to 0 and location to null.` */
-    public Score() {
+    public Score() { // TODO Remove
       this.count = 0;
       this.score = 0.0;
       this.location = "";
@@ -385,12 +413,19 @@ public class InvertedIndex {
       return count;
     }
 
+    /* TODO 
+    private void updateCount(int count) {
+    	  this.count += count;
+    	  this.score = (double) this.count / counts.get(location);
+    }
+    */
+    
     /**
      * setter for count
      *
      * @param count number of times query stem is present in the file.
      */
-    public void setCount(int count) {
+    public void setCount(int count) { // TODO Remove
       this.count = count;
     }
 
@@ -408,7 +443,7 @@ public class InvertedIndex {
      *
      * @param score score of the query. given by counts/total stems in file.
      */
-    public void setScore(double score) {
+    public void setScore(double score) { // TODO Remove
       this.score = score;
     }
 
@@ -426,7 +461,7 @@ public class InvertedIndex {
      *
      * @param location file path
      */
-    public void setLocation(String location) {
+    public void setLocation(String location) { // TODO Remove
       this.location = location;
     }
 
