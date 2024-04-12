@@ -20,9 +20,11 @@ public class QueryProcessor {
 
   /** Inverted Index to search through. */
   private final InvertedIndex index;
+  
+  // TODO Consider: Function<???> searchMethod; (optional)
 
   /** Stemmer for the processor. */
-  private final SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+  private final SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH); // TODO static
 
   /**
    * Constructor for Searcher
@@ -34,6 +36,8 @@ public class QueryProcessor {
     this.searches = new TreeMap<>();
     this.partialSearch = partial;
     this.index = invertedIndex;
+    
+    // TODO searchMethod = partial ? invertedIndex::partialSearch : invertedIndex::exactSearch;
   }
 
   /**
@@ -114,6 +118,7 @@ public class QueryProcessor {
    * @return the number of scores for a query.
    */
   public int numOfScores(String query) {
+  	// TODO return getStores(query).size();
     return searches.containsKey(query) && searches.get(query) != null
         ? searches.get(query).size()
         : 0;
@@ -126,6 +131,10 @@ public class QueryProcessor {
    * @return the scores for a query
    */
   public List<InvertedIndex.Score> getScores(String query) {
+  	// TODO Stem and rejoin the query line before the get
+  	/* TODO var blah = searches.get(query);
+  	if null...
+  	*/
     return searches.containsKey(query)
         ? Collections.unmodifiableList(searches.get(query))
         : Collections.emptyList();
@@ -147,6 +156,7 @@ public class QueryProcessor {
    * @return true if a query is in the searches map.
    */
   public boolean hasQuery(String query) {
+  	// TODO return getScores(query).isEmpty();
     return searches.containsKey(query);
   }
 
@@ -157,7 +167,7 @@ public class QueryProcessor {
    * @param location the file path
    * @return true if there is a score for a query in a specific location.
    */
-  public boolean hasScoreLocation(String query, String location) {
+  public boolean hasScoreLocation(String query, String location) { // TODO remove
     if (searches.containsKey(query)) {
       var scores = searches.get(query);
       if (scores != null) {
