@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Class responsible for running this project based on the provided command-line arguments. See the
@@ -14,6 +16,7 @@ import java.time.Instant;
  * @version Spring 2024
  */
 public class Driver {
+
   /** Default path for output file for index. */
   public static final Path DEFAULT_INDEX = Path.of("index.json");
 
@@ -22,6 +25,9 @@ public class Driver {
 
   /** Default path for output file for results. */
   public static final Path DEFAULT_RESULTS = Path.of("results.json");
+
+  /** Log */
+  public static final Logger log = LogManager.getLogger();
 
   /**
    * Initializes the classes necessary based on the provided command-line arguments. This includes
@@ -40,9 +46,11 @@ public class Driver {
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
       InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder(index);
+      log.info("Using {} for source.", path);
 
       try {
         invertedIndexBuilder.build(path);
+        log.info("Build complete.");
       } catch (IOException e) {
         System.err.printf("Unable to build Index from path: %s", path);
       }
@@ -52,6 +60,7 @@ public class Driver {
       Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
       try {
         JsonWriter.writeObject(index.getCounts(), countOutput);
+        log.info("Counts written to {}", countOutput);
       } catch (IOException e) {
         System.err.printf("Unable to write Counts Map to path: %s", countOutput);
       }
@@ -61,6 +70,7 @@ public class Driver {
       Path indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
       try {
         index.toJson(indexOutput);
+        log.info("Index written to {}", indexOutput);
       } catch (IOException e) {
         System.err.printf("Unable to write Inverted Index to path: %s", indexOutput);
       }

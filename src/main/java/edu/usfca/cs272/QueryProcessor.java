@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Function;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /** Process query for each line. */
@@ -20,11 +21,12 @@ public class QueryProcessor {
 
   /** Inverted Index to search through. */
   private final InvertedIndex index;
-  
-  // TODO Consider: Function<???> searchMethod; (optional)
+
+  Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod;
 
   /** Stemmer for the processor. */
-  private final SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH); // TODO static
+  private static final SnowballStemmer stemmer =
+      new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH); // TODO static
 
   /**
    * Constructor for Searcher
@@ -36,7 +38,8 @@ public class QueryProcessor {
     this.searches = new TreeMap<>();
     this.partialSearch = partial;
     this.index = invertedIndex;
-    
+    searchMethod = partial ? index::partialSearch : index::exactSearch;
+
     // TODO searchMethod = partial ? invertedIndex::partialSearch : invertedIndex::exactSearch;
   }
 
@@ -78,7 +81,7 @@ public class QueryProcessor {
     if (query.isBlank() || searches.containsKey(query)) {
       return;
     }
-    ArrayList<InvertedIndex.Score> scores = index.search(stems, partialSearch);
+    ArrayList<InvertedIndex.Score> scores = searchMethod.apply(stems);
     searches.put(query, scores);
   }
 
@@ -118,7 +121,7 @@ public class QueryProcessor {
    * @return the number of scores for a query.
    */
   public int numOfScores(String query) {
-  	// TODO return getStores(query).size();
+    // TODO return getStores(query).size();
     return searches.containsKey(query) && searches.get(query) != null
         ? searches.get(query).size()
         : 0;
@@ -131,10 +134,10 @@ public class QueryProcessor {
    * @return the scores for a query
    */
   public List<InvertedIndex.Score> getScores(String query) {
-  	// TODO Stem and rejoin the query line before the get
-  	/* TODO var blah = searches.get(query);
-  	if null...
-  	*/
+    // TODO Stem and rejoin the query line before the get
+    /* TODO var blah = searches.get(query);
+    if null...
+    */
     return searches.containsKey(query)
         ? Collections.unmodifiableList(searches.get(query))
         : Collections.emptyList();
@@ -156,7 +159,7 @@ public class QueryProcessor {
    * @return true if a query is in the searches map.
    */
   public boolean hasQuery(String query) {
-  	// TODO return getScores(query).isEmpty();
+    // TODO return getScores(query).isEmpty();
     return searches.containsKey(query);
   }
 
