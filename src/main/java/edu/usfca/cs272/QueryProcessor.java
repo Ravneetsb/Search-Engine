@@ -119,10 +119,7 @@ public class QueryProcessor {
    * @return the number of scores for a query.
    */
   public int numOfScores(String query) {
-    // TODO return getStores(query).size();
-    return searches.containsKey(query) && searches.get(query) != null
-        ? searches.get(query).size()
-        : 0;
+    return getScores(query).size();
   }
 
   /**
