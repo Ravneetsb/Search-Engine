@@ -26,7 +26,7 @@ public class QueryProcessor {
 
   /** Stemmer for the processor. */
   private static final SnowballStemmer stemmer =
-      new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH); // TODO static
+      new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
 
   /**
    * Constructor for Searcher
@@ -39,8 +39,6 @@ public class QueryProcessor {
     this.partialSearch = partial;
     this.index = invertedIndex;
     searchMethod = partial ? index::partialSearch : index::exactSearch;
-
-    // TODO searchMethod = partial ? invertedIndex::partialSearch : invertedIndex::exactSearch;
   }
 
   /**
