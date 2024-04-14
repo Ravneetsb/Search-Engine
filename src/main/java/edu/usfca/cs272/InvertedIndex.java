@@ -270,12 +270,7 @@ public class InvertedIndex {
           String location = entry.getKey();
           TreeSet<Integer> positions = entry.getValue();
 
-          Score score = lookup.get(location);
-          if (score == null) {
-            score = new Score(location);
-            scores.add(score);
-            lookup.put(location, score);
-          }
+          Score score = lookupScore(lookup, location, scores);
           int count = positions.size();
           score.update(count);
         }
@@ -301,12 +296,13 @@ public class InvertedIndex {
         if (stem.startsWith(query)) {
           for (var locEntry : locations.entrySet()) {
             String location = locEntry.getKey();
-            Score score = lookup.get(location);
+            Score score = lookupScore(lookup, location, scores);
+            /*Score score = lookup.get(location);
             if (score == null) {
               score = new Score(location);
               scores.add(score);
               lookup.put(location, score);
-            }
+            }*/
             int count = locEntry.getValue().size();
             score.update(count);
           }
@@ -318,6 +314,24 @@ public class InvertedIndex {
     }
     Collections.sort(scores);
     return scores;
+  }
+
+  /**
+   * Returns score from the lookup map else new Score
+   *
+   * @param lookup lookup map
+   * @param location file path
+   * @param scores ArrayList of scores.
+   * @return score from the lookup map else new Score
+   */
+  private Score lookupScore(Map<String, Score> lookup, String location, ArrayList<Score> scores) {
+    Score score = lookup.get(location);
+    if (score == null) {
+      score = new Score(location);
+      scores.add(score);
+      lookup.put(location, score);
+    }
+    return score;
   }
 
   /**
