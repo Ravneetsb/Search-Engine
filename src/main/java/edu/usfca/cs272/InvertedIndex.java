@@ -293,31 +293,24 @@ public class InvertedIndex {
    */
   public ArrayList<Score> partialSearch(Set<String> queries) {
     ArrayList<Score> scores = new ArrayList<>();
+    HashMap<String, Score> lookup = new HashMap<>();
     for (String query : queries) {
-      // TODO for (var entry : index.tailMap(query).entrySet())
-      var set = index.navigableKeySet().tailSet(query, true);
-      for (String stem : set) {
+      for (var entry : index.tailMap(query).entrySet()) {
+        String stem = entry.getKey();
+        TreeMap<String, TreeSet<Integer>> locs = entry.getValue();
         if (stem.startsWith(query)) {
-          var locations = index.get(stem);
-          if (locations != null) {
-            for (String location : locations.keySet()) {
-              Score score = null;
-              for (var existingScore : scores) {
-                if (existingScore.getLocation().equals(location)) {
-                  score = existingScore;
-                  break;
-                }
-              }
-              if (score == null) {
-                score = new Score(location);
-              }
-              int count = index.get(stem).get(location).size();
-              score.update(count);
-              if (!scores.contains(score)) {
-                scores.add(score);
-              }
+          for (var locsEntry : locs.entrySet()) {
+            String location = locsEntry.getKey();
+            Score score = lookup.get(location);
+            if (score == null) {
+              score = new Score(location);
+              scores.add(score);
+              lookup.put(location, score);
             }
+            int count = locsEntry.getValue().size();
+            score.update(count);
           }
+
         } else {
           break;
         }
