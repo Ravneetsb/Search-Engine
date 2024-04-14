@@ -261,50 +261,28 @@ public class InvertedIndex {
    */
   public ArrayList<Score> exactSearch(Set<String> queries) {
     ArrayList<Score> scores = new ArrayList<>();
-    // TODO Map<String, Score> lookup = ...
+    Map<String, Score> lookup = new HashMap<>();
 
     for (String query : queries) {
       var locations = index.get(query);
       if (locations != null) {
-        for (String location : locations.keySet()) { // TODO entrySet
-          /* TODO
+        for (var entry : locations.entrySet()) {
+          String location = entry.getKey();
+          TreeSet<Integer> locs = entry.getValue();
+
           Score score = lookup.get(location);
-
           if (score == null) {
-          		score = new Score(...);
-          		scores.add(score);
-          		lookup.put(location, score);
-          }
-
-          score.updateCount(...);
-          */
-
-          Score score = null;
-          for (var existingScore : scores) {
-            if (existingScore.getLocation().equals(location)) {
-              score = existingScore;
-            }
-          }
-          if (score == null) {
-            score = new Score(0, 0, location);
-          }
-          int stemTotal = counts.get(location);
-          int count = index.get(query).get(location).size();
-          int totalCount = score.getCount();
-          score.setCount(count + totalCount);
-          score.setScore(((double) count + totalCount) / stemTotal);
-          if (!scores.contains(score)) {
+            score = new Score(location);
             scores.add(score);
+            lookup.put(location, score);
           }
+          int count = locs.size();
+          score.update(count);
         }
       }
     }
     Collections.sort(scores);
     return scores;
-
-    /*
-     * TODO Then put the common logic in both search methods in a private helper method
-     */
   }
 
   /**
@@ -331,13 +309,10 @@ public class InvertedIndex {
                 }
               }
               if (score == null) {
-                score = new Score(0, 0, location);
+                score = new Score(location);
               }
-              int stemTotal = counts.get(location);
               int count = index.get(stem).get(location).size();
-              int totalCount = score.getCount();
-              score.setCount(count + totalCount);
-              score.setScore(((double) count + totalCount) / stemTotal);
+              score.update(count);
               if (!scores.contains(score)) {
                 scores.add(score);
               }
