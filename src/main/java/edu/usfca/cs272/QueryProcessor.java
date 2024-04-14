@@ -156,8 +156,7 @@ public class QueryProcessor {
    * @return true if a query is in the searches map.
    */
   public boolean hasQuery(String query) {
-    // TODO return getScores(query).isEmpty();
-    return searches.containsKey(query);
+    return getScores(query).isEmpty();
   }
 
   /**
