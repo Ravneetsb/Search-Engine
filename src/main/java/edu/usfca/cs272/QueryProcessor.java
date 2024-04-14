@@ -130,13 +130,14 @@ public class QueryProcessor {
    * @return the scores for a query
    */
   public List<InvertedIndex.Score> getScores(String query) {
-    // TODO Stem and rejoin the query line before the get
-    /* TODO var blah = searches.get(query);
-    if null...
-    */
-    return searches.containsKey(query)
-        ? Collections.unmodifiableList(searches.get(query))
-        : Collections.emptyList();
+    var stems = FileStemmer.uniqueStems(query, stemmer);
+    query = String.join(" ", stems);
+    var res = searches.get(query);
+    if (res == null) {
+      return Collections.emptyList();
+    } else {
+      return Collections.unmodifiableList(searches.get(query));
+    }
   }
 
   /**
