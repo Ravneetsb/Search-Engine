@@ -268,7 +268,7 @@ public class InvertedIndex {
       if (locations != null) {
         for (var entry : locations.entrySet()) {
           String location = entry.getKey();
-          TreeSet<Integer> locs = entry.getValue();
+          TreeSet<Integer> positions = entry.getValue();
 
           Score score = lookup.get(location);
           if (score == null) {
@@ -276,7 +276,7 @@ public class InvertedIndex {
             scores.add(score);
             lookup.put(location, score);
           }
-          int count = locs.size();
+          int count = positions.size();
           score.update(count);
         }
       }
@@ -297,17 +297,17 @@ public class InvertedIndex {
     for (String query : queries) {
       for (var entry : index.tailMap(query).entrySet()) {
         String stem = entry.getKey();
-        TreeMap<String, TreeSet<Integer>> locs = entry.getValue();
+        TreeMap<String, TreeSet<Integer>> locations = entry.getValue();
         if (stem.startsWith(query)) {
-          for (var locsEntry : locs.entrySet()) {
-            String location = locsEntry.getKey();
+          for (var locEntry : locations.entrySet()) {
+            String location = locEntry.getKey();
             Score score = lookup.get(location);
             if (score == null) {
               score = new Score(location);
               scores.add(score);
               lookup.put(location, score);
             }
-            int count = locsEntry.getValue().size();
+            int count = locEntry.getValue().size();
             score.update(count);
           }
 
