@@ -72,16 +72,16 @@ public class InvertedIndexBuilder {
     int iter = 0;
     try (BufferedReader br = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
       String line;
-      // TODO String location = file.toString(); and reuse this below
+      String location = file.toString();
       Stemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
       while ((line = br.readLine()) != null) {
         String[] words = FileStemmer.parse(line);
         for (String word : words) {
-          index.add(stemmer.stem(word).toString(), file.toString(), iter);
+          index.add(String.valueOf(stemmer.stem(word)), location, iter);
           iter++;
         }
       }
-      index.addCounts(file.toString(), iter); // TODO Remove
+      index.addCounts(location, iter); // TODO Remove
     }
   }
 
