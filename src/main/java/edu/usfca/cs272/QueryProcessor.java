@@ -158,25 +158,4 @@ public class QueryProcessor {
   public boolean hasQuery(String query) {
     return getScores(query).isEmpty();
   }
-
-  /**
-   * Returns if there is a score for a query in a specific location.
-   *
-   * @param query the query to be looked up.
-   * @param location the file path
-   * @return true if there is a score for a query in a specific location.
-   */
-  public boolean hasScoreLocation(String query, String location) { // TODO remove
-    if (searches.containsKey(query)) {
-      var scores = searches.get(query);
-      if (scores != null) {
-        for (var score : scores) {
-          if (score.getLocation().equals(location)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
 }
