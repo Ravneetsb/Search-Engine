@@ -82,18 +82,15 @@ public class InvertedIndex {
    * @return true if added successfully.
    */
   public boolean add(String stem, String path, int location) {
-    return this.index
-        .computeIfAbsent(stem, s -> new TreeMap<>())
-        .computeIfAbsent(path, p -> new TreeSet<>())
-        .add(location + 1);
+    boolean addToIndex =
+        this.index
+            .computeIfAbsent(stem, s -> new TreeMap<>())
+            .computeIfAbsent(path, p -> new TreeSet<>())
+            .add(location);
 
-    /*
-     * TODO Update the count here per word instead
-     *
-     * 1) if you added a new word, increment the count by 1 (easier now, harder later)
-     *
-     * 2) use the max location as the count (harder now, easier later)
-     */
+    this.counts.compute(path, (k, v) -> v == null ? location : Math.max(v, location));
+
+    return addToIndex;
   }
 
   /**

@@ -69,7 +69,7 @@ public class InvertedIndexBuilder {
    * @throws IOException if unable to read file.
    */
   public void readFile(Path file) throws IOException {
-    int iter = 0;
+    int iter = 1;
     try (BufferedReader br = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
       String line;
       String location = file.toString();
@@ -81,7 +81,6 @@ public class InvertedIndexBuilder {
           iter++;
         }
       }
-      index.addCounts(location, iter); // TODO Remove
     }
   }
 
