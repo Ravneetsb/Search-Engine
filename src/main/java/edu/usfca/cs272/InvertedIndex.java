@@ -294,12 +294,6 @@ public class InvertedIndex {
           for (var locEntry : locations.entrySet()) {
             String location = locEntry.getKey();
             Score score = lookupScore(lookup, location, scores);
-            /*Score score = lookup.get(location);
-            if (score == null) {
-              score = new Score(location);
-              scores.add(score);
-              lookup.put(location, score);
-            }*/
             int count = locEntry.getValue().size();
             score.update(count);
           }
