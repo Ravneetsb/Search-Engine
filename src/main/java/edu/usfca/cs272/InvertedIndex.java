@@ -88,7 +88,7 @@ public class InvertedIndex {
             .computeIfAbsent(path, p -> new TreeSet<>())
             .add(location);
 
-    this.counts.compute(path, (k, v) -> v == null ? location : Math.max(v, location));
+    this.counts.merge(path, location, Integer::max);
 
     return addToIndex;
   }
