@@ -110,21 +110,6 @@ public class InvertedIndex {
   }
 
   /**
-   * add file path and the number of stems in that file to countsMap.
-   *
-   * @param file path of file.
-   * @param size number of stems.
-   * @return true if size was valid.
-   */
-  public boolean addCounts(String file, int size) {
-    if (size < 1) {
-      return false;
-    }
-    this.counts.put(file, size);
-    return true;
-  }
-
-  /**
    * Returns true if index is empty.
    *
    * @return true if index is empty.
