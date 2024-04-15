@@ -101,7 +101,7 @@ public class InvertedIndex {
    * @return true if successful.
    */
   public boolean addAll(String path, List<String> stems) {
-    int location = 0;
+    int location = 1;
     for (String stem : stems) {
       this.add(stem, path, location);
       location++;
