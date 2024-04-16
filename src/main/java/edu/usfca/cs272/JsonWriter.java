@@ -408,6 +408,8 @@ public class JsonWriter {
     writer.write("\n");
     writeIndent("}", writer, indent);
   }
+  
+  // TODO Update writeSerch to work with any map, and any type of collection of search results
 
   /**
    * Writes search results in pretty Json
@@ -434,13 +436,19 @@ public class JsonWriter {
    */
   public static void writeSearch(
       TreeMap<String, ArrayList<InvertedIndex.Score>> searchMap, Path path) throws IOException {
-    if (path == null) {
+    if (path == null) { // TODO Remove this null check, let the exception happen
       return;
     }
     try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, UTF_8)) {
       writeSearch(searchMap, bufferedWriter, 0);
     }
   }
+  
+  /*
+   * TODO Create 1 more method to output a collection of score objects, then call
+   * that in the code below. You don't have to create convenience methods for that one
+   * or the writeScore method. 
+   */
 
   /**
    * Writes Search Results in pretty Json
@@ -508,7 +516,7 @@ public class JsonWriter {
    * @throws IOException if the writing fails.
    */
   private static void writeScore(Writer writer, int indent, InvertedIndex.Score map)
-      throws IOException {
+      throws IOException { // TODO public
     DecimalFormat format = new DecimalFormat("0.00000000");
     writeIndent("{", writer, indent + 2);
     writer.write("\n");
