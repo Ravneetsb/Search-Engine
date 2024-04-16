@@ -17,11 +17,12 @@ public class QueryProcessor {
   private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
 
   /** partial tag for the search. */
-  public final boolean partialSearch;
+  public final boolean partialSearch; // TODO Can remove... no longer need if storing the searchMethod
 
   /** Inverted Index to search through. */
-  private final InvertedIndex index;
+  private final InvertedIndex index; // TODO Can remove... no longer need if storing the searchMethod
 
+  // TODO Missing Javadoc comment here!
   Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod;
 
   /** Stemmer for the processor. */
@@ -132,11 +133,11 @@ public class QueryProcessor {
   public List<InvertedIndex.Score> getScores(String query) {
     var stems = FileStemmer.uniqueStems(query, stemmer);
     query = String.join(" ", stems);
-    var res = searches.get(query);
+    var res = searches.get(query); // TODO Better name
     if (res == null) {
       return Collections.emptyList();
     } else {
-      return Collections.unmodifiableList(searches.get(query));
+      return Collections.unmodifiableList(searches.get(query)); // TODO Don't re-get. Use res here instead
     }
   }
 
