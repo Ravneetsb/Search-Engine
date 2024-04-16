@@ -248,7 +248,7 @@ public class InvertedIndex {
     for (String query : queries) {
       var locations = index.get(query);
       if (locations != null) {
-        for (var entry : locations.entrySet()) {
+        for (var entry : locations.entrySet()) { // TODO Move this loop into the helper method since it is the same in both searches
           String location = entry.getKey();
           TreeSet<Integer> positions = entry.getValue();
 
@@ -276,7 +276,7 @@ public class InvertedIndex {
         String stem = entry.getKey();
         TreeMap<String, TreeSet<Integer>> locations = entry.getValue();
         if (stem.startsWith(query)) {
-          for (var locEntry : locations.entrySet()) {
+          for (var locEntry : locations.entrySet()) { // TODO Update how using helper method
             String location = locEntry.getKey();
             Score score = lookupScore(lookup, location, scores);
             int count = locEntry.getValue().size();
@@ -301,6 +301,7 @@ public class InvertedIndex {
    * @return score from the lookup map else new Score
    */
   private Score lookupScore(Map<String, Score> lookup, String location, ArrayList<Score> scores) {
+  	// TODO See above, can move more duplicate logic into this helper method
     Score score = lookup.get(location);
     if (score == null) {
       score = new Score(location);
