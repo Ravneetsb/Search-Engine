@@ -243,19 +243,12 @@ public class InvertedIndex {
    */
   public ArrayList<Score> exactSearch(Set<String> queries) {
     ArrayList<Score> scores = new ArrayList<>();
-    Map<String, Score> lookup = new HashMap<>();
+    HashMap<String, Score> lookup = new HashMap<>();
 
     for (String query : queries) {
       var locations = index.get(query);
       if (locations != null) {
-        for (var entry : locations.entrySet()) { // TODO Move this loop into the helper method since it is the same in both searches
-          String location = entry.getKey();
-          TreeSet<Integer> positions = entry.getValue();
-
-          Score score = lookupScore(lookup, location, scores);
-          int count = positions.size();
-          score.update(count);
-        }
+        updateScore(locations, lookup, scores);
       }
     }
     Collections.sort(scores);
@@ -276,13 +269,7 @@ public class InvertedIndex {
         String stem = entry.getKey();
         TreeMap<String, TreeSet<Integer>> locations = entry.getValue();
         if (stem.startsWith(query)) {
-          for (var locEntry : locations.entrySet()) { // TODO Update how using helper method
-            String location = locEntry.getKey();
-            Score score = lookupScore(lookup, location, scores);
-            int count = locEntry.getValue().size();
-            score.update(count);
-          }
-
+          updateScore(locations, lookup, scores);
         } else {
           break;
         }
@@ -293,22 +280,27 @@ public class InvertedIndex {
   }
 
   /**
-   * Returns score from the lookup map else new Score
+   * Updates the score.
    *
-   * @param lookup lookup map
-   * @param location file path
-   * @param scores ArrayList of scores.
-   * @return score from the lookup map else new Score
+   * @param locations TreeMap of location and their positions.
+   * @param lookup the lookup map
+   * @param scores the list of scores.
    */
-  private Score lookupScore(Map<String, Score> lookup, String location, ArrayList<Score> scores) {
-  	// TODO See above, can move more duplicate logic into this helper method
-    Score score = lookup.get(location);
-    if (score == null) {
-      score = new Score(location);
-      scores.add(score);
-      lookup.put(location, score);
+  private void updateScore(
+      TreeMap<String, TreeSet<Integer>> locations,
+      HashMap<String, Score> lookup,
+      ArrayList<Score> scores) {
+    for (var locEntry : locations.entrySet()) {
+      String location = locEntry.getKey();
+      Score score = lookup.get(location);
+      if (score == null) {
+        score = new Score(location);
+        scores.add(score);
+        lookup.put(location, score);
+      }
+      int count = locEntry.getValue().size();
+      score.update(count);
     }
-    return score;
   }
 
   /**
