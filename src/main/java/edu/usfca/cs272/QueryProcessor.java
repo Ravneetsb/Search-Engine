@@ -16,14 +16,8 @@ public class QueryProcessor {
   /** Map of the query and its score */
   private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
 
-  /** partial tag for the search. */
-  public final boolean partialSearch; // TODO Can remove... no longer need if storing the searchMethod
-
-  /** Inverted Index to search through. */
-  private final InvertedIndex index; // TODO Can remove... no longer need if storing the searchMethod
-
-  // TODO Missing Javadoc comment here!
-  Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod;
+  /** The search method that will be used on the index. */
+  private final Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod;
 
   /** Stemmer for the processor. */
   private static final SnowballStemmer stemmer =
@@ -37,9 +31,7 @@ public class QueryProcessor {
    */
   public QueryProcessor(InvertedIndex invertedIndex, boolean partial) {
     this.searches = new TreeMap<>();
-    this.partialSearch = partial;
-    this.index = invertedIndex;
-    searchMethod = partial ? index::partialSearch : index::exactSearch;
+    this.searchMethod = partial ? invertedIndex::partialSearch : invertedIndex::exactSearch;
   }
 
   /**
@@ -49,9 +41,7 @@ public class QueryProcessor {
    */
   public QueryProcessor(InvertedIndex invertedIndex) {
     this.searches = new TreeMap<>();
-    this.index = invertedIndex;
-    this.partialSearch = false;
-    searchMethod = index::exactSearch;
+    this.searchMethod = invertedIndex::exactSearch;
   }
 
   /**
@@ -133,11 +123,11 @@ public class QueryProcessor {
   public List<InvertedIndex.Score> getScores(String query) {
     var stems = FileStemmer.uniqueStems(query, stemmer);
     query = String.join(" ", stems);
-    var res = searches.get(query); // TODO Better name
-    if (res == null) {
+    ArrayList<InvertedIndex.Score> scores = searches.get(query);
+    if (scores == null) {
       return Collections.emptyList();
     } else {
-      return Collections.unmodifiableList(searches.get(query)); // TODO Don't re-get. Use res here instead
+      return Collections.unmodifiableList(scores);
     }
   }
 
