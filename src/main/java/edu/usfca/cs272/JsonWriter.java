@@ -441,12 +441,6 @@ public class JsonWriter {
     }
   }
 
-  /*
-   * TODO Create 1 more method to output a collection of score objects, then call
-   * that in the code below. You don't have to create convenience methods for that one
-   * or the writeScore method.
-   */
-
   /**
    * Writes Search Results in pretty Json
    *
