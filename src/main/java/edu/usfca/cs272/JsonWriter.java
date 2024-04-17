@@ -466,17 +466,7 @@ public class JsonWriter {
       writer.write("\n");
       writeQuote(stem, writer, indent + 1);
       writer.write(": [");
-      var iterator = entry.getValue().iterator();
-      if (iterator.hasNext()) {
-        var map = iterator.next();
-        writer.write("\n");
-        writeScore(writer, indent, map);
-      }
-      while (iterator.hasNext()) {
-        writer.write(",\n");
-        var map = iterator.next();
-        writeScore(writer, indent, map);
-      }
+      writeScores(writer, indent, entry.getValue());
       writer.write("\n");
       writeIndent("]", writer, indent + 1);
     }
@@ -487,17 +477,7 @@ public class JsonWriter {
       writer.write("\n");
       writeQuote(stem, writer, indent + 1);
       writer.write(": [");
-      var iterator = entry.getValue().iterator();
-      if (iterator.hasNext()) {
-        var map = iterator.next();
-        writer.write("\n");
-        writeScore(writer, indent, map);
-      }
-      while (iterator.hasNext()) {
-        var map = iterator.next();
-        writer.write(",\n");
-        writeScore(writer, indent, map);
-      }
+      writeScores(writer, indent, entry.getValue());
       writer.write("\n");
       writeIndent("]", writer, indent + 1);
     }
@@ -530,6 +510,27 @@ public class JsonWriter {
     writeQuote(map.getLocation(), writer, indent);
     writer.write("\n");
     writeIndent("}", writer, indent + 2);
+  }
+
+  /**
+   * Writes a collection of scores in pretty JSON
+   *
+   * @param writer Writer
+   * @param indent indentation
+   * @param scores Collection of scores
+   * @throws IOException if the writing fails.
+   */
+  public static void writeScores(Writer writer, int indent, Collection<InvertedIndex.Score> scores)
+      throws IOException {
+    var iterator = scores.iterator();
+    if (iterator.hasNext()) {
+      writer.write("\n");
+      writeScore(writer, indent, iterator.next());
+    }
+    while (iterator.hasNext()) {
+      writer.write(",\n");
+      writeScore(writer, indent, iterator.next());
+    }
   }
 
   /** Prevent instantiating this class of static methods. */
