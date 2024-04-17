@@ -408,8 +408,6 @@ public class JsonWriter {
     writer.write("\n");
     writeIndent("}", writer, indent);
   }
-  
-  // TODO Update writeSerch to work with any map, and any type of collection of search results
 
   /**
    * Writes search results in pretty Json
@@ -417,7 +415,8 @@ public class JsonWriter {
    * @param searchMap search results map
    * @return pretty Json or null if IOException is thrown.
    */
-  public static String writeSearch(TreeMap<String, ArrayList<InvertedIndex.Score>> searchMap) {
+  public static String writeSearch(
+      Map<String, ? extends Collection<InvertedIndex.Score>> searchMap) {
     try {
       StringWriter writer = new StringWriter();
       writeSearch(searchMap, writer, 0);
@@ -435,19 +434,17 @@ public class JsonWriter {
    * @throws IOException if unable to write to file.
    */
   public static void writeSearch(
-      TreeMap<String, ArrayList<InvertedIndex.Score>> searchMap, Path path) throws IOException {
-    if (path == null) { // TODO Remove this null check, let the exception happen
-      return;
-    }
+      Map<String, ? extends Collection<InvertedIndex.Score>> searchMap, Path path)
+      throws IOException {
     try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, UTF_8)) {
       writeSearch(searchMap, bufferedWriter, 0);
     }
   }
-  
+
   /*
    * TODO Create 1 more method to output a collection of score objects, then call
    * that in the code below. You don't have to create convenience methods for that one
-   * or the writeScore method. 
+   * or the writeScore method.
    */
 
   /**
@@ -459,7 +456,7 @@ public class JsonWriter {
    * @throws IOException if unable to write to path.
    */
   public static void writeSearch(
-      TreeMap<String, ArrayList<InvertedIndex.Score>> searchMap, Writer writer, int indent)
+      Map<String, ? extends Collection<InvertedIndex.Score>> searchMap, Writer writer, int indent)
       throws IOException {
     var entryIterator = searchMap.entrySet().iterator();
     writer.write("{");
@@ -515,8 +512,8 @@ public class JsonWriter {
    * @param map scoreMap
    * @throws IOException if the writing fails.
    */
-  private static void writeScore(Writer writer, int indent, InvertedIndex.Score map)
-      throws IOException { // TODO public
+  public static void writeScore(Writer writer, int indent, InvertedIndex.Score map)
+      throws IOException {
     DecimalFormat format = new DecimalFormat("0.00000000");
     writeIndent("{", writer, indent + 2);
     writer.write("\n");
