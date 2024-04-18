@@ -40,12 +40,21 @@ public class Driver {
     Instant start = Instant.now();
 
     ArgumentParser argParser = new ArgumentParser(args);
-    InvertedIndex index = new InvertedIndex();
-    QueryProcessor processor = new QueryProcessor(index, argParser.hasFlag("-partial"));
+    InvertedIndex index;
+    InvertedIndexBuilder invertedIndexBuilder;
+    int threads = argParser.getInteger("-threads", 5);
+    boolean multiThread = argParser.hasFlag("-threads");
+
+    if (multiThread) {
+      index = new ThreadSafeInvertedIndex();
+      invertedIndexBuilder = new ThreadSafeInvertedIndexBuilder(index, threads);
+    } else {
+      index = new InvertedIndex();
+      invertedIndexBuilder = new InvertedIndexBuilder(index);
+    }
 
     if (argParser.hasValue("-text")) {
       Path path = argParser.getPath("-text");
-      InvertedIndexBuilder invertedIndexBuilder = new InvertedIndexBuilder(index);
       log.info("Using {} for source.", path);
 
       try {
@@ -76,6 +85,7 @@ public class Driver {
       }
     }
 
+    QueryProcessor processor = new QueryProcessor(index, argParser.hasFlag("-partial"));
     if (argParser.hasValue("-query")) {
       Path query = argParser.getPath("-query");
       try {

@@ -3,6 +3,8 @@ package edu.usfca.cs272;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * InvertedIndex Data Structure for the Search Engine Project.
@@ -13,6 +15,8 @@ import java.util.*;
 public class InvertedIndex {
   /** Map for Index. */
   private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
+
+  private static final Logger log = LogManager.getLogger();
 
   /** Map for counts. */
   private final Map<String, Integer> counts;
@@ -123,7 +127,9 @@ public class InvertedIndex {
         var positions = invertedIndex.getPositions(stem, location);
         this.index.put(stem, new TreeMap<>());
         var locationMap = this.index.get(stem);
-        locationMap.put(location, (TreeSet<Integer>) positions);
+        locationMap.put(location, new TreeSet<>());
+        var positionS = locationMap.get(location);
+        positionS.addAll(positions);
       }
     }
     return true;

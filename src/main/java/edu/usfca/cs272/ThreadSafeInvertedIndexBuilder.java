@@ -1,6 +1,7 @@
 package edu.usfca.cs272;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -10,7 +11,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
   /** Work queue. */
   private final WorkQueue queue;
 
-  private final ThreadSafeInvertedIndex index;
+  private final InvertedIndex index;
 
   /**
    * Constructor
@@ -18,7 +19,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
    * @param invertedIndex the index.
    * @param threads the number of threads to use.
    */
-  public ThreadSafeInvertedIndexBuilder(ThreadSafeInvertedIndex invertedIndex, int threads) {
+  public ThreadSafeInvertedIndexBuilder(InvertedIndex invertedIndex, int threads) {
     super(invertedIndex);
     this.index = invertedIndex;
     this.queue = new WorkQueue(threads);
@@ -29,17 +30,23 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
     if (Files.isDirectory(input)) {
       readDirectory(input);
     } else {
-      queue.execute(new Task(input, index));
+      queue.execute(new Task(input, (ThreadSafeInvertedIndex) index));
     }
     queue.finish();
   }
 
   @Override
   public void readDirectory(Path directory) throws IOException {
-    if (Files.isDirectory(directory)) {
-      readDirectory(directory);
-    } else if (fileIsTXT(directory)) {
-      queue.execute(new Task(directory, index));
+    try (DirectoryStream<Path> listing = Files.newDirectoryStream(directory)) {
+      for (Path path : listing) {
+        if (Files.isDirectory(path)) {
+          readDirectory(path);
+        } else {
+          if (fileIsTXT(path)) {
+            queue.execute(new Task(path, (ThreadSafeInvertedIndex) index));
+          }
+        }
+      }
     }
   }
 
