@@ -78,52 +78,102 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 
   @Override
   public Map<String, Integer> getCounts() {
-    return super.getCounts();
+    lock.readLock().lock();
+    try {
+      return super.getCounts();
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   @Override
   public boolean add(String stem, String path, int location) {
-    return super.add(stem, path, location);
+    lock.writeLock().lock();
+    try {
+      return super.add(stem, path, location);
+    } finally {
+      lock.writeLock().unlock();
+    }
   }
 
   @Override
   public boolean addAll(String path, List<String> stems) {
-    return super.addAll(path, stems);
+    lock.writeLock().lock();
+    try {
+      return super.addAll(path, stems);
+    } finally {
+      lock.writeLock().unlock();
+    }
   }
 
   @Override
   public boolean isEmpty() {
-    return super.isEmpty();
+    lock.readLock().lock();
+    try {
+      return super.isEmpty();
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   @Override
   public int size() {
-    return super.size();
+    lock.readLock().lock();
+    try {
+      return super.size();
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   @Override
   public int sizeOfCounts() {
-    return super.sizeOfCounts();
+    lock.readLock().lock();
+    try {
+      return super.sizeOfCounts();
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   @Override
   public int numOfLocations(String word) {
-    return super.numOfLocations(word);
+    lock.readLock().lock();
+    try {
+      return super.numOfLocations(word);
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   @Override
   public int numOfPositions(String word, String location) {
-    return super.numOfPositions(word, location);
+    lock.readLock().lock();
+    try {
+      return super.numOfPositions(word, location);
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   @Override
   public boolean hasWord(String word) {
-    return super.hasWord(word);
+    lock.readLock().lock();
+    try {
+      return super.hasWord(word);
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   @Override
   public ArrayList<Score> search(Set<String> queries, boolean partial) {
-    return super.search(queries, partial);
+    lock.writeLock().lock();
+    try {
+      return super.search(queries, partial);
+    } finally {
+      lock.writeLock().unlock();
+    }
   }
 
   @Override
