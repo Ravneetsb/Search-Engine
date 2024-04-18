@@ -53,6 +53,10 @@ public class WorkQueue {
 
   /** Decrement count of pending work. */
   private synchronized void decrementPending() {
+    assert pending > 0;
     pending--;
+    if (pending == 0) {
+      this.notifyAll();
+    }
   }
 }
