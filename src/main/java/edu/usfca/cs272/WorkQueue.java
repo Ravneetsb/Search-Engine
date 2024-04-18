@@ -114,6 +114,15 @@ public class WorkQueue {
   }
 
   /**
+   * Return the number of worker threads being used by the work queue.
+   *
+   * @return the number of worker threads.
+   */
+  public int size() {
+    return workers.length;
+  }
+
+  /**
    * Waits until task is available in the work queue. When work is found, it will remove it from the
    * queue and run it.
    */
