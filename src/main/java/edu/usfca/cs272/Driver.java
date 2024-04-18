@@ -26,6 +26,9 @@ public class Driver {
   /** Default path for output file for results. */
   public static final Path DEFAULT_RESULTS = Path.of("results.json");
 
+  /** Default number of threads to be used when multithreading. */
+  public static final int DEFAULT_THREADS = 5;
+
   /** Log */
   public static final Logger log = LogManager.getLogger();
 
@@ -42,13 +45,14 @@ public class Driver {
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index;
     InvertedIndexBuilder invertedIndexBuilder;
-    int threads = argParser.getInteger("-threads", 5);
+    int threads = argParser.getInteger("-threads", DEFAULT_THREADS);
     boolean multiThread = argParser.hasFlag("-threads");
 
     log.info("Multi-Threading: {}", multiThread);
 
     if (multiThread) {
       index = new ThreadSafeInvertedIndex();
+      threads = threads <= 0 ? DEFAULT_THREADS : threads;
       invertedIndexBuilder = new ThreadSafeInvertedIndexBuilder(index, threads);
     } else {
       index = new InvertedIndex();
