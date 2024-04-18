@@ -85,6 +85,14 @@ public class WorkQueue {
     }
   }
 
+  /** Asks the work queue to shutdown. Any tasks left in the queue will not be completed. */
+  public void shutdown() {
+    shutdown = true;
+    synchronized (tasks) {
+      tasks.notifyAll();
+    }
+  }
+
   /**
    * Waits until task is available in the work queue. When work is found, it will remove it from the
    * queue and run it.
