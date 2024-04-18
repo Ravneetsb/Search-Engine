@@ -74,6 +74,17 @@ public class WorkQueue {
     }
   }
 
+  /** Waits for all the pending work to be finished. Does no terminate the worker threads. */
+  public synchronized void finish() {
+    try {
+      while (pending > 0) {
+        this.wait();
+      }
+    } catch (InterruptedException e) {
+      log.catching(e);
+    }
+  }
+
   /**
    * Waits until task is available in the work queue. When work is found, it will remove it from the
    * queue and run it.
