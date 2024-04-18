@@ -59,4 +59,15 @@ public class WorkQueue {
       this.notifyAll();
     }
   }
+
+  /**
+   * Waits until task is available in the work queue. When work is found, it will remove it from the
+   * queue and run it.
+   */
+  private class Worker extends Thread {
+    /** initializes a worker thread with a custom name. */
+    public Worker() {
+      setName("Worker" + getName());
+    }
+  }
 }
