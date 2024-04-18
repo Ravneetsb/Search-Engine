@@ -125,11 +125,12 @@ public class InvertedIndex {
       var locations = invertedIndex.getLocations(stem);
       for (var location : locations) {
         var positions = invertedIndex.getPositions(stem, location);
-        this.index.put(stem, new TreeMap<>());
+        this.index.putIfAbsent(stem, new TreeMap<>());
         var locationMap = this.index.get(stem);
-        locationMap.put(location, new TreeSet<>());
+        locationMap.putIfAbsent(location, new TreeSet<>());
         var positionS = locationMap.get(location);
         positionS.addAll(positions);
+        this.counts.merge(location, positionS.size(), Integer::sum);
       }
     }
     return true;
