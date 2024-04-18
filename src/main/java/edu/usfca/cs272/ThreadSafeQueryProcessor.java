@@ -120,7 +120,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     /** Stores the search results */
     private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
 
-    private final InvertedIndex index;
+    private final ThreadSafeInvertedIndex index;
 
     private final boolean par;
 
@@ -137,7 +137,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
         boolean par) {
       this.searches = searches;
       this.query = query;
-      this.index = index;
+      this.index = (ThreadSafeInvertedIndex) index;
       this.par = par;
     }
 

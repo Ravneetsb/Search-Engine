@@ -34,7 +34,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
     } else {
       queue.execute(new Task(input, (ThreadSafeInvertedIndex) index));
     }
-    queue.finish();
+    queue.join();
   }
 
   @Override
