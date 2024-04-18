@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/** A simple work queue. */
 public class WorkQueue {
 
   /** Workers that wait until work is available */
@@ -90,6 +91,25 @@ public class WorkQueue {
     shutdown = true;
     synchronized (tasks) {
       tasks.notifyAll();
+    }
+  }
+
+  /**
+   * Waits for all the work to be finished and the worker threads to terminate. The work queue
+   * cannot be reused after this call completes.
+   */
+  public void join() {
+    try {
+      finish();
+      shutdown();
+
+      for (Worker worker : workers) {
+        worker.join();
+      }
+    } catch (InterruptedException e) {
+      System.err.println("Warning: Work queue interrupted while joining.");
+      log.catching(Level.WARN, e);
+      Thread.currentThread().interrupt();
     }
   }
 
