@@ -62,6 +62,19 @@ public class WorkQueue {
   }
 
   /**
+   * Adds a task request to the queue.
+   *
+   * @param task task request.
+   */
+  public void execute(Runnable task) {
+    incrementPending();
+    synchronized (tasks) {
+      tasks.addLast(task);
+      tasks.notifyAll();
+    }
+  }
+
+  /**
    * Waits until task is available in the work queue. When work is found, it will remove it from the
    * queue and run it.
    */
