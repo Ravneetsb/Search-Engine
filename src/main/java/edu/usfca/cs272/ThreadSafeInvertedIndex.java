@@ -188,21 +188,41 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 
   @Override
   public ArrayList<Score> exactSearch(Set<String> queries) {
-    return super.exactSearch(queries);
+    lock.readLock().lock();
+    try {
+      return super.exactSearch(queries);
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   @Override
   public ArrayList<Score> partialSearch(Set<String> queries) {
-    return super.partialSearch(queries);
+    lock.readLock().lock();
+    try {
+      return super.partialSearch(queries);
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   @Override
   public void toJson(Path output) throws IOException {
-    super.toJson(output);
+    lock.readLock().lock();
+    try {
+      super.toJson(output);
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   @Override
   public String toString() {
-    return super.toString();
+    lock.readLock().lock();
+    try {
+      return super.toString();
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 }
