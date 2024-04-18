@@ -61,7 +61,7 @@ public class Driver {
         invertedIndexBuilder.build(path);
         log.info("Build complete.");
       } catch (IOException e) {
-        System.err.printf("Unable to build Index from path: %s", path);
+        log.error("Unable to build Index from path: %s", path);
       }
     }
 
