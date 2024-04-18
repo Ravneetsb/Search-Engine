@@ -107,6 +107,15 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
   }
 
   @Override
+  public boolean addIndex(InvertedIndex invertedIndex) {
+    lock.writeLock().lock();
+    try {
+      return super.addIndex(invertedIndex);
+    }
+    lock.writeLock().unlock();
+  }
+
+  @Override
   public boolean isEmpty() {
     lock.readLock().lock();
     try {

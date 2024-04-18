@@ -110,6 +110,26 @@ public class InvertedIndex {
   }
 
   /**
+   * Adds data from another invertedIndex to this index.
+   *
+   * @param invertedIndex a different inverted index
+   * @return true if the add is successful.
+   */
+  public boolean addIndex(InvertedIndex invertedIndex) {
+    var stems = invertedIndex.getWords();
+    for (var stem : stems) {
+      var locations = invertedIndex.getLocations(stem);
+      for (var location : locations) {
+        var positions = invertedIndex.getPositions(stem, location);
+        this.index.put(stem, new TreeMap<>());
+        var locationMap = this.index.get(stem);
+        locationMap.put(location, (TreeSet<Integer>) positions);
+      }
+    }
+    return true;
+  }
+
+  /**
    * Returns true if index is empty.
    *
    * @return true if index is empty.
