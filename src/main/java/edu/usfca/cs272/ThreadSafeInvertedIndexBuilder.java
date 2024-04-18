@@ -1,5 +1,7 @@
 package edu.usfca.cs272;
 
+import static edu.usfca.cs272.Driver.log;
+
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -86,7 +88,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
       try {
         localBuilder.readFile(path);
       } catch (IOException e) {
-        System.err.printf("ERROR! at %s", e);
+        log.error("Unable to read file from {}", path);
       }
       synchronized (index) {
         index.addIndex(localIndex);

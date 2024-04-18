@@ -45,6 +45,8 @@ public class Driver {
     int threads = argParser.getInteger("-threads", 5);
     boolean multiThread = argParser.hasFlag("-threads");
 
+    log.info("Multi-Threading: {}", multiThread);
+
     if (multiThread) {
       index = new ThreadSafeInvertedIndex();
       invertedIndexBuilder = new ThreadSafeInvertedIndexBuilder(index, threads);
@@ -89,7 +91,6 @@ public class Driver {
     if (argParser.hasValue("-query")) {
       Path query = argParser.getPath("-query");
       try {
-        System.out.println(index.getLocations("cardin"));
         processor.parseQuery(query);
       } catch (IOException e) {
         System.err.printf("Can't read from file %s", query);
