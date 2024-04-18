@@ -55,6 +55,17 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
     }
 
     @Override
-    public void run() {}
+    public void run() {
+      InvertedIndex localIndex = new InvertedIndex();
+      InvertedIndexBuilder localBuilder = new InvertedIndexBuilder(localIndex);
+      try {
+        localBuilder.build(path);
+      } catch (IOException e) {
+        System.err.printf("ERROR! at %s", e);
+      }
+      synchronized (index) {
+        index.addIndex(localIndex);
+      }
+    }
   }
 }
