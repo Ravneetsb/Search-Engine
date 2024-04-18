@@ -1,28 +1,46 @@
 package edu.usfca.cs272;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /** Thread Safe implementation of InvertedIndexBuilder */
 public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
 
+  /** Work queue. */
+  private final WorkQueue queue;
+
+  private final ThreadSafeInvertedIndex index;
+
   /**
    * Constructor
    *
    * @param invertedIndex the index.
+   * @param threads the number of threads to use.
    */
-  public ThreadSafeInvertedIndexBuilder(ThreadSafeInvertedIndex invertedIndex) {
+  public ThreadSafeInvertedIndexBuilder(ThreadSafeInvertedIndex invertedIndex, int threads) {
     super(invertedIndex);
+    this.index = invertedIndex;
+    this.queue = new WorkQueue(threads);
   }
 
   @Override
   public void build(Path input) throws IOException {
-    super.build(input);
+    if (Files.isDirectory(input)) {
+      readDirectory(input);
+    } else {
+      queue.execute(new Task(input, index));
+    }
+    queue.finish();
   }
 
   @Override
   public void readDirectory(Path directory) throws IOException {
-    super.readDirectory(directory);
+    if (Files.isDirectory(directory)) {
+      readDirectory(directory);
+    } else if (fileIsTXT(directory)) {
+      queue.execute(new Task(directory, index));
+    }
   }
 
   @Override
@@ -59,7 +77,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
       InvertedIndex localIndex = new InvertedIndex();
       InvertedIndexBuilder localBuilder = new InvertedIndexBuilder(localIndex);
       try {
-        localBuilder.build(path);
+        localBuilder.readFile(path);
       } catch (IOException e) {
         System.err.printf("ERROR! at %s", e);
       }

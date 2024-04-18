@@ -111,8 +111,9 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
     lock.writeLock().lock();
     try {
       return super.addIndex(invertedIndex);
+    } finally {
+      lock.writeLock().unlock();
     }
-    lock.writeLock().unlock();
   }
 
   @Override
