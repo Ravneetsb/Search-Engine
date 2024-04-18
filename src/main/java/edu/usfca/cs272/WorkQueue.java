@@ -1,6 +1,7 @@
 package edu.usfca.cs272;
 
 import java.util.LinkedList;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -68,6 +69,36 @@ public class WorkQueue {
     /** initializes a worker thread with a custom name. */
     public Worker() {
       setName("Worker" + getName());
+    }
+
+    @Override
+    public void run() {
+      Runnable task = null;
+
+      try {
+        while (true) {
+          synchronized (tasks) {
+            if (tasks.isEmpty() && !shutdown) {
+              tasks.wait();
+            }
+
+            if (shutdown) {
+              break;
+            }
+
+            task = tasks.removeFirst();
+          }
+          try {
+            task.run();
+          } catch (RuntimeException e) {
+            log.catching(Level.ERROR, e);
+          }
+          decrementPending();
+        }
+      } catch (InterruptedException e) {
+        log.catching(Level.WARN, e);
+        Thread.currentThread().interrupt();
+      }
     }
   }
 }
