@@ -1,12 +1,17 @@
 package edu.usfca.cs272;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /** Query Processor for multi-threaded search */
 public class ThreadSafeQueryProcessor extends QueryProcessor {
@@ -18,7 +23,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
   private final WorkQueue queue;
 
   /** search method to be used. */
-  private final Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod;
+  private static final Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod;
 
   /** The results of the search. */
   private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
@@ -34,7 +39,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     super(invertedIndex, partial);
     this.index = invertedIndex;
     this.queue = new WorkQueue(threads);
-    this.searchMethod = partial ? invertedIndex::partialSearch : invertedIndex::exactSearch;
+    searchMethod = partial ? invertedIndex::partialSearch : invertedIndex::exactSearch;
     this.searches = new TreeMap<>();
   }
 
@@ -54,7 +59,12 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
 
   @Override
   public void parseQuery(Path query) throws IOException {
-    super.parseQuery(query);
+    try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        queue.execute(new Task(line, searches));
+      }
+    }
   }
 
   @Override
@@ -95,5 +105,39 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
   @Override
   public boolean hasQuery(String query) {
     return super.hasQuery(query);
+  }
+
+  /** Task for the QueryProcessor */
+  public static class Task implements Runnable {
+
+    /** the Query String */
+    private final String query;
+
+    /** Stores the search results */
+    private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
+
+    /**
+     * Creates a new task for the queryFile
+     *
+     * @param query the search query
+     * @param searches stores the results of the search.
+     */
+    public Task(String query, TreeMap<String, ArrayList<InvertedIndex.Score>> searches) {
+      this.searches = searches;
+      this.query = query;
+    }
+
+    @Override
+    public void run() {
+      SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+      var stems = FileStemmer.uniqueStems(query, stemmer);
+      String queryString = String.join(" ", stems);
+      synchronized (searches) {
+      if (queryString.isBlank() || searches.containsKey(query)) {
+        return;
+      }
+      ArrayList<InvertedIndex.Score> scores = searchMethod.apply(stems);
+      searches.put(query, scores);
+    }}
   }
 }
