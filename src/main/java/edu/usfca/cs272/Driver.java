@@ -45,6 +45,7 @@ public class Driver {
     ArgumentParser argParser = new ArgumentParser(args);
     InvertedIndex index;
     InvertedIndexBuilder invertedIndexBuilder;
+    QueryProcessor processor;
     int threads = argParser.getInteger("-threads", DEFAULT_THREADS);
     boolean multiThread = argParser.hasFlag("-threads");
 
@@ -54,9 +55,11 @@ public class Driver {
       index = new ThreadSafeInvertedIndex();
       threads = threads <= 0 ? DEFAULT_THREADS : threads;
       invertedIndexBuilder = new ThreadSafeInvertedIndexBuilder(index, threads);
+      processor = new ThreadSafeQueryProcessor(index, argParser.hasFlag("-partial"), threads);
     } else {
       index = new InvertedIndex();
       invertedIndexBuilder = new InvertedIndexBuilder(index);
+      processor = new QueryProcessor(index, argParser.hasFlag("-partial"));
     }
 
     if (argParser.hasValue("-text")) {
@@ -91,7 +94,6 @@ public class Driver {
       }
     }
 
-    QueryProcessor processor = new QueryProcessor(index, argParser.hasFlag("-partial"));
     if (argParser.hasValue("-query")) {
       Path query = argParser.getPath("-query");
       try {

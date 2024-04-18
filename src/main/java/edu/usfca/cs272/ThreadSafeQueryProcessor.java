@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Function;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /** Query Processor for multi-threaded search */
@@ -23,10 +22,12 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
   private final WorkQueue queue;
 
   /** search method to be used. */
-  private static final Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod;
+  //  private static final Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod;
 
   /** The results of the search. */
   private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
+
+  private final boolean isPartial;
 
   /**
    * Creates a new QueryProcessor
@@ -39,7 +40,8 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     super(invertedIndex, partial);
     this.index = invertedIndex;
     this.queue = new WorkQueue(threads);
-    searchMethod = partial ? invertedIndex::partialSearch : invertedIndex::exactSearch;
+    //    searchMethod = partial ? invertedIndex::partialSearch : invertedIndex::exactSearch;
+    isPartial = partial;
     this.searches = new TreeMap<>();
   }
 
@@ -53,8 +55,9 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     super(invertedIndex);
     this.index = invertedIndex;
     this.queue = new WorkQueue(threads);
-    this.searchMethod = invertedIndex::partialSearch;
+    //    this.searchMethod = invertedIndex::partialSearch;
     this.searches = new TreeMap<>();
+    isPartial = false;
   }
 
   @Override
@@ -62,8 +65,9 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
       String line;
       while ((line = br.readLine()) != null) {
-        queue.execute(new Task(line, searches));
+        queue.execute(new Task(line, searches, index, isPartial));
       }
+      queue.finish();
     }
   }
 
@@ -116,15 +120,25 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     /** Stores the search results */
     private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
 
+    private final InvertedIndex index;
+
+    private final boolean par;
+
     /**
      * Creates a new task for the queryFile
      *
      * @param query the search query
      * @param searches stores the results of the search.
      */
-    public Task(String query, TreeMap<String, ArrayList<InvertedIndex.Score>> searches) {
+    public Task(
+        String query,
+        TreeMap<String, ArrayList<InvertedIndex.Score>> searches,
+        InvertedIndex index,
+        boolean par) {
       this.searches = searches;
       this.query = query;
+      this.index = index;
+      this.par = par;
     }
 
     @Override
@@ -133,11 +147,19 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
       var stems = FileStemmer.uniqueStems(query, stemmer);
       String queryString = String.join(" ", stems);
       synchronized (searches) {
-      if (queryString.isBlank() || searches.containsKey(query)) {
-        return;
+        if (queryString.isBlank() || searches.containsKey(query)) {
+          return;
+        }
       }
-      ArrayList<InvertedIndex.Score> scores = searchMethod.apply(stems);
-      searches.put(query, scores);
-    }}
+      ArrayList<InvertedIndex.Score> scores = null;
+      synchronized (index) {
+        scores = index.search(stems, par);
+      }
+      if (scores != null) {
+        synchronized (searches) {
+          searches.put(queryString, scores);
+        }
+      }
+    }
   }
 }
