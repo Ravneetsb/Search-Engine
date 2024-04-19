@@ -53,8 +53,6 @@ public class Driver {
     ThreadSafeQueryProcessor threadSafeProcessor;
     boolean singleThread = !argParser.hasFlag("-threads");
 
-    log.info("Multi-Threading: {}", multiThread);
-
     if (singleThread) {
       index = new InvertedIndex();
       if (argParser.hasValue("-text")) {
