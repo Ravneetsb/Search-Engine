@@ -14,7 +14,7 @@ public class WorkQueue {
   /** Queue of pending tasks. */
   private final LinkedList<Runnable> tasks;
 
-  /** Used to signla that the workers can terminate. */
+  /** Used to signal that the workers can terminate. */
   private volatile boolean shutdown;
 
   /** Default number of worker threads to use. */

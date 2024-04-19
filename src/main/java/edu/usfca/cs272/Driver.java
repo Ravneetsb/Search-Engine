@@ -43,72 +43,126 @@ public class Driver {
     Instant start = Instant.now();
 
     ArgumentParser argParser = new ArgumentParser(args);
+
     InvertedIndex index;
     InvertedIndexBuilder invertedIndexBuilder;
     QueryProcessor processor;
-    int threads = argParser.getInteger("-threads", DEFAULT_THREADS);
+
+    ThreadSafeInvertedIndex threadSafeInvertedIndex;
+    ThreadSafeInvertedIndexBuilder threadSafeInvertedIndexBuilder;
+    ThreadSafeQueryProcessor threadSafeProcessor;
     boolean multiThread = argParser.hasFlag("-threads");
 
     log.info("Multi-Threading: {}", multiThread);
 
-    if (multiThread) {
-      index = new ThreadSafeInvertedIndex();
-      threads = threads <= 0 ? DEFAULT_THREADS : threads;
-      invertedIndexBuilder = new ThreadSafeInvertedIndexBuilder(index, threads);
-      processor = new ThreadSafeQueryProcessor(index, argParser.hasFlag("-partial"), threads);
-    } else {
+    if (!multiThread) {
       index = new InvertedIndex();
-      invertedIndexBuilder = new InvertedIndexBuilder(index);
+      if (argParser.hasValue("-text")) {
+        Path path = argParser.getPath("-text");
+        log.info("Using {} for source.", path);
+
+        try {
+          invertedIndexBuilder = new InvertedIndexBuilder(index);
+          invertedIndexBuilder.build(path);
+          log.info("Build complete.");
+        } catch (IOException e) {
+          log.error("Unable to build Index from path: %s", path);
+        }
+      }
+
+      if (argParser.hasFlag("-counts")) {
+        Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
+        try {
+          JsonWriter.writeObject(index.getCounts(), countOutput);
+          log.info("Counts written to {}", countOutput);
+        } catch (IOException e) {
+          System.err.printf("Unable to write Counts Map to path: %s", countOutput);
+        }
+      }
+
+      if (argParser.hasFlag("-index")) {
+        Path indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
+        try {
+          index.toJson(indexOutput);
+          log.info("Index written to {}", indexOutput);
+        } catch (IOException e) {
+          System.err.printf("Unable to write Inverted Index to path: %s", indexOutput);
+        }
+      }
       processor = new QueryProcessor(index, argParser.hasFlag("-partial"));
-    }
-
-    if (argParser.hasValue("-text")) {
-      Path path = argParser.getPath("-text");
-      log.info("Using {} for source.", path);
-
-      try {
-        invertedIndexBuilder.build(path);
-        log.info("Build complete.");
-      } catch (IOException e) {
-        log.error("Unable to build Index from path: %s", path);
+      if (argParser.hasValue("-query")) {
+        Path query = argParser.getPath("-query");
+        try {
+          processor.parseQuery(query);
+        } catch (IOException e) {
+          System.err.printf("Can't read from file %s", query);
+        }
       }
-    }
 
-    if (argParser.hasFlag("-counts")) {
-      Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
-      try {
-        JsonWriter.writeObject(index.getCounts(), countOutput);
-        log.info("Counts written to {}", countOutput);
-      } catch (IOException e) {
-        System.err.printf("Unable to write Counts Map to path: %s", countOutput);
+      if (argParser.hasFlag("-results")) {
+        Path results = argParser.getPath("-results", DEFAULT_RESULTS);
+        try {
+          processor.toJson(results);
+        } catch (IOException e) {
+          System.err.printf("Unable to write to file %s.", results);
+        }
       }
-    }
+    } else {
+      threadSafeInvertedIndex = new ThreadSafeInvertedIndex();
+      int threads = argParser.getInteger("-threads", DEFAULT_THREADS);
 
-    if (argParser.hasFlag("-index")) {
-      Path indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
-      try {
-        index.toJson(indexOutput);
-        log.info("Index written to {}", indexOutput);
-      } catch (IOException e) {
-        System.err.printf("Unable to write Inverted Index to path: %s", indexOutput);
+      if (argParser.hasValue("-text")) {
+        Path path = argParser.getPath("-text");
+        log.info("Using {} for source.", path);
+
+        try {
+          threadSafeInvertedIndexBuilder =
+              new ThreadSafeInvertedIndexBuilder(threadSafeInvertedIndex, threads);
+          threadSafeInvertedIndexBuilder.build(path);
+          log.info("Build complete.");
+        } catch (IOException e) {
+          log.error("Unable to build Index from path: %s", path);
+        }
       }
-    }
 
-    if (argParser.hasValue("-query")) {
-      Path query = argParser.getPath("-query");
-      try {
-        processor.parseQuery(query);
-      } catch (IOException e) {
-        System.err.printf("Can't read from file %s", query);
+      if (argParser.hasFlag("-counts")) {
+        Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
+        try {
+          JsonWriter.writeObject(threadSafeInvertedIndex.getCounts(), countOutput);
+          log.info("Counts written to {}", countOutput);
+        } catch (IOException e) {
+          System.err.printf("Unable to write Counts Map to path: %s", countOutput);
+        }
       }
-    }
 
-    if (argParser.hasFlag("-results")) {
-      Path results = argParser.getPath("-results", DEFAULT_RESULTS);
-      try {
-        processor.toJson(results);
-      } catch (IOException e) {
-        System.err.printf("Unable to write to file %s.", results);
+      if (argParser.hasFlag("-index")) {
+        Path indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
+        try {
+          threadSafeInvertedIndex.toJson(indexOutput);
+          log.info("Index written to {}", indexOutput);
+        } catch (IOException e) {
+          System.err.printf("Unable to write Inverted Index to path: %s", indexOutput);
+        }
+      }
+      processor =
+          new ThreadSafeQueryProcessor(
+              threadSafeInvertedIndex, argParser.hasFlag("-partial"), threads);
+      if (argParser.hasValue("-query")) {
+        Path query = argParser.getPath("-query");
+        try {
+          processor.parseQuery(query);
+        } catch (IOException e) {
+          System.err.printf("Can't read from file %s", query);
+        }
+      }
+
+      if (argParser.hasFlag("-results")) {
+        Path results = argParser.getPath("-results", DEFAULT_RESULTS);
+        try {
+          processor.toJson(results);
+        } catch (IOException e) {
+          System.err.printf("Unable to write to file %s.", results);
+        }
       }
     }
 

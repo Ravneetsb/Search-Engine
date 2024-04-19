@@ -13,7 +13,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
   /** Work queue. */
   private final WorkQueue queue;
 
-  private final InvertedIndex index;
+  private final ThreadSafeInvertedIndex index;
 
   /**
    * Constructor
@@ -21,7 +21,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
    * @param invertedIndex the index.
    * @param threads the number of threads to use.
    */
-  public ThreadSafeInvertedIndexBuilder(InvertedIndex invertedIndex, int threads) {
+  public ThreadSafeInvertedIndexBuilder(ThreadSafeInvertedIndex invertedIndex, int threads) {
     super(invertedIndex);
     this.index = invertedIndex;
     this.queue = new WorkQueue(threads);
@@ -32,7 +32,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
     if (Files.isDirectory(input)) {
       readDirectory(input);
     } else {
-      queue.execute(new Task(input, (ThreadSafeInvertedIndex) index));
+      queue.execute(new Task(input, index));
     }
     queue.join();
   }
@@ -45,7 +45,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
           readDirectory(path);
         } else {
           if (fileIsTXT(path)) {
-            queue.execute(new Task(path, (ThreadSafeInvertedIndex) index));
+            queue.execute(new Task(path, index));
           }
         }
       }
