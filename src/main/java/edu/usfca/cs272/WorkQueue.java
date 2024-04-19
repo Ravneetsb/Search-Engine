@@ -148,13 +148,13 @@ public class WorkQueue {
             }
 
             task = tasks.removeFirst();
+            decrementPending();
           }
           try {
             task.run();
           } catch (RuntimeException e) {
             log.catching(Level.ERROR, e);
           }
-          decrementPending();
         }
       } catch (InterruptedException e) {
         log.catching(Level.WARN, e);
