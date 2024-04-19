@@ -51,11 +51,11 @@ public class Driver {
     ThreadSafeInvertedIndex threadSafeInvertedIndex;
     ThreadSafeInvertedIndexBuilder threadSafeInvertedIndexBuilder;
     ThreadSafeQueryProcessor threadSafeProcessor;
-    boolean multiThread = argParser.hasFlag("-threads");
+    boolean singleThread = !argParser.hasFlag("-threads");
 
     log.info("Multi-Threading: {}", multiThread);
 
-    if (!multiThread) {
+    if (singleThread) {
       index = new InvertedIndex();
       if (argParser.hasValue("-text")) {
         Path path = argParser.getPath("-text");
