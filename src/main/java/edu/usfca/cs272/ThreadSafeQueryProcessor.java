@@ -116,11 +116,13 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
 
     private final ThreadSafeInvertedIndex index;
 
+    /** Indicator for partial search */
     private final boolean par;
 
     /**
      * Creates a new task for the queryFile
      *
+     * @param index the Index to search through
      * @param query the search query
      * @param searches stores the results of the search.
      */
