@@ -59,7 +59,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
       while ((line = br.readLine()) != null) {
         queue.execute(new Task(line, searches, index, isPartial));
       }
-      queue.finish();
+      queue.join();
     }
   }
 
