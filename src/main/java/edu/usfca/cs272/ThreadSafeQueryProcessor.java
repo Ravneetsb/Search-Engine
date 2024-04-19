@@ -6,10 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /** Query Processor for multi-threaded search */
@@ -20,9 +17,6 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
 
   /** the work queue for tasks. */
   private final WorkQueue queue;
-
-  /** search method to be used. */
-  //  private static final Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod;
 
   /** The results of the search. */
   private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
@@ -78,7 +72,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
 
   @Override
   public void toJson(Path path) throws IOException {
-    super.toJson(path);
+    JsonWriter.writeSearch(searches, path);
   }
 
   @Override
@@ -147,18 +141,13 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
       var stems = FileStemmer.uniqueStems(query, stemmer);
       String queryString = String.join(" ", stems);
       synchronized (searches) {
-        if (queryString.isBlank() || searches.containsKey(query)) {
+        if (queryString.isBlank() || searches.containsKey(queryString)) {
           return;
         }
-      }
-      ArrayList<InvertedIndex.Score> scores = null;
-      synchronized (index) {
-        scores = index.search(stems, par);
-      }
-      if (scores != null) {
-        synchronized (searches) {
-          searches.put(queryString, scores);
-        }
+        ArrayList<InvertedIndex.Score> scores = index.search(stems, par);
+        searches.putIfAbsent(queryString, new ArrayList<>());
+        var list = searches.get(queryString);
+        list.addAll(scores);
       }
     }
   }
