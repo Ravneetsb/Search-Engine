@@ -125,6 +125,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
      * @param index the Index to search through
      * @param query the search query
      * @param searches stores the results of the search.
+     * @param par indicator for partial search
      */
     public Task(
         String query,
