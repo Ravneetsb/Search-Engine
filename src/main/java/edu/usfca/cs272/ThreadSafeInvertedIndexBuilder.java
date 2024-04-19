@@ -13,6 +13,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
   /** Work queue. */
   private final WorkQueue queue;
 
+  /** Thread Safe inverted index. */
   private final ThreadSafeInvertedIndex index;
 
   /**
