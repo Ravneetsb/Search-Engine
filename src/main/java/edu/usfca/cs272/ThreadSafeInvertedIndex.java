@@ -9,6 +9,7 @@ import java.util.Set;
 
 /** Thread Safe Inverted Index. */
 public class ThreadSafeInvertedIndex extends InvertedIndex {
+  /** The multiReaderLock for the index. */
   private final MultiReaderLock lock;
 
   /** Constructor for ThreadSafe Inverted Index. */
