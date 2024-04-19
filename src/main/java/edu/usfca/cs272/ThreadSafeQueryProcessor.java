@@ -21,6 +21,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
   /** The results of the search. */
   private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
 
+  /** Flag to see if partial search needs to be performed. */
   private final boolean isPartial;
 
   /**
@@ -115,7 +116,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     private final ThreadSafeInvertedIndex index;
 
     /** Indicator for partial search */
-    private final boolean par;
+    private final boolean partial;
 
     /**
      * Creates a new task for the queryFile
@@ -123,17 +124,17 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
      * @param index the Index to search through
      * @param query the search query
      * @param searches stores the results of the search.
-     * @param par indicator for partial search
+     * @param partial indicator for partial search
      */
     public Task(
         String query,
         TreeMap<String, ArrayList<InvertedIndex.Score>> searches,
         InvertedIndex index,
-        boolean par) {
+        boolean partial) {
       this.searches = searches;
       this.query = query;
       this.index = (ThreadSafeInvertedIndex) index;
-      this.par = par;
+      this.partial = partial;
     }
 
     @Override
@@ -145,7 +146,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
         if (queryString.isBlank() || searches.containsKey(queryString)) {
           return;
         }
-        ArrayList<InvertedIndex.Score> scores = index.search(stems, par);
+        ArrayList<InvertedIndex.Score> scores = index.search(stems, partial);
         searches.putIfAbsent(queryString, new ArrayList<>());
         var list = searches.get(queryString);
         list.addAll(scores);
