@@ -34,7 +34,6 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     super(invertedIndex, partial);
     this.index = invertedIndex;
     this.queue = new WorkQueue(threads);
-    //    searchMethod = partial ? invertedIndex::partialSearch : invertedIndex::exactSearch;
     isPartial = partial;
     this.searches = new TreeMap<>();
   }
@@ -49,7 +48,6 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     super(invertedIndex);
     this.index = invertedIndex;
     this.queue = new WorkQueue(threads);
-    //    this.searchMethod = invertedIndex::partialSearch;
     this.searches = new TreeMap<>();
     isPartial = false;
   }
