@@ -110,6 +110,7 @@ public class Driver {
     } else {
       threadSafeInvertedIndex = new ThreadSafeInvertedIndex();
       int threads = argParser.getInteger("-threads", DEFAULT_THREADS);
+      threads = threads <= 0 ? DEFAULT_THREADS : threads;
 
       if (argParser.hasValue("-text")) {
         Path path = argParser.getPath("-text");
@@ -144,13 +145,13 @@ public class Driver {
           System.err.printf("Unable to write Inverted Index to path: %s", indexOutput);
         }
       }
-      processor =
+      threadSafeProcessor =
           new ThreadSafeQueryProcessor(
               threadSafeInvertedIndex, argParser.hasFlag("-partial"), threads);
       if (argParser.hasValue("-query")) {
         Path query = argParser.getPath("-query");
         try {
-          processor.parseQuery(query);
+          threadSafeProcessor.parseQuery(query);
         } catch (IOException e) {
           System.err.printf("Can't read from file %s", query);
         }
@@ -159,7 +160,7 @@ public class Driver {
       if (argParser.hasFlag("-results")) {
         Path results = argParser.getPath("-results", DEFAULT_RESULTS);
         try {
-          processor.toJson(results);
+          threadSafeProcessor.toJson(results);
         } catch (IOException e) {
           System.err.printf("Unable to write to file %s.", results);
         }
