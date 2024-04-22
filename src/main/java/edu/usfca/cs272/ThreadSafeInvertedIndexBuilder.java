@@ -20,13 +20,12 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
    * Constructor
    *
    * @param invertedIndex the index.
-   * @param threads the number of threads to use.
+   * @param queue The workqueue
    */
-  // TODO Create a work queue in the Driver and pass in to here
-  public ThreadSafeInvertedIndexBuilder(ThreadSafeInvertedIndex invertedIndex, int threads) {
+  public ThreadSafeInvertedIndexBuilder(ThreadSafeInvertedIndex invertedIndex, WorkQueue queue) {
     super(invertedIndex);
     this.index = invertedIndex;
-    this.queue = new WorkQueue(threads);
+    this.queue = queue;
   }
 
   @Override
