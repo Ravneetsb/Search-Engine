@@ -3,8 +3,6 @@ package edu.usfca.cs272;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * InvertedIndex Data Structure for the Search Engine Project.
@@ -15,8 +13,6 @@ import org.apache.logging.log4j.Logger;
 public class InvertedIndex {
   /** Map for Index. */
   private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
-
-  private static final Logger log = LogManager.getLogger();
 
   /** Map for counts. */
   private final Map<String, Integer> counts;

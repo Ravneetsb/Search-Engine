@@ -113,6 +113,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     /** Stores the search results */
     private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
 
+    /** The thread safe index. */
     private final ThreadSafeInvertedIndex index;
 
     /** Indicator for partial search */
