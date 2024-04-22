@@ -50,22 +50,17 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
   }
 
   /** Task for the ThreadSafeInvertedIndexBuilder */
-  public static class Task implements Runnable { // TODO private non-static
+  private class Task implements Runnable {
     /** Path of the file from which to build index. */
     private final Path path;
-
-    /** The index to be built. */
-    private final ThreadSafeInvertedIndex index; // TODO Remove
 
     /**
      * Constructor for the Builder task.
      *
      * @param path Path of the file from which to build index.
-     * @param index The index to be built.
      */
-    public Task(Path path, ThreadSafeInvertedIndex index) {
+    private Task(Path path) {
       this.path = path;
-      this.index = index;
     }
 
     @Override
