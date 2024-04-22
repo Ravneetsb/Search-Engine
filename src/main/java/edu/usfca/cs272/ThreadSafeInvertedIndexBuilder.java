@@ -3,8 +3,6 @@ package edu.usfca.cs272;
 import static edu.usfca.cs272.Driver.log;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -41,25 +39,9 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
   }
 
   @Override
-  public void readDirectory(Path directory)
-      throws IOException { // TODO Remove this, inherit original
-    try (DirectoryStream<Path> listing = Files.newDirectoryStream(directory)) {
-      for (Path path : listing) {
-        if (Files.isDirectory(path)) {
-          readDirectory(path);
-        } else {
-          if (fileIsTXT(path)) {
-            queue.execute(new Task(path, index));
-          }
-        }
-      }
-    }
-  }
-
-  @Override
   public void readFile(Path file) throws IOException {
     super.readFile(file);
-    // TODO queue.execute(new Task(file, index));
+    queue.execute(new Task(file, index));
   }
 
   @Override
