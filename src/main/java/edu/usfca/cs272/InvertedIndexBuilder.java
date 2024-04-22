@@ -60,22 +60,26 @@ public class InvertedIndexBuilder {
       }
     }
   }
-  
-  /* TODO 
+
+  /**
+   * Reads text file to populate index.
+   *
+   * @param file path of file
+   * @throws IOException if file is not found.
+   */
   public void readFile(Path file) throws IOException {
-  		readFile(file, this.index);
+    readFile(file, this.index);
   }
-  */
 
   // CITE: Talked to Frank about not having multi-line reading.
   /**
    * reads text file to populate InvertedIndex.
    *
    * @param file path of text file.
+   * @param index Inverted index to populate
    * @throws IOException if unable to read file.
    */
-//  public static void readFile(Path file, InvertedIndex index) throws IOException {
-  public void readFile(Path file) throws IOException {
+  public static void readFile(Path file, InvertedIndex index) throws IOException {
     int iter = 1;
     try (BufferedReader br = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
       String line;
