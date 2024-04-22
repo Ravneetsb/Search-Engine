@@ -171,3 +171,11 @@ public class Driver {
     System.out.printf("Elapsed: %f seconds%n", seconds);
   }
 }
+
+/*
+ * TODO 
+Description	Resource	Path	Location	Type
+Javadoc: Missing comment for private declaration	InvertedIndex.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 19	Java Problem
+Javadoc: Missing comment for private declaration	ThreadSafeQueryProcessor.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 116	Java Problem
+The value of the field InvertedIndex.log is not used	InvertedIndex.java	/SearchEngine/src/main/java/edu/usfca/cs272	line 19	Java Problem
+*/
