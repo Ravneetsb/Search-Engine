@@ -178,7 +178,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
   }
 
   @Override
-  public ArrayList<Score> search(Set<String> queries, boolean partial) {
+  public ArrayList<Score> search(Set<String> queries, boolean partial) { // TODO Remove
     lock.writeLock().lock();
     try {
       return super.search(queries, partial);

@@ -60,6 +60,12 @@ public class InvertedIndexBuilder {
       }
     }
   }
+  
+  /* TODO 
+  public void readFile(Path file) throws IOException {
+  		readFile(file, this.index);
+  }
+  */
 
   // CITE: Talked to Frank about not having multi-line reading.
   /**
@@ -68,6 +74,7 @@ public class InvertedIndexBuilder {
    * @param file path of text file.
    * @throws IOException if unable to read file.
    */
+//  public static void readFile(Path file, InvertedIndex index) throws IOException {
   public void readFile(Path file) throws IOException {
     int iter = 1;
     try (BufferedReader br = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
