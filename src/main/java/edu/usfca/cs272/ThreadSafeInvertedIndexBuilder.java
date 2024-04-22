@@ -74,10 +74,8 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
       */
 
       InvertedIndex localIndex = new InvertedIndex();
-      InvertedIndexBuilder localBuilder =
-          new InvertedIndexBuilder(localIndex); // TODO Use the static method
       try {
-        localBuilder.readFile(path);
+        InvertedIndexBuilder.readFile(path, index);
       } catch (IOException e) {
         log.error("Unable to read file from {}", path);
         throw new UncheckedIOException(e);
