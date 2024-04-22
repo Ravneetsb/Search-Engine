@@ -3,8 +3,6 @@ package edu.usfca.cs272;
 import static edu.usfca.cs272.Driver.log;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -35,7 +33,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
     if (Files.isDirectory(input)) {
       readDirectory(input);
     } else {
-      queue.execute(new Task(input, index));
+      readFile(input, index);
     }
     queue.join(); // TODO finish, call join or shutdown in Driver
   }
@@ -43,7 +41,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
   @Override
   public void readFile(Path file) throws IOException {
     super.readFile(file);
-    // TODO queue.execute(new Task(file, index));
+    queue.execute(new Task(file, index));
   }
 
   @Override
@@ -80,17 +78,13 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
       */
 
       InvertedIndex localIndex = new InvertedIndex();
-      InvertedIndexBuilder localBuilder =
-          new InvertedIndexBuilder(localIndex); // TODO Use the static method
       try {
-        localBuilder.readFile(path);
+        InvertedIndexBuilder.readFile(path, localIndex);
       } catch (IOException e) {
         log.error("Unable to read file from {}", path);
         // TODO throw new UncheckedIOException(e);
       }
-      synchronized (index) { // TODO Consider whether you should need this
-        index.addIndex(localIndex);
-      }
+      index.addIndex(localIndex);
     }
   }
 }
