@@ -3,6 +3,7 @@ package edu.usfca.cs272;
 import static edu.usfca.cs272.Driver.log;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -33,7 +34,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
     if (Files.isDirectory(input)) {
       readDirectory(input);
     } else {
-      queue.execute(new Task(input, index));
+      queue.execute(new Task(input));
     }
     queue.finish();
   }
@@ -41,7 +42,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
   @Override
   public void readFile(Path file) throws IOException {
     super.readFile(file);
-    queue.execute(new Task(file, index));
+    queue.execute(new Task(file));
   }
 
   @Override
@@ -50,22 +51,17 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
   }
 
   /** Task for the ThreadSafeInvertedIndexBuilder */
-  public static class Task implements Runnable { // TODO private non-static
+  private class Task implements Runnable {
     /** Path of the file from which to build index. */
     private final Path path;
-
-    /** The index to be built. */
-    private final ThreadSafeInvertedIndex index; // TODO Remove
 
     /**
      * Constructor for the Builder task.
      *
      * @param path Path of the file from which to build index.
-     * @param index The index to be built.
      */
-    public Task(Path path, ThreadSafeInvertedIndex index) {
+    private Task(Path path) {
       this.path = path;
-      this.index = index;
     }
 
     @Override
@@ -84,11 +80,9 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
         localBuilder.readFile(path);
       } catch (IOException e) {
         log.error("Unable to read file from {}", path);
-        // TODO throw new UncheckedIOException(e);
+        throw new UncheckedIOException(e);
       }
-      synchronized (index) { // TODO Consider whether you should need this
-        index.addIndex(localIndex);
-      }
+      index.addIndex(localIndex);
     }
   }
 }
