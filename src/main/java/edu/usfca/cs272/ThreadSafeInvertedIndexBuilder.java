@@ -4,6 +4,7 @@ import static edu.usfca.cs272.Driver.log;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -20,12 +21,13 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
    * Constructor
    *
    * @param invertedIndex the index.
-   * @param queue The workqueue
+   * @param threads the number of threads to use.
    */
-  public ThreadSafeInvertedIndexBuilder(ThreadSafeInvertedIndex invertedIndex, WorkQueue queue) {
+  // TODO Create a work queue in the Driver and pass in to here
+  public ThreadSafeInvertedIndexBuilder(ThreadSafeInvertedIndex invertedIndex, int threads) {
     super(invertedIndex);
     this.index = invertedIndex;
-    this.queue = queue;
+    this.queue = new WorkQueue(threads);
   }
 
   @Override
@@ -33,15 +35,30 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
     if (Files.isDirectory(input)) {
       readDirectory(input);
     } else {
-      queue.execute(new Task(input));
+      queue.execute(new Task(input, index));
     }
-    queue.finish();
+    queue.join(); // TODO finish, call join or shutdown in Driver
+  }
+
+  @Override
+  public void readDirectory(Path directory) throws IOException { // TODO Remove this, inherit original
+    try (DirectoryStream<Path> listing = Files.newDirectoryStream(directory)) {
+      for (Path path : listing) {
+        if (Files.isDirectory(path)) {
+          readDirectory(path);
+        } else {
+          if (fileIsTXT(path)) {
+            queue.execute(new Task(path, index));
+          }
+        }
+      }
+    }
   }
 
   @Override
   public void readFile(Path file) throws IOException {
     super.readFile(file);
-    queue.execute(new Task(file));
+    // TODO queue.execute(new Task(file, index));
   }
 
   @Override
@@ -50,36 +67,44 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
   }
 
   /** Task for the ThreadSafeInvertedIndexBuilder */
-  private class Task implements Runnable {
+  public static class Task implements Runnable { // TODO private non-static
     /** Path of the file from which to build index. */
     private final Path path;
+
+    /** The index to be built. */
+    private final ThreadSafeInvertedIndex index; // TODO Remove
 
     /**
      * Constructor for the Builder task.
      *
      * @param path Path of the file from which to build index.
+     * @param index The index to be built.
      */
-    private Task(Path path) {
+    public Task(Path path, ThreadSafeInvertedIndex index) {
       this.path = path;
+      this.index = index;
     }
 
     @Override
     public void run() {
-      /* TODO This is the "easy" way to get the tests passing... but not THAT fast
-      var stems = FileStemmer.listStems(path);
-      index.addAll(path.toString(), stems);
-
-      (Don't change anything, just an FYI.)
-      */
-
+    	/* TODO This is the "easy" way to get the tests passing... but not THAT fast
+    	var stems = FileStemmer.listStems(path);
+    	index.addAll(path.toString(), stems);
+    	
+    	(Don't change anything, just an FYI.)
+    	*/
+    	
       InvertedIndex localIndex = new InvertedIndex();
+      InvertedIndexBuilder localBuilder = new InvertedIndexBuilder(localIndex); // TODO Use the static method
       try {
-        InvertedIndexBuilder.readFile(path, index);
+        localBuilder.readFile(path);
       } catch (IOException e) {
         log.error("Unable to read file from {}", path);
-        throw new UncheckedIOException(e);
+        // TODO throw new UncheckedIOException(e);
       }
-      index.addIndex(localIndex);
+      synchronized (index) { // TODO Consider whether you should need this
+        index.addIndex(localIndex);
+      }
     }
   }
 }
