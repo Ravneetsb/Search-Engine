@@ -41,21 +41,6 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
   }
 
   @Override
-  public void readDirectory(Path directory) throws IOException { // TODO Remove this, inherit original
-    try (DirectoryStream<Path> listing = Files.newDirectoryStream(directory)) {
-      for (Path path : listing) {
-        if (Files.isDirectory(path)) {
-          readDirectory(path);
-        } else {
-          if (fileIsTXT(path)) {
-            queue.execute(new Task(path, index));
-          }
-        }
-      }
-    }
-  }
-
-  @Override
   public void readFile(Path file) throws IOException {
     super.readFile(file);
     // TODO queue.execute(new Task(file, index));
@@ -87,15 +72,16 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
 
     @Override
     public void run() {
-    	/* TODO This is the "easy" way to get the tests passing... but not THAT fast
-    	var stems = FileStemmer.listStems(path);
-    	index.addAll(path.toString(), stems);
-    	
-    	(Don't change anything, just an FYI.)
-    	*/
-    	
+      /* TODO This is the "easy" way to get the tests passing... but not THAT fast
+      var stems = FileStemmer.listStems(path);
+      index.addAll(path.toString(), stems);
+
+      (Don't change anything, just an FYI.)
+      */
+
       InvertedIndex localIndex = new InvertedIndex();
-      InvertedIndexBuilder localBuilder = new InvertedIndexBuilder(localIndex); // TODO Use the static method
+      InvertedIndexBuilder localBuilder =
+          new InvertedIndexBuilder(localIndex); // TODO Use the static method
       try {
         localBuilder.readFile(path);
       } catch (IOException e) {
