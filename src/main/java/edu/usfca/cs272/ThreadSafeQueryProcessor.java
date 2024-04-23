@@ -7,13 +7,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
+import java.util.function.Function;
 
 /** Query Processor for multi-threaded search */
 public class ThreadSafeQueryProcessor extends QueryProcessor {
-
-  /** The invertedIndex to search through */
-  private final ThreadSafeInvertedIndex index;
 
   /** the work queue for tasks. */
   private final WorkQueue queue;
@@ -21,23 +18,22 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
   /** The results of the search. */
   private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
 
-  /** Flag to see if partial search needs to be performed. */
-  private final boolean isPartial;
+  /** Search method for search. */
+  private final Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod;
 
   /**
    * Creates a new QueryProcessor
    *
    * @param invertedIndex the index to be searched
    * @param partial indicates search type
-   * @param threads the number of threads
+   * @param queue Workqueue
    */
   public ThreadSafeQueryProcessor(
       ThreadSafeInvertedIndex invertedIndex, boolean partial, WorkQueue queue) {
     super(invertedIndex, partial);
-    this.index = invertedIndex;
     this.queue = queue;
-    isPartial = partial;
     this.searches = new TreeMap<>();
+    this.searchMethod = partial ? invertedIndex::partialSearch : invertedIndex::exactSearch;
   }
 
   /**
@@ -48,10 +44,9 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
    */
   public ThreadSafeQueryProcessor(ThreadSafeInvertedIndex invertedIndex, WorkQueue queue) {
     super(invertedIndex);
-    this.index = invertedIndex;
     this.queue = queue;
     this.searches = new TreeMap<>();
-    isPartial = false;
+    this.searchMethod = invertedIndex::partialSearch;
   }
 
   @Override
@@ -59,7 +54,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
       String line;
       while ((line = br.readLine()) != null) {
-        queue.execute(new Task(line, searches, index, isPartial));
+        parseQuery(line);
       }
       queue.finish();
     }
@@ -67,7 +62,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
 
   @Override
   public void parseQuery(String query) {
-    super.parseQuery(query);
+    queue.execute(new Task(query));
   }
 
   @Override
@@ -111,33 +106,19 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     /** the Query String */
     private final String query;
 
-    /** Stores the search results */
-    private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
-
     /**
      * Creates a new task for the queryFile
      *
      * @param query the search query
-     * @param searches stores the results of the search.
      */
-    private Task(String query, TreeMap<String, ArrayList<InvertedIndex.Score>> searches) {
-      this.searches = searches;
+    private Task(String query) {
       this.query = query;
     }
 
     @Override
     public void run() {
-      SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
-      var stems = FileStemmer.uniqueStems(query, stemmer);
-      String queryString = String.join(" ", stems);
       synchronized (searches) {
-        if (queryString.isBlank() || searches.containsKey(queryString)) {
-          return;
-        }
-        ArrayList<InvertedIndex.Score> scores = index.search(stems, isPartial);
-        searches.putIfAbsent(queryString, new ArrayList<>());
-        var list = searches.get(queryString);
-        list.addAll(scores);
+        QueryProcessor.parseQuery(query, searches, searchMethod);
       }
     }
   }

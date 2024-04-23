@@ -152,7 +152,7 @@ public class WorkQueue {
           try {
             task.run();
           } catch (RuntimeException e) {
-            log.catching(Level.ERROR, e);
+            System.err.println(e);
           }
           decrementPending();
         }

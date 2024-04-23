@@ -60,11 +60,25 @@ public class QueryProcessor {
   }
 
   /**
+   * Parses query and performs search on index.
+   *
+   * @param query the query to be used.
+   */
+  public void parseQuery(String query) {
+    parseQuery(query, searches, searchMethod);
+  }
+
+  /**
    * Logic for populating scores for every line
    *
    * @param query query.
+   * @param searches map of search Results
+   * @param searchMethod The search method to use.
    */
-  public void parseQuery(String query) {
+  public static void parseQuery(
+      String query,
+      Map<String, ArrayList<InvertedIndex.Score>> searches,
+      Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod) {
     var stems = FileStemmer.uniqueStems(query, stemmer);
     query = String.join(" ", stems);
 
