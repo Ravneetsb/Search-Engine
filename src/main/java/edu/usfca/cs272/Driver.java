@@ -126,7 +126,6 @@ public class Driver {
           log.error("Unable to build Index from path: %s", path);
         }
       }
-      queue.join();
 
       if (argParser.hasFlag("-counts")) {
         Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
@@ -147,9 +146,9 @@ public class Driver {
           System.err.printf("Unable to write Inverted Index to path: %s", indexOutput);
         }
       }
-      /*threadSafeProcessor =
+      threadSafeProcessor =
           new ThreadSafeQueryProcessor(
-              threadSafeInvertedIndex, argParser.hasFlag("-partial"), threads);
+              threadSafeInvertedIndex, argParser.hasFlag("-partial"), queue);
       if (argParser.hasValue("-query")) {
         Path query = argParser.getPath("-query");
         try {
@@ -159,6 +158,8 @@ public class Driver {
         }
       }
 
+      queue.join();
+
       if (argParser.hasFlag("-results")) {
         Path results = argParser.getPath("-results", DEFAULT_RESULTS);
         try {
@@ -166,7 +167,7 @@ public class Driver {
         } catch (IOException e) {
           System.err.printf("Unable to write to file %s.", results);
         }
-      }*/
+      }
     }
 
     // calculate time elapsed and output

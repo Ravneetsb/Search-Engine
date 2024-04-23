@@ -13,7 +13,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
 public class ThreadSafeQueryProcessor extends QueryProcessor {
 
   /** The invertedIndex to search through */
-  private final InvertedIndex index;
+  private final ThreadSafeInvertedIndex index;
 
   /** the work queue for tasks. */
   private final WorkQueue queue;
@@ -31,10 +31,11 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
    * @param partial indicates search type
    * @param threads the number of threads
    */
-  public ThreadSafeQueryProcessor(InvertedIndex invertedIndex, boolean partial, int threads) {
+  public ThreadSafeQueryProcessor(
+      ThreadSafeInvertedIndex invertedIndex, boolean partial, WorkQueue queue) {
     super(invertedIndex, partial);
     this.index = invertedIndex;
-    this.queue = new WorkQueue(threads);
+    this.queue = queue;
     isPartial = partial;
     this.searches = new TreeMap<>();
   }
@@ -43,12 +44,12 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
    * Creates a new QueryProcessor the defaults to exact search.
    *
    * @param invertedIndex the index to be searched
-   * @param threads the number of threads.
+   * @param queue Workqueue
    */
-  public ThreadSafeQueryProcessor(InvertedIndex invertedIndex, int threads) {
+  public ThreadSafeQueryProcessor(ThreadSafeInvertedIndex invertedIndex, WorkQueue queue) {
     super(invertedIndex);
     this.index = invertedIndex;
-    this.queue = new WorkQueue(threads);
+    this.queue = queue;
     this.searches = new TreeMap<>();
     isPartial = false;
   }
@@ -60,7 +61,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
       while ((line = br.readLine()) != null) {
         queue.execute(new Task(line, searches, index, isPartial));
       }
-      queue.join();
+      queue.finish();
     }
   }
 
@@ -105,7 +106,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
   }
 
   /** Task for the QueryProcessor */
-  public static class Task implements Runnable {
+  private class Task implements Runnable {
 
     /** the Query String */
     private final String query;
@@ -113,29 +114,15 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
     /** Stores the search results */
     private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
 
-    /** The thread safe index. */
-    private final ThreadSafeInvertedIndex index;
-
-    /** Indicator for partial search */
-    private final boolean partial;
-
     /**
      * Creates a new task for the queryFile
      *
-     * @param index the Index to search through
      * @param query the search query
      * @param searches stores the results of the search.
-     * @param partial indicator for partial search
      */
-    public Task(
-        String query,
-        TreeMap<String, ArrayList<InvertedIndex.Score>> searches,
-        InvertedIndex index,
-        boolean partial) {
+    private Task(String query, TreeMap<String, ArrayList<InvertedIndex.Score>> searches) {
       this.searches = searches;
       this.query = query;
-      this.index = (ThreadSafeInvertedIndex) index;
-      this.partial = partial;
     }
 
     @Override
@@ -147,7 +134,7 @@ public class ThreadSafeQueryProcessor extends QueryProcessor {
         if (queryString.isBlank() || searches.containsKey(queryString)) {
           return;
         }
-        ArrayList<InvertedIndex.Score> scores = index.search(stems, partial);
+        ArrayList<InvertedIndex.Score> scores = index.search(stems, isPartial);
         searches.putIfAbsent(queryString, new ArrayList<>());
         var list = searches.get(queryString);
         list.addAll(scores);
