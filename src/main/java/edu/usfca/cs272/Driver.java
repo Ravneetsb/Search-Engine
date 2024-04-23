@@ -108,7 +108,10 @@ public class Driver {
     } else {
       threadSafeInvertedIndex = new ThreadSafeInvertedIndex();
       int threads = argParser.getInteger("-threads", DEFAULT_THREADS);
-      threads = threads <= 0 ? DEFAULT_THREADS : threads;
+      if (threads <= 0) {
+        threads = DEFAULT_THREADS;
+      }
+      WorkQueue queue = new WorkQueue(threads);
 
       if (argParser.hasValue("-text")) {
         Path path = argParser.getPath("-text");
@@ -116,13 +119,14 @@ public class Driver {
 
         try {
           threadSafeInvertedIndexBuilder =
-              new ThreadSafeInvertedIndexBuilder(threadSafeInvertedIndex, threads);
+              new ThreadSafeInvertedIndexBuilder(threadSafeInvertedIndex, queue);
           threadSafeInvertedIndexBuilder.build(path);
           log.info("Build complete.");
         } catch (IOException e) {
           log.error("Unable to build Index from path: %s", path);
         }
       }
+      queue.join();
 
       if (argParser.hasFlag("-counts")) {
         Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);

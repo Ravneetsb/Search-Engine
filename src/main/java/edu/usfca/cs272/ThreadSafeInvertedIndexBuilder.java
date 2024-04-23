@@ -3,6 +3,7 @@ package edu.usfca.cs272;
 import static edu.usfca.cs272.Driver.log;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -19,13 +20,12 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
    * Constructor
    *
    * @param invertedIndex the index.
-   * @param threads the number of threads to use.
+   * @param queue workqueue
    */
-  // TODO Create a work queue in the Driver and pass in to here
-  public ThreadSafeInvertedIndexBuilder(ThreadSafeInvertedIndex invertedIndex, int threads) {
+  public ThreadSafeInvertedIndexBuilder(ThreadSafeInvertedIndex invertedIndex, WorkQueue queue) {
     super(invertedIndex);
     this.index = invertedIndex;
-    this.queue = new WorkQueue(threads);
+    this.queue = queue;
   }
 
   @Override
@@ -33,15 +33,14 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
     if (Files.isDirectory(input)) {
       readDirectory(input);
     } else {
-      readFile(input, index);
+      readFile(input);
     }
-    queue.join(); // TODO finish, call join or shutdown in Driver
+    queue.finish();
   }
 
   @Override
   public void readFile(Path file) throws IOException {
-    super.readFile(file);
-    queue.execute(new Task(file, index));
+    queue.execute(new Task(file));
   }
 
   @Override
@@ -65,19 +64,12 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
 
     @Override
     public void run() {
-      /* TODO This is the "easy" way to get the tests passing... but not THAT fast
-      var stems = FileStemmer.listStems(path);
-      index.addAll(path.toString(), stems);
-
-      (Don't change anything, just an FYI.)
-      */
-
       InvertedIndex localIndex = new InvertedIndex();
       try {
         InvertedIndexBuilder.readFile(path, localIndex);
       } catch (IOException e) {
         log.error("Unable to read file from {}", path);
-        // TODO throw new UncheckedIOException(e);
+        throw new UncheckedIOException(e);
       }
       index.addIndex(localIndex);
     }
