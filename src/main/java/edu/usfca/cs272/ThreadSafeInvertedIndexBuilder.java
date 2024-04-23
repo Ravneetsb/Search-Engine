@@ -73,5 +73,10 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
       }
       index.addIndex(localIndex);
     }
+
+    @Override
+    public String toString() {
+      return "Task{" + "path=" + path + '}';
+    }
   }
 }
