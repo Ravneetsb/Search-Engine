@@ -82,6 +82,11 @@ public class ThreadSafeQueryProcessor {
     /** The query to perform search for. */
     private final String query;
 
+    /**
+     * Creates a new task
+     *
+     * @param query The query to search
+     */
     private Task(String query) {
       this.query = query;
     }
