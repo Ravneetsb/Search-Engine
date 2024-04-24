@@ -6,119 +6,97 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
-/** Query Processor for multi-threaded search */
-public class ThreadSafeQueryProcessor extends QueryProcessor {
+/** The thread safe query processor */
+public class ThreadSafeQueryProcessor {
 
-  /** the work queue for tasks. */
+  /** Workqueue for the processor. */
   private final WorkQueue queue;
 
-  /** The results of the search. */
+  /** The map to store the search results. */
   private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
 
-  /** Search method for search. */
+  /** The search method to use. */
   private final Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod;
 
   /**
-   * Creates a new QueryProcessor
+   * Creates a new ThreadSafeQueryProcessor
    *
-   * @param invertedIndex the index to be searched
-   * @param partial indicates search type
-   * @param queue Workqueue
+   * @param index the thread safe invertedindex to search through.
+   * @param queue the workqueue to use.
+   * @param partialSearch true if partial search needs to be performed.
    */
   public ThreadSafeQueryProcessor(
-      ThreadSafeInvertedIndex invertedIndex, boolean partial, WorkQueue queue) {
-    super(invertedIndex, partial);
+      ThreadSafeInvertedIndex index, WorkQueue queue, boolean partialSearch) {
+
+    this.searchMethod = partialSearch ? index::partialSearch : index::exactSearch;
     this.queue = queue;
     this.searches = new TreeMap<>();
-    this.searchMethod = partial ? invertedIndex::partialSearch : invertedIndex::exactSearch;
   }
 
   /**
-   * Creates a new QueryProcessor the defaults to exact search.
+   * Parses query line by line from a file.
    *
-   * @param invertedIndex the index to be searched
-   * @param queue Workqueue
+   * @param query The file that contains the queries.
+   * @throws IOException if the file is not found.
    */
-  public ThreadSafeQueryProcessor(ThreadSafeInvertedIndex invertedIndex, WorkQueue queue) {
-    super(invertedIndex);
-    this.queue = queue;
-    this.searches = new TreeMap<>();
-    this.searchMethod = invertedIndex::partialSearch;
-  }
-
-  @Override
   public void parseQuery(Path query) throws IOException {
     try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
       String line;
       while ((line = br.readLine()) != null) {
-        parseQuery(line);
+        queue.execute(new Task(line));
       }
       queue.finish();
     }
   }
 
-  @Override
-  public void parseQuery(String query) {
-    queue.execute(new Task(query));
-  }
-
-  @Override
+  /**
+   * Writes the search results in pretty json.
+   *
+   * @param path Path of output file.
+   * @throws IOException if the file is unable to be written.
+   */
   public void toJson(Path path) throws IOException {
     JsonWriter.writeSearch(searches, path);
   }
 
-  @Override
-  public String toString() {
-    return super.toString();
+  /**
+   * Parse a string as a query and performs search on it.
+   *
+   * @param line the query line.
+   * @return scores.
+   */
+  public ArrayList<InvertedIndex.Score> parseQuery(String line) {
+    SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+    var stems = FileStemmer.uniqueStems(line, stemmer);
+    return searchMethod.apply(stems);
   }
 
-  @Override
-  public int numOfResults() {
-    return super.numOfResults();
-  }
-
-  @Override
-  public int numOfScores(String query) {
-    return super.numOfScores(query);
-  }
-
-  @Override
-  public List<InvertedIndex.Score> getScores(String query) {
-    return super.getScores(query);
-  }
-
-  @Override
-  public Set<String> getQueries() {
-    return super.getQueries();
-  }
-
-  @Override
-  public boolean hasQuery(String query) {
-    return super.hasQuery(query);
-  }
-
-  /** Task for the QueryProcessor */
+  /** Task for the Processor */
   private class Task implements Runnable {
-
-    /** the Query String */
+    /** The query to perform search for. */
     private final String query;
 
-    /**
-     * Creates a new task for the queryFile
-     *
-     * @param query the search query
-     */
     private Task(String query) {
       this.query = query;
     }
 
     @Override
     public void run() {
+      SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+      var stems = FileStemmer.uniqueStems(query, stemmer);
+      String queryKey = String.join(" ", stems);
+      if (queryKey.isBlank()) {
+        return;
+      }
+      ArrayList<InvertedIndex.Score> scores = searchMethod.apply(stems);
       synchronized (searches) {
-        QueryProcessor.parseQuery(query, searches, searchMethod);
+        searches.putIfAbsent(queryKey, scores);
       }
     }
   }

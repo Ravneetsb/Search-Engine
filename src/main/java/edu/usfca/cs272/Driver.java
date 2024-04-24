@@ -148,7 +148,7 @@ public class Driver {
       }
       threadSafeProcessor =
           new ThreadSafeQueryProcessor(
-              threadSafeInvertedIndex, argParser.hasFlag("-partial"), queue);
+              threadSafeInvertedIndex, queue, argParser.hasFlag("-partial"));
       if (argParser.hasValue("-query")) {
         Path query = argParser.getPath("-query");
         try {
