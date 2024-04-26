@@ -12,6 +12,10 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
+/*
+ * TODO Create a common interface and move some stuff into the interface
+ */
+
 /** The thread safe query processor */
 public class ThreadSafeQueryProcessor {
 
@@ -99,9 +103,18 @@ public class ThreadSafeQueryProcessor {
       if (queryKey.isBlank()) {
         return;
       }
+      
+      /* TODO 
+      synchronized (searches) {
+	      	if (query.isBlank() || searches.containsKey(query)) {
+	      		return;
+	      	}
+      }
+      */
+      
       ArrayList<InvertedIndex.Score> scores = searchMethod.apply(stems);
       synchronized (searches) {
-        searches.putIfAbsent(queryKey, scores);
+        searches.putIfAbsent(queryKey, scores); // TODO put
       }
     }
   }
