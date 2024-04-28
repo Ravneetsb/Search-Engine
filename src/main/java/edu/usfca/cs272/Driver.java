@@ -39,180 +39,82 @@ public class Driver {
    * @param args flag/value pairs used to start this program
    */
   public static void main(String[] args) {
-  	  	/* TODO 
-  		ArgumentParser argParser = new ArgumentParser(args);
 
-    InvertedIndex index;
-    InvertedIndexBuilder invertedIndexBuilder;
-    QueryProcessorInterface processor;
-    
-    WorkQueue queue = null;
-  	
-    if (argParser.hasFlag("-threads")) {
-    		ThreadSafeInvertedIndex threadSafe = new ThreadSafeInvertedIndex();
-    		index = threadSafe;
-    		
-    		invertedIndexBuilder = new ThreadSafeInvertedIndexBuilder(...);
-    		etc.
-    }
-    else {
-    		index = new InvertedIndex();
-    		...
-    }
-  	
-    same code from project 2
-    
-    if (queue != null) {
-    		queue.shutdown();
-    }
-  		*/
-  	
-  	
     // store initial start time
     Instant start = Instant.now();
 
     ArgumentParser argParser = new ArgumentParser(args);
-
     InvertedIndex index;
-    InvertedIndexBuilder invertedIndexBuilder;
-    QueryProcessor processor;
+    InvertedIndexBuilder builder;
+    Processor processor;
+    WorkQueue queue = null;
+    boolean partial = argParser.hasFlag("-partial");
 
-    ThreadSafeInvertedIndex threadSafeInvertedIndex;
-    ThreadSafeInvertedIndexBuilder threadSafeInvertedIndexBuilder;
-    ThreadSafeQueryProcessor threadSafeProcessor;
-    boolean singleThread = !argParser.hasFlag("-threads");
-
-    if (singleThread) {
-      index = new InvertedIndex();
-      if (argParser.hasValue("-text")) {
-        Path path = argParser.getPath("-text");
-        log.info("Using {} for source.", path);
-
-        try {
-          invertedIndexBuilder = new InvertedIndexBuilder(index);
-          invertedIndexBuilder.build(path);
-          log.info("Build complete.");
-        } catch (IOException e) {
-          log.error("Unable to build Index from path: %s", path);
-        }
-      }
-
-      if (argParser.hasFlag("-counts")) {
-        Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
-        try {
-          JsonWriter.writeObject(index.getCounts(), countOutput);
-          log.info("Counts written to {}", countOutput);
-        } catch (IOException e) {
-          System.err.printf("Unable to write Counts Map to path: %s", countOutput);
-        }
-      }
-
-      if (argParser.hasFlag("-index")) {
-        Path indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
-        try {
-          index.toJson(indexOutput);
-          log.info("Index written to {}", indexOutput);
-        } catch (IOException e) {
-          System.err.printf("Unable to write Inverted Index to path: %s", indexOutput);
-        }
-      }
-      processor = new QueryProcessor(index, argParser.hasFlag("-partial"));
-      if (argParser.hasValue("-query")) {
-        Path query = argParser.getPath("-query");
-        try {
-          processor.parseQuery(query);
-        } catch (IOException e) {
-          System.err.printf("Can't read from file %s", query);
-        }
-      }
-
-      if (argParser.hasFlag("-results")) {
-        Path results = argParser.getPath("-results", DEFAULT_RESULTS);
-        try {
-          processor.toJson(results);
-        } catch (IOException e) {
-          System.err.printf("Unable to write to file %s.", results);
-        }
-      }
-    } else {
-      threadSafeInvertedIndex = new ThreadSafeInvertedIndex();
+    if (argParser.hasFlag("-threads")) {
       int threads = argParser.getInteger("-threads", DEFAULT_THREADS);
-      if (threads <= 0) {
+      if (threads < 1) {
         threads = DEFAULT_THREADS;
       }
-      WorkQueue queue = new WorkQueue(threads);
+      queue = new WorkQueue(threads);
+      ThreadSafeInvertedIndex threadedIndex = new ThreadSafeInvertedIndex();
+      index = threadedIndex;
+      builder = new ThreadSafeInvertedIndexBuilder(threadedIndex, queue);
+      processor = new ThreadSafeQueryProcessor(threadedIndex, queue, partial);
+    } else {
+      index = new InvertedIndex();
+      builder = new InvertedIndexBuilder(index);
+      processor = new QueryProcessor(index, partial);
+    }
 
-      if (argParser.hasValue("-text")) {
-        Path path = argParser.getPath("-text");
-        log.info("Using {} for source.", path);
-
-        try {
-          threadSafeInvertedIndexBuilder =
-              new ThreadSafeInvertedIndexBuilder(threadSafeInvertedIndex, queue);
-          threadSafeInvertedIndexBuilder.build(path);
-          log.info("Build complete.");
-        } catch (IOException e) {
-          log.error("Unable to build Index from path: %s", path);
-        }
+    if (argParser.hasValue("-text")) {
+      Path path = argParser.getPath("-text");
+      log.info("Using {} for source.", path);
+      try {
+        builder.build(path);
+        log.info("Build complete.");
+      } catch (IOException e) {
+        log.error("Unable to build Index from path: {}", path);
       }
-      
-      /* TODO Move up here
-      threadSafeProcessor =
-          new ThreadSafeQueryProcessor(
-              threadSafeInvertedIndex, queue, argParser.hasFlag("-partial"));
-      if (argParser.hasValue("-query")) {
-        Path query = argParser.getPath("-query");
-        try {
-          threadSafeProcessor.parseQuery(query);
-        } catch (IOException e) {
-          System.err.printf("Can't read from file %s", query);
-        }
-      }
+    }
 
-      queue.join();
-      */
-
-      if (argParser.hasFlag("-counts")) {
-        Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
-        try {
-          JsonWriter.writeObject(threadSafeInvertedIndex.getCounts(), countOutput);
-          log.info("Counts written to {}", countOutput);
-        } catch (IOException e) {
-          System.err.printf("Unable to write Counts Map to path: %s", countOutput);
-        }
+    if (argParser.hasFlag("-counts")) {
+      Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
+      try {
+        JsonWriter.writeObject(index.getCounts(), countOutput);
+      } catch (IOException e) {
+        System.err.printf("Unable to write counts to path: %s", countOutput);
       }
+    }
 
-      if (argParser.hasFlag("-index")) {
-        Path indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
-        try {
-          threadSafeInvertedIndex.toJson(indexOutput);
-          log.info("Index written to {}", indexOutput);
-        } catch (IOException e) {
-          System.err.printf("Unable to write Inverted Index to path: %s", indexOutput);
-        }
+    if (argParser.hasFlag("-index")) {
+      Path indexOutput = argParser.getPath("-index", DEFAULT_INDEX);
+      try {
+        index.toJson(indexOutput);
+      } catch (IOException e) {
+        System.err.printf("Unable to write index to path: %s", indexOutput);
       }
-      threadSafeProcessor =
-          new ThreadSafeQueryProcessor(
-              threadSafeInvertedIndex, queue, argParser.hasFlag("-partial"));
-      if (argParser.hasValue("-query")) {
-        Path query = argParser.getPath("-query");
-        try {
-          threadSafeProcessor.parseQuery(query);
-        } catch (IOException e) {
-          System.err.printf("Can't read from file %s", query);
-        }
-      }
+    }
 
-      queue.join();
-
-      if (argParser.hasFlag("-results")) {
-        Path results = argParser.getPath("-results", DEFAULT_RESULTS);
-        try {
-          threadSafeProcessor.toJson(results);
-        } catch (IOException e) {
-          System.err.printf("Unable to write to file %s.", results);
-        }
+    if (argParser.hasValue("-query")) {
+      Path queries = argParser.getPath("-query");
+      try {
+        processor.parseQuery(queries);
+      } catch (IOException e) {
+        System.err.printf("Unable to read queries from path: %s", queries);
       }
+    }
+
+    if (argParser.hasFlag("-results")) {
+      Path results = argParser.getPath("-results", DEFAULT_RESULTS);
+      try {
+        processor.toJson(results);
+      } catch (IOException e) {
+        System.err.printf("Unable to write results to path: %s", results);
+      }
+    }
+
+    if (queue != null) {
+      queue.shutdown();
     }
 
     // calculate time elapsed and output
