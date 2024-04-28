@@ -6,18 +6,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Function;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
-/*
- * TODO Create a common interface and move some stuff into the interface
- */
-
 /** The thread safe query processor */
-public class ThreadSafeQueryProcessor {
+public class ThreadSafeQueryProcessor implements Processor {
 
   /** Workqueue for the processor. */
   private final WorkQueue queue;
@@ -69,16 +63,38 @@ public class ThreadSafeQueryProcessor {
     JsonWriter.writeSearch(searches, path);
   }
 
+  @Override
+  public int numOfResults() {
+    return searches.size();
+  }
+
+  @Override
+  public List<InvertedIndex.Score> getScores(String query) {
+    SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+    var stems = FileStemmer.uniqueStems(query, stemmer);
+    query = String.join(" ", stems);
+    ArrayList<InvertedIndex.Score> scores = searches.get(query);
+    if (scores == null) {
+      return Collections.emptyList();
+    } else {
+      return Collections.unmodifiableList(scores);
+    }
+  }
+
+  @Override
+  public Set<String> getQueries() {
+    return Collections.unmodifiableSet(searches.keySet());
+  }
+
   /**
    * Parse a string as a query and performs search on it.
    *
    * @param line the query line.
-   * @return scores.
    */
-  public ArrayList<InvertedIndex.Score> parseQuery(String line) {
+  public void parseQuery(String line) {
     SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
     var stems = FileStemmer.uniqueStems(line, stemmer);
-    return searchMethod.apply(stems);
+    searches.put(String.join(" ", stems), searchMethod.apply(stems));
   }
 
   /** Task for the Processor */
@@ -100,22 +116,26 @@ public class ThreadSafeQueryProcessor {
       SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
       var stems = FileStemmer.uniqueStems(query, stemmer);
       String queryKey = String.join(" ", stems);
-      if (queryKey.isBlank()) {
-        return;
-      }
-      
-      /* TODO 
+
       synchronized (searches) {
-	      	if (query.isBlank() || searches.containsKey(query)) {
-	      		return;
-	      	}
+        if (query.isBlank() || searches.containsKey(query)) {
+          return;
+        }
       }
-      */
-      
       ArrayList<InvertedIndex.Score> scores = searchMethod.apply(stems);
       synchronized (searches) {
-        searches.putIfAbsent(queryKey, scores); // TODO put
+        searches.put(queryKey, scores);
       }
     }
+
+    @Override
+    public String toString() {
+      return "Task{" + "query='" + query + '\'' + '}';
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "ThreadSafeQueryProcessor{" + "searchMethod=" + searchMethod + '}';
   }
 }

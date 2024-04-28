@@ -11,7 +11,7 @@ import java.util.function.Function;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /** Process query for each line. */
-public class QueryProcessor {
+public class QueryProcessor implements Processor {
 
   /** Map of the query and its score */
   private final TreeMap<String, ArrayList<InvertedIndex.Score>> searches;
@@ -63,8 +63,6 @@ public class QueryProcessor {
    * Logic for populating scores for every line
    *
    * @param query query.
-   * @param searches map of search Results
-   * @param searchMethod The search method to use.
    */
   public void parseQuery(String query) {
     var stems = FileStemmer.uniqueStems(query, stemmer);
@@ -107,16 +105,6 @@ public class QueryProcessor {
   }
 
   /**
-   * Returns the number of scores for a query
-   *
-   * @param query the query for which the scores need to be found.
-   * @return the number of scores for a query.
-   */
-  public int numOfScores(String query) {
-    return getScores(query).size();
-  }
-
-  /**
    * Returns the scores for a query
    *
    * @param query the query for which the scores are returned
@@ -140,15 +128,5 @@ public class QueryProcessor {
    */
   public Set<String> getQueries() {
     return Collections.unmodifiableSet(searches.keySet());
-  }
-
-  /**
-   * Returns true if a query is in the searches map.
-   *
-   * @param query the query to find.
-   * @return true if a query is in the searches map.
-   */
-  public boolean hasQuery(String query) {
-    return getScores(query).isEmpty();
   }
 }
