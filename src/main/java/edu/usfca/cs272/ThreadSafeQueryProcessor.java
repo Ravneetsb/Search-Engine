@@ -115,10 +115,13 @@ public class ThreadSafeQueryProcessor implements Processor {
     public void run() {
       SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
       var stems = FileStemmer.uniqueStems(query, stemmer);
+      if (stems.isEmpty()) {
+        return;
+      }
       String queryKey = String.join(" ", stems);
 
       synchronized (searches) {
-        if (query.isBlank() || searches.containsKey(query)) {
+        if (searches.containsKey(query)) {
           return;
         }
       }
