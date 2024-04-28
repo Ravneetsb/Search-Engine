@@ -4,7 +4,6 @@ import static edu.usfca.cs272.Driver.log;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /** Thread Safe implementation of InvertedIndexBuilder */
@@ -30,12 +29,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
 
   @Override
   public void build(Path input) throws IOException {
-    if (Files.isDirectory(input)) {
-      readDirectory(input);
-    } else {
-      readFile(input);
-    }
-    // TODO super.build(input);
+    super.build(input);
     queue.finish();
   }
 
