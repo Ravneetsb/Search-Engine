@@ -112,11 +112,27 @@ public class InvertedIndex {
   /**
    * Adds data from another invertedIndex to this index.
    *
-   * @param invertedIndex a different inverted index
+   * @param other a different inverted index
    * @return true if the add is successful.
    */
-  public boolean addIndex(InvertedIndex invertedIndex) {
-    var stems = invertedIndex.getWords();
+  public boolean addIndex(InvertedIndex other) {
+    for (var otherEntry : other.index.entrySet()) {
+      var thisEntry = this.index.get(otherEntry.getKey());
+      if (thisEntry == null) {
+        this.index.put(otherEntry.getKey(), otherEntry.getValue());
+      } else {
+        thisEntry.putAll(otherEntry.getValue());
+      }
+    }
+    for (var otherEntry : other.counts.entrySet()) {
+      this.counts.merge(otherEntry.getKey(), otherEntry.getValue(), Integer::max);
+    }
+
+    return true;
+  }
+
+  /*
+  var stems = invertedIndex.getWords();
     for (var stem : stems) {
       var locations = invertedIndex.getLocations(stem);
       for (var location : locations) {
@@ -129,14 +145,13 @@ public class InvertedIndex {
         this.counts.merge(location, positionS.size(), Integer::sum);
       }
     }
-    return true;
-  }
-  
-  /* TODO 
+   */
+
+  /* TODO
   public boolean addIndex(InvertedIndex other) {
   		for (var otherEntry : other.index.entrySet()) {
   			var thisEntry = this.index.get(otherEntry.getKey());
-  			
+
   			if (thisEntry == null) {
   				this.index.put(otherEntry.getKey(), otherEntry.getValue());
   			}
@@ -144,7 +159,7 @@ public class InvertedIndex {
   				...
   			}
   		}
-  		
+
   		for (var otherEntry : other.counts.entrySet()) {
   			keep the max between the two
   		}
