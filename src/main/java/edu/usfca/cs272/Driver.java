@@ -39,6 +39,35 @@ public class Driver {
    * @param args flag/value pairs used to start this program
    */
   public static void main(String[] args) {
+  	  	/* TODO 
+  		ArgumentParser argParser = new ArgumentParser(args);
+
+    InvertedIndex index;
+    InvertedIndexBuilder invertedIndexBuilder;
+    QueryProcessorInterface processor;
+    
+    WorkQueue queue = null;
+  	
+    if (argParser.hasFlag("-threads")) {
+    		ThreadSafeInvertedIndex threadSafe = new ThreadSafeInvertedIndex();
+    		index = threadSafe;
+    		
+    		invertedIndexBuilder = new ThreadSafeInvertedIndexBuilder(...);
+    		etc.
+    }
+    else {
+    		index = new InvertedIndex();
+    		...
+    }
+  	
+    same code from project 2
+    
+    if (queue != null) {
+    		queue.shutdown();
+    }
+  		*/
+  	
+  	
     // store initial start time
     Instant start = Instant.now();
 
@@ -126,6 +155,22 @@ public class Driver {
           log.error("Unable to build Index from path: %s", path);
         }
       }
+      
+      /* TODO Move up here
+      threadSafeProcessor =
+          new ThreadSafeQueryProcessor(
+              threadSafeInvertedIndex, queue, argParser.hasFlag("-partial"));
+      if (argParser.hasValue("-query")) {
+        Path query = argParser.getPath("-query");
+        try {
+          threadSafeProcessor.parseQuery(query);
+        } catch (IOException e) {
+          System.err.printf("Can't read from file %s", query);
+        }
+      }
+
+      queue.join();
+      */
 
       if (argParser.hasFlag("-counts")) {
         Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);

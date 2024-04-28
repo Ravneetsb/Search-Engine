@@ -35,6 +35,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
     } else {
       readFile(input);
     }
+    // TODO super.build(input);
     queue.finish();
   }
 

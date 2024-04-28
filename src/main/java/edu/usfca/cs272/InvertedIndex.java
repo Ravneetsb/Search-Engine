@@ -131,6 +131,25 @@ public class InvertedIndex {
     }
     return true;
   }
+  
+  /* TODO 
+  public boolean addIndex(InvertedIndex other) {
+  		for (var otherEntry : other.index.entrySet()) {
+  			var thisEntry = this.index.get(otherEntry.getKey());
+  			
+  			if (thisEntry == null) {
+  				this.index.put(otherEntry.getKey(), otherEntry.getValue());
+  			}
+  			else {
+  				...
+  			}
+  		}
+  		
+  		for (var otherEntry : other.counts.entrySet()) {
+  			keep the max between the two
+  		}
+  }
+  */
 
   /**
    * Returns true if index is empty.

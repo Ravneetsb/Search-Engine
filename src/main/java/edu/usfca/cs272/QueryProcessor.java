@@ -75,7 +75,7 @@ public class QueryProcessor {
    * @param searches map of search Results
    * @param searchMethod The search method to use.
    */
-  public static void parseQuery(
+  public static void parseQuery( // TODO Undo this change here
       String query,
       Map<String, ArrayList<InvertedIndex.Score>> searches,
       Function<Set<String>, ArrayList<InvertedIndex.Score>> searchMethod) {
