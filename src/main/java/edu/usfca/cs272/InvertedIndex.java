@@ -131,41 +131,6 @@ public class InvertedIndex {
     return true;
   }
 
-  /*
-  var stems = invertedIndex.getWords();
-    for (var stem : stems) {
-      var locations = invertedIndex.getLocations(stem);
-      for (var location : locations) {
-        var positions = invertedIndex.getPositions(stem, location);
-        this.index.putIfAbsent(stem, new TreeMap<>());
-        var locationMap = this.index.get(stem);
-        locationMap.putIfAbsent(location, new TreeSet<>());
-        var positionS = locationMap.get(location);
-        positionS.addAll(positions);
-        this.counts.merge(location, positionS.size(), Integer::sum);
-      }
-    }
-   */
-
-  /* TODO
-  public boolean addIndex(InvertedIndex other) {
-  		for (var otherEntry : other.index.entrySet()) {
-  			var thisEntry = this.index.get(otherEntry.getKey());
-
-  			if (thisEntry == null) {
-  				this.index.put(otherEntry.getKey(), otherEntry.getValue());
-  			}
-  			else {
-  				...
-  			}
-  		}
-
-  		for (var otherEntry : other.counts.entrySet()) {
-  			keep the max between the two
-  		}
-  }
-  */
-
   /**
    * Returns true if index is empty.
    *
