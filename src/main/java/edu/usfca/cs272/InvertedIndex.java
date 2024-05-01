@@ -121,9 +121,11 @@ public class InvertedIndex {
       if (thisEntry == null) {
         this.index.put(otherEntry.getKey(), otherEntry.getValue());
       } else {
+      	// TODO Need to loop, test if a put is safe, or do an addAll
         thisEntry.putAll(otherEntry.getValue());
       }
     }
+    
     for (var otherEntry : other.counts.entrySet()) {
       this.counts.merge(otherEntry.getKey(), otherEntry.getValue(), Integer::max);
     }

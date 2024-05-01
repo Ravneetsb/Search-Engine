@@ -157,7 +157,7 @@ public class MultiReaderLock {
             lock.wait();
           }
           readers++;
-          lock.notifyAll();
+          lock.notifyAll(); // TODO Remove
         }
       } catch (InterruptedException ex) {
         log.catching(Level.DEBUG, ex);
