@@ -77,7 +77,6 @@ public class Driver {
       }
     }
 
-    /* TODO
     if (argParser.hasValue("-query")) {
       Path queries = argParser.getPath("-query");
       try {
@@ -88,9 +87,8 @@ public class Driver {
     }
 
     if (queue != null) {
-    		queue.shutdown();
-    	}
-    */
+      queue.shutdown();
+    }
 
     if (argParser.hasFlag("-counts")) {
       Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
@@ -110,15 +108,6 @@ public class Driver {
       }
     }
 
-    if (argParser.hasValue("-query")) {
-      Path queries = argParser.getPath("-query");
-      try {
-        processor.parseQuery(queries);
-      } catch (IOException e) {
-        System.err.printf("Unable to read queries from path: %s", queries);
-      }
-    }
-
     if (argParser.hasFlag("-results")) {
       Path results = argParser.getPath("-results", DEFAULT_RESULTS);
       try {
@@ -129,7 +118,7 @@ public class Driver {
     }
 
     if (queue != null) {
-      queue.shutdown(); // TODO queue.join();
+      queue.join();
     }
 
     // calculate time elapsed and output
