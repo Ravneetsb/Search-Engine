@@ -123,7 +123,6 @@ public class InvertedIndex {
       if (thisEntry == null) {
         this.index.put(otherEntryKey, otherEntryValue);
       } else {
-        // TODO Need to loop, test if a put is safe, or do an addAll
         for (var entry : otherEntryValue.entrySet()) {
           String entryKey = entry.getKey();
           var entryValue = entry.getValue();
