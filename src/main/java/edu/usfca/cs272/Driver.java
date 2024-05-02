@@ -7,8 +7,6 @@ import java.time.Instant;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-// TODO Disable logging in log4j2
-
 /**
  * Class responsible for running this project based on the provided command-line arguments. See the
  * README for details.
@@ -78,8 +76,8 @@ public class Driver {
         log.error("Unable to build Index from path: {}", path);
       }
     }
-    
-    /* TODO 
+
+    /* TODO
     if (argParser.hasValue("-query")) {
       Path queries = argParser.getPath("-query");
       try {
@@ -88,7 +86,7 @@ public class Driver {
         System.err.printf("Unable to read queries from path: %s", queries);
       }
     }
-    
+
     if (queue != null) {
     		queue.shutdown();
     	}
