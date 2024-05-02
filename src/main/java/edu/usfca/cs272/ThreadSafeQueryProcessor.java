@@ -51,6 +51,11 @@ public class ThreadSafeQueryProcessor implements Processor {
       }
       queue.finish();
     }
+    
+    /* TODO 
+    Processor.super.parseQuery(query);
+    queue.finish();
+    */
   }
 
   /**
@@ -60,12 +65,12 @@ public class ThreadSafeQueryProcessor implements Processor {
    * @throws IOException if the file is unable to be written.
    */
   public void toJson(Path path) throws IOException {
-    JsonWriter.writeSearch(searches, path);
+    JsonWriter.writeSearch(searches, path); // TODO synchronized (searches)
   }
 
   @Override
   public int numOfResults() {
-    return searches.size();
+    return searches.size(); // TODO synchronized (searches)
   }
 
   @Override
@@ -73,7 +78,7 @@ public class ThreadSafeQueryProcessor implements Processor {
     SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
     var stems = FileStemmer.uniqueStems(query, stemmer);
     query = String.join(" ", stems);
-    ArrayList<InvertedIndex.Score> scores = searches.get(query);
+    ArrayList<InvertedIndex.Score> scores = searches.get(query); // TODO synchronized (searches)
     if (scores == null) {
       return Collections.emptyList();
     } else {
@@ -83,7 +88,7 @@ public class ThreadSafeQueryProcessor implements Processor {
 
   @Override
   public Set<String> getQueries() {
-    return Collections.unmodifiableSet(searches.keySet());
+    return Collections.unmodifiableSet(searches.keySet()); // TODO synchronized (searches)
   }
 
   /**
@@ -92,6 +97,8 @@ public class ThreadSafeQueryProcessor implements Processor {
    * @param line the query line.
    */
   public void parseQuery(String line) {
+  		// TODO queue.execute(new Task(line));
+  		// TODO Move logic into the run
     SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
     var stems = FileStemmer.uniqueStems(line, stemmer);
     searches.put(String.join(" ", stems), searchMethod.apply(stems));

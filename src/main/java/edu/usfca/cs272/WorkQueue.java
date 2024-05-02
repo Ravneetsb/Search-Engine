@@ -48,7 +48,7 @@ public class WorkQueue {
     }
   }
 
-  /** Incrment count of pending work. */
+  /** Increment count of pending work. */
   private synchronized void incrementPending() {
     pending++;
   }

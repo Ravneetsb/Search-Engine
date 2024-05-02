@@ -43,6 +43,8 @@ public class QueryProcessor implements Processor {
     this.searches = new TreeMap<>();
     this.searchMethod = invertedIndex::exactSearch;
   }
+  
+  // TODO @Override
 
   /**
    * Read queries from the path.
@@ -50,7 +52,7 @@ public class QueryProcessor implements Processor {
    * @param query path of the file which contains the queries.
    * @throws IOException if the path is null or doesn't exist.
    */
-  public void parseQuery(Path query) throws IOException {
+  public void parseQuery(Path query) throws IOException { // TODO Move into the interface as a default method
     try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
       String line;
       while ((line = br.readLine()) != null) {
@@ -101,6 +103,7 @@ public class QueryProcessor implements Processor {
    * @return the number of queries in the searches
    */
   public int numOfResults() {
+  	// return getQueries().size(); and make default
     return searches.size();
   }
 
