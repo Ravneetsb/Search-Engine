@@ -117,15 +117,25 @@ public class InvertedIndex {
    */
   public boolean addIndex(InvertedIndex other) {
     for (var otherEntry : other.index.entrySet()) {
-      var thisEntry = this.index.get(otherEntry.getKey());
+      String otherEntryKey = otherEntry.getKey();
+      var otherEntryValue = otherEntry.getValue();
+      var thisEntry = this.index.get(otherEntryKey);
       if (thisEntry == null) {
-        this.index.put(otherEntry.getKey(), otherEntry.getValue());
+        this.index.put(otherEntryKey, otherEntryValue);
       } else {
-      	// TODO Need to loop, test if a put is safe, or do an addAll
-        thisEntry.putAll(otherEntry.getValue());
+        // TODO Need to loop, test if a put is safe, or do an addAll
+        for (var entry : otherEntryValue.entrySet()) {
+          String entryKey = entry.getKey();
+          var entryValue = entry.getValue();
+          if (thisEntry.containsKey(entryKey)) {
+            thisEntry.get(entryKey).addAll(entryValue);
+          } else {
+            thisEntry.put(entryKey, entryValue);
+          }
+        }
       }
     }
-    
+
     for (var otherEntry : other.counts.entrySet()) {
       this.counts.merge(otherEntry.getKey(), otherEntry.getValue(), Integer::max);
     }
