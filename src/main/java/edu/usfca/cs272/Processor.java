@@ -17,7 +17,7 @@ public interface Processor {
    * @param query the file containing the queries.
    * @throws IOException if the file is not found.
    */
-  public default void parseQuery(Path query) throws IOException {
+  default void parseQuery(Path query) throws IOException {
     try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
       String line;
       while ((line = br.readLine()) != null) {
@@ -31,7 +31,7 @@ public interface Processor {
    *
    * @param query the query to be searched.
    */
-  public void parseQuery(String query);
+  void parseQuery(String query);
 
   /**
    * Writes the search results in pretty Json to file path.
@@ -39,17 +39,16 @@ public interface Processor {
    * @param path the path of the file.
    * @throws IOException if the file is not found.
    */
-  public void toJson(Path path) throws IOException;
+  void toJson(Path path) throws IOException;
 
   /**
    * Returns the number of queries for which there is a result.
    *
    * @return the number of queries for which there is a result.
    */
-  public default int numOfResults() {
+  default int numOfResults() {
     return getQueries().size();
   }
-  ;
 
   /**
    * Returns the number of results for a query.
@@ -57,7 +56,7 @@ public interface Processor {
    * @param query the query for which the number of scores is returned.
    * @return the number of results for a query.
    */
-  public default int numOfScores(String query) {
+  default int numOfScores(String query) {
     return getScores(query).size();
   }
 
@@ -67,14 +66,14 @@ public interface Processor {
    * @param query the query for which to return scores.
    * @return the scores for a query.
    */
-  public List<InvertedIndex.Score> getScores(String query);
+  List<InvertedIndex.Score> getScores(String query);
 
   /**
    * Returns the set of queries.
    *
    * @return the set of queries.
    */
-  public Set<String> getQueries();
+  Set<String> getQueries();
 
   /**
    * Returns true if a query is in the results.
@@ -82,7 +81,7 @@ public interface Processor {
    * @param query the query to lookup
    * @return true if a query is found in the results.
    */
-  public default boolean hasQuery(String query) {
+  default boolean hasQuery(String query) {
     return getScores(query).isEmpty();
   }
 }
