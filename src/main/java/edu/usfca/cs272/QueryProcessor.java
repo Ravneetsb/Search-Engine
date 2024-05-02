@@ -1,10 +1,6 @@
 package edu.usfca.cs272;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
@@ -43,29 +39,8 @@ public class QueryProcessor implements Processor {
     this.searches = new TreeMap<>();
     this.searchMethod = invertedIndex::exactSearch;
   }
-  
-  // TODO @Override
 
-  /**
-   * Read queries from the path.
-   *
-   * @param query path of the file which contains the queries.
-   * @throws IOException if the path is null or doesn't exist.
-   */
-  public void parseQuery(Path query) throws IOException { // TODO Move into the interface as a default method
-    try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
-      String line;
-      while ((line = br.readLine()) != null) {
-        parseQuery(line);
-      }
-    }
-  }
-
-  /**
-   * Logic for populating scores for every line
-   *
-   * @param query query.
-   */
+  @Override
   public void parseQuery(String query) {
     var stems = FileStemmer.uniqueStems(query, stemmer);
     query = String.join(" ", stems);
@@ -77,34 +52,14 @@ public class QueryProcessor implements Processor {
     searches.put(query, scores);
   }
 
-  /**
-   * Writes the search results map to path in pretty json
-   *
-   * @param path Path of results output file
-   * @throws IOException if the file doesn't exist or path is null.
-   */
+  @Override
   public void toJson(Path path) throws IOException {
     JsonWriter.writeSearch(searches, path);
   }
 
-  /**
-   * to String method for Searcher
-   *
-   * @return toString
-   */
   @Override
   public String toString() {
     return JsonWriter.writeSearch(searches);
-  }
-
-  /**
-   * Returns the number of queries in the searches
-   *
-   * @return the number of queries in the searches
-   */
-  public int numOfResults() {
-  	// return getQueries().size(); and make default
-    return searches.size();
   }
 
   /**

@@ -1,6 +1,10 @@
 package edu.usfca.cs272;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +17,14 @@ public interface Processor {
    * @param query the file containing the queries.
    * @throws IOException if the file is not found.
    */
-  public void parseQuery(Path query) throws IOException;
+  public default void parseQuery(Path query) throws IOException {
+    try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        parseQuery(line);
+      }
+    }
+  }
 
   /**
    * Parses a query.
@@ -35,7 +46,10 @@ public interface Processor {
    *
    * @return the number of queries for which there is a result.
    */
-  public int numOfResults();
+  public default int numOfResults() {
+    return getQueries().size();
+  }
+  ;
 
   /**
    * Returns the number of results for a query.

@@ -1,10 +1,6 @@
 package edu.usfca.cs272;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
@@ -37,40 +33,24 @@ public class ThreadSafeQueryProcessor implements Processor {
     this.searches = new TreeMap<>();
   }
 
-  /**
-   * Parses query line by line from a file.
-   *
-   * @param query The file that contains the queries.
-   * @throws IOException if the file is not found.
-   */
+  @Override
   public void parseQuery(Path query) throws IOException {
-    try (BufferedReader br = Files.newBufferedReader(query, UTF_8)) {
-      String line;
-      while ((line = br.readLine()) != null) {
-        queue.execute(new Task(line));
-      }
-      queue.finish();
-    }
-    
-    /* TODO 
     Processor.super.parseQuery(query);
     queue.finish();
-    */
   }
 
-  /**
-   * Writes the search results in pretty json.
-   *
-   * @param path Path of output file.
-   * @throws IOException if the file is unable to be written.
-   */
+  @Override
   public void toJson(Path path) throws IOException {
-    JsonWriter.writeSearch(searches, path); // TODO synchronized (searches)
+    synchronized (searches) {
+      JsonWriter.writeSearch(searches, path);
+    }
   }
 
   @Override
   public int numOfResults() {
-    return searches.size(); // TODO synchronized (searches)
+    synchronized (searches) {
+      return searches.size();
+    }
   }
 
   @Override
@@ -78,7 +58,10 @@ public class ThreadSafeQueryProcessor implements Processor {
     SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
     var stems = FileStemmer.uniqueStems(query, stemmer);
     query = String.join(" ", stems);
-    ArrayList<InvertedIndex.Score> scores = searches.get(query); // TODO synchronized (searches)
+    ArrayList<InvertedIndex.Score> scores;
+    synchronized (searches) {
+      scores = searches.get(query);
+    }
     if (scores == null) {
       return Collections.emptyList();
     } else {
@@ -88,20 +71,14 @@ public class ThreadSafeQueryProcessor implements Processor {
 
   @Override
   public Set<String> getQueries() {
-    return Collections.unmodifiableSet(searches.keySet()); // TODO synchronized (searches)
+    synchronized (searches) {
+      return Collections.unmodifiableSet(searches.keySet());
+    }
   }
 
-  /**
-   * Parse a string as a query and performs search on it.
-   *
-   * @param line the query line.
-   */
-  public void parseQuery(String line) {
-  		// TODO queue.execute(new Task(line));
-  		// TODO Move logic into the run
-    SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
-    var stems = FileStemmer.uniqueStems(line, stemmer);
-    searches.put(String.join(" ", stems), searchMethod.apply(stems));
+  @Override
+  public void parseQuery(String query) {
+    queue.execute(new Task(query));
   }
 
   /** Task for the Processor */
