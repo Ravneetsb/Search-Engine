@@ -34,7 +34,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
   }
 
   @Override
-  public void readFile(Path file) throws IOException {
+  public void readFile(Path file) {
     queue.execute(new Task(file));
   }
 
