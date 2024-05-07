@@ -2,10 +2,7 @@ package edu.usfca.cs272;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /** Thread Safe Inverted Index. */
 public class ThreadSafeInvertedIndex extends InvertedIndex {
@@ -98,7 +95,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
   }
 
   @Override
-  public boolean addAll(String path, List<String> stems) {
+  public boolean addAll(String path, Collection<String> stems) {
     lock.writeLock().lock();
     try {
       return super.addAll(path, stems);

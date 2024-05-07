@@ -100,7 +100,7 @@ public class InvertedIndex {
    * @param stems Collection of stems
    * @return true if successful.
    */
-  public boolean addAll(String path, List<String> stems) {
+  public boolean addAll(String path, Collection<String> stems) {
     int location = 1;
     for (String stem : stems) {
       this.add(stem, path, location);
