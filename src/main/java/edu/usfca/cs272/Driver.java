@@ -51,7 +51,7 @@ public class Driver {
     WebCrawler crawler = null;
     boolean partial = argParser.hasFlag("-partial");
 
-    if (argParser.hasFlag("-threads") || argParser.hasFlag("-html")) {
+    if (argParser.hasFlag("-threads") || argParser.hasValue("-html")) {
       int threads = argParser.getInteger("-threads", DEFAULT_THREADS);
       if (threads < 1) {
         threads = DEFAULT_THREADS;
