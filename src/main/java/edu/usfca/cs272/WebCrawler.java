@@ -3,6 +3,8 @@ package edu.usfca.cs272;
 import java.net.URI;
 import java.util.HashSet;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /** WebCrawler for the search engine. */
 public class WebCrawler {
@@ -19,7 +21,11 @@ public class WebCrawler {
   /** The seed uri for the web crawler. */
   public final URI seed;
 
+  /** Keep track of links that have been already processed. */
   public final HashSet<URI> seen = new HashSet<>();
+
+  /** Logger */
+  public static final Logger log = LogManager.getLogger();
 
   /**
    * Creates a new WebCrawler.
@@ -68,6 +74,7 @@ public class WebCrawler {
     public void run() {
       synchronized (seen) {
         if (seen.contains(link)) {
+          log.warn("Already seen: {}", link);
           return;
         } else {
           seen.add(link);
@@ -80,18 +87,23 @@ public class WebCrawler {
         return;
       }
 
+      log.info("Task for: {}", link);
+
       SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
       String clean = HtmlCleaner.stripHtml(html);
       var stems = FileStemmer.listStems(clean, stemmer);
 
-      HashSet<URI> links = new HashSet<>();
-      LinkFinder.findLinks(seed, html, links);
+      //      HashSet<URI> links = new HashSet<>();
+      //      LinkFinder.findLinks(seed, html, links);
+      //
+      //      for (var embeddedLink : links) {
+      //        queue.execute(new Task(embeddedLink));
+      //      }
 
-      for (var embeddedLink : links) {
-        queue.execute(new Task(embeddedLink));
-      }
+      InvertedIndex local = new InvertedIndex();
 
-      index.addAll(link.toString(), stems);
+      local.addAll(String.valueOf(LinkFinder.toAbsolute(seed, seed.toString())), stems);
+      index.addIndex(local);
     }
   }
 }
