@@ -43,18 +43,7 @@ public class WebCrawler {
     if (seen.contains(seed)) {
       return;
     }
-    String html = HtmlFetcher.fetch(seed);
-    HashSet<URI> links = new HashSet<>();
-    if (html != null) {
-      LinkFinder.findLinks(seed, html, links);
-      String cleanedHtml = HtmlCleaner.stripHtml(html);
-      var stems = FileStemmer.uniqueStems(cleanedHtml);
-      index.addAll(seed.toString(), stems);
-      seen.add(seed);
-      for (URI link : links) {
-        queue.execute(new Task(link));
-      }
-    }
+    queue.execute(new Task(seed));
     queue.finish();
   }
 
@@ -77,13 +66,28 @@ public class WebCrawler {
 
     @Override
     public void run() {
-      SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
-      InvertedIndex localIndex = new InvertedIndex();
+      synchronized (seen) {
+        if (seen.contains(link)) {
+          return;
+        } else {
+          seen.add(link);
+        }
+      }
+
       String html = HtmlFetcher.fetch(link, REDIRECTS);
+
+      SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
       String clean = HtmlCleaner.stripHtml(html);
-      var stems = FileStemmer.uniqueStems(clean, stemmer);
-      localIndex.addAll(link.toString(), stems);
-      index.addIndex(localIndex);
+      var stems = FileStemmer.listStems(clean, stemmer);
+
+      HashSet<URI> links = new HashSet<>();
+      LinkFinder.findLinks(seed, html, links);
+
+      for (var embeddedLink : links) {
+        queue.execute(new Task(embeddedLink));
+      }
+
+      index.addAll(link.toString(), stems);
     }
   }
 }
