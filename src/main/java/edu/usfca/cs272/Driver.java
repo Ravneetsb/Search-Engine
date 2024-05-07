@@ -48,9 +48,10 @@ public class Driver {
     InvertedIndexBuilder builder;
     Processor processor;
     WorkQueue queue = null;
+    WebCrawler crawler = null;
     boolean partial = argParser.hasFlag("-partial");
 
-    if (argParser.hasFlag("-threads")) {
+    if (argParser.hasFlag("-threads") || argParser.hasFlag("-html")) {
       int threads = argParser.getInteger("-threads", DEFAULT_THREADS);
       if (threads < 1) {
         threads = DEFAULT_THREADS;
@@ -60,6 +61,7 @@ public class Driver {
       index = threadedIndex;
       builder = new ThreadSafeInvertedIndexBuilder(threadedIndex, queue);
       processor = new ThreadSafeQueryProcessor(threadedIndex, queue, partial);
+      crawler = new WebCrawler(index, queue, argParser.getString("-html"));
     } else {
       index = new InvertedIndex();
       builder = new InvertedIndexBuilder(index);
@@ -75,6 +77,10 @@ public class Driver {
       } catch (IOException e) {
         log.error("Unable to build Index from path: {}", path);
       }
+    }
+
+    if (crawler != null) {
+      crawler.processLink();
     }
 
     if (argParser.hasValue("-query")) {
