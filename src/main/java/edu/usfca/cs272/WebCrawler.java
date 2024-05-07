@@ -76,6 +76,10 @@ public class WebCrawler {
 
       String html = HtmlFetcher.fetch(link, REDIRECTS);
 
+      if (html == null) {
+        return;
+      }
+
       SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
       String clean = HtmlCleaner.stripHtml(html);
       var stems = FileStemmer.listStems(clean, stemmer);
