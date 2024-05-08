@@ -61,7 +61,9 @@ public class Driver {
       index = threadedIndex;
       builder = new ThreadSafeInvertedIndexBuilder(threadedIndex, queue);
       processor = new ThreadSafeQueryProcessor(threadedIndex, queue, partial);
-      crawler = new WebCrawler(index, queue, argParser.getString("-html"));
+      if (argParser.hasValue("-html")) {
+        crawler = new WebCrawler(index, queue, argParser.getString("-html"));
+      }
     } else {
       index = new InvertedIndex();
       builder = new InvertedIndexBuilder(index);
