@@ -2,6 +2,7 @@ package edu.usfca.cs272;
 
 import java.net.URI;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicInteger;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,8 +25,11 @@ public class WebCrawler {
   /** Keep track of links that have been already processed. */
   public final HashSet<URI> seen = new HashSet<>();
 
-  /** The maximum number of links to process. */
-  private int max = 0;
+  /** The tracker for number of links to process. */
+  private final AtomicInteger crawlLimit;
+
+  /** The max number of pages to crawl. */
+  private final int max;
 
   /** Logger */
   public static final Logger log = LogManager.getLogger();
@@ -43,6 +47,8 @@ public class WebCrawler {
     this.queue = queue;
     this.seed = URI.create(seed);
     this.max = max;
+    this.crawlLimit = new AtomicInteger(0);
+    log.info("Using {} as crawlLimit", max);
   }
 
   /**
@@ -100,8 +106,16 @@ public class WebCrawler {
 
       InvertedIndex local = new InvertedIndex();
 
-      local.addAll(LinkFinder.clean(seed).toString(), stems);
-      index.addIndex(local);
+      local.addAll(LinkFinder.toAbsolute(seed, link.toString()).toString(), stems);
+      if (crawlLimit.incrementAndGet() <= 50) {
+        index.addIndex(local);
+        log.info("Number of links searched: {} ", crawlLimit);
+        HashSet<URI> internalLinks = LinkFinder.uniqueUris(seed, html);
+
+        for (var internalLink : internalLinks) {
+          queue.execute(new Task(internalLink));
+        }
+      }
     }
   }
 }
