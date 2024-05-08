@@ -421,7 +421,7 @@ public class InvertedIndex {
       if (scoreCompare == 0) {
         int countCompare = other.getCount().compareTo(this.getCount());
         if (countCompare == 0) {
-          return Path.of(this.getLocation()).compareTo(Path.of(other.getLocation()));
+          return this.getLocation().compareTo(other.getLocation());
         } else return countCompare;
       } else return scoreCompare;
     }
