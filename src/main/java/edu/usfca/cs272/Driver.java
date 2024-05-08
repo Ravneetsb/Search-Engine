@@ -29,6 +29,9 @@ public class Driver {
   /** Default number of threads to be used when multithreading. */
   public static final int DEFAULT_THREADS = 5;
 
+  /** The default number of webpages to crawl. */
+  public static final int DEFAUT_CRAWL = 1;
+
   /** Log */
   public static final Logger log = LogManager.getLogger();
 
@@ -62,7 +65,8 @@ public class Driver {
       builder = new ThreadSafeInvertedIndexBuilder(threadedIndex, queue);
       processor = new ThreadSafeQueryProcessor(threadedIndex, queue, partial);
       if (argParser.hasValue("-html")) {
-        crawler = new WebCrawler(index, queue, argParser.getString("-html"));
+        int crawl = argParser.getInteger("-crawl", DEFAUT_CRAWL);
+        crawler = new WebCrawler(index, queue, argParser.getString("-html"), crawl);
       }
     } else {
       index = new InvertedIndex();
