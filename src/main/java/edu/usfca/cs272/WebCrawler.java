@@ -1,6 +1,7 @@
 package edu.usfca.cs272;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
@@ -107,12 +108,15 @@ public class WebCrawler {
       InvertedIndex local = new InvertedIndex();
 
       local.addAll(LinkFinder.toAbsolute(seed, link.toString()).toString(), stems);
-      if (crawlLimit.incrementAndGet() <= 50) {
+      if (crawlLimit.incrementAndGet() < max) {
         index.addIndex(local);
         log.info("Number of links searched: {} ", crawlLimit);
-        HashSet<URI> internalLinks = LinkFinder.uniqueUris(seed, html);
+        ArrayList<URI> internalLinks = LinkFinder.listUris(seed, html);
 
         for (var internalLink : internalLinks) {
+          if (crawlLimit.get() == max) {
+            break;
+          }
           queue.execute(new Task(internalLink));
         }
       }
