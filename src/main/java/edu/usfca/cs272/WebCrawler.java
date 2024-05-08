@@ -24,6 +24,9 @@ public class WebCrawler {
   /** Keep track of links that have been already processed. */
   public final HashSet<URI> seen = new HashSet<>();
 
+  /** The maximum number of links to process. */
+  private int max = 0;
+
   /** Logger */
   public static final Logger log = LogManager.getLogger();
 
@@ -33,11 +36,13 @@ public class WebCrawler {
    * @param index the invertedIndex to build.
    * @param queue the workqueue.
    * @param seed the seed uri.
+   * @param max the maximum number of webpages to crawl.
    */
-  public WebCrawler(InvertedIndex index, WorkQueue queue, String seed) {
+  public WebCrawler(InvertedIndex index, WorkQueue queue, String seed, int max) {
     this.index = index;
     this.queue = queue;
     this.seed = URI.create(seed);
+    this.max = max;
   }
 
   /**
@@ -93,16 +98,9 @@ public class WebCrawler {
       String clean = HtmlCleaner.stripHtml(html);
       var stems = FileStemmer.listStems(clean, stemmer);
 
-      //      HashSet<URI> links = new HashSet<>();
-      //      LinkFinder.findLinks(seed, html, links);
-      //
-      //      for (var embeddedLink : links) {
-      //        queue.execute(new Task(embeddedLink));
-      //      }
-
       InvertedIndex local = new InvertedIndex();
 
-      local.addAll(String.valueOf(LinkFinder.toAbsolute(seed, seed.toString())), stems);
+      local.addAll(LinkFinder.clean(seed).toString(), stems);
       index.addIndex(local);
     }
   }
