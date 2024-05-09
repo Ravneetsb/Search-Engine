@@ -15,7 +15,7 @@
 		<Logger name="edu.usfca.cs272.LoggerSetup" level="FATAL" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
-		<Root level="ALL">
+		<Root level="OFF">
 			<AppenderRef ref="Console" level="INFO" />
 			<AppenderRef ref="FileLog" level="ALL"  />
 		</Root>
