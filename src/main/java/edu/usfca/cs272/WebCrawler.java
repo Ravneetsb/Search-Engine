@@ -89,6 +89,7 @@ public class WebCrawler {
 
     @Override
     public void run() {
+      // Step 1: Download the html.
       String html = HtmlFetcher.fetch(link, REDIRECTS);
 
       if (html == null) {
@@ -96,19 +97,8 @@ public class WebCrawler {
         return;
       }
 
+      // Step 2: Process the links.
       html = HtmlCleaner.stripBlockElements(html);
-
-      String clean = HtmlCleaner.stripHtml(html);
-
-      SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
-      var stems = FileStemmer.listStems(clean, stemmer);
-
-      InvertedIndex local = new InvertedIndex();
-
-      local.addAll(LinkFinder.toAbsolute(seed, link.toString()).toString(), stems);
-      index.addIndex(local);
-      log.info("{} was added to index.", link);
-
       ArrayList<URI> internalLinks = LinkFinder.listUris(seed, html);
 
       synchronized (seen) {
@@ -124,6 +114,19 @@ public class WebCrawler {
           }
         }
       }
+
+      // Step 3: Finish cleaning the html.
+      String clean = HtmlCleaner.stripHtml(html);
+
+      // Step 4: Add the stems to the index.
+      SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+      var stems = FileStemmer.listStems(clean, stemmer);
+
+      InvertedIndex local = new InvertedIndex();
+
+      local.addAll(LinkFinder.toAbsolute(seed, link.toString()).toString(), stems);
+      index.addIndex(local);
+      log.info("{} was added to index.", link);
     }
   }
 }
