@@ -44,7 +44,6 @@ public class WebCrawler {
     this.queue = queue;
     this.seed = URI.create(seed);
     this.max = max;
-    log.info("Using {} as crawlLimit", max);
   }
 
   /**
@@ -77,8 +76,6 @@ public class WebCrawler {
       this.link = link;
       synchronized (seen) {
         seen.add(link);
-        log.info("link: {} || seen by: {}", link, Thread.currentThread());
-        log.info("Links seen: {}", seen.size());
       }
     }
 
@@ -104,8 +101,6 @@ public class WebCrawler {
           if (!seen.contains(internalLink)) {
             seen.add(internalLink);
             queue.execute(new Task(internalLink));
-          } else {
-            log.warn("{} was already processed", link);
           }
         }
       }
@@ -118,10 +113,21 @@ public class WebCrawler {
       var stems = FileStemmer.listStems(clean, stemmer);
 
       InvertedIndex local = new InvertedIndex();
-
-      local.addAll(LinkFinder.toAbsolute(seed, link.toString()).toString(), stems);
-      index.addIndex(local);
-      log.info("{} was added to index.", link);
+      var absoluteLink = LinkFinder.toAbsolute(seed, link.toString());
+      if (absoluteLink != null) {
+        local.addAll(absoluteLink.toString(), stems);
+        index.addIndex(local);
+      }
     }
+
+    @Override
+    public String toString() {
+      return "Task{" + "link=" + link + '}';
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "WebCrawler{" + "seed=" + seed + ", max=" + max + '}';
   }
 }
