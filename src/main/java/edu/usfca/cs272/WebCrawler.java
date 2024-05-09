@@ -15,7 +15,7 @@ public class WebCrawler {
   public static final int REDIRECTS = 3;
 
   /** The invertedIndex to populate. */
-  public final InvertedIndex index;
+  public final ThreadSafeInvertedIndex index;
 
   /** The Workqueue to use. */
   public final WorkQueue queue;
@@ -43,7 +43,7 @@ public class WebCrawler {
    * @param seed the seed uri.
    * @param max the maximum number of webpages to crawl.
    */
-  public WebCrawler(InvertedIndex index, WorkQueue queue, String seed, int max) {
+  public WebCrawler(ThreadSafeInvertedIndex index, WorkQueue queue, String seed, int max) {
     this.index = index;
     this.queue = queue;
     this.seed = URI.create(seed);
@@ -80,44 +80,48 @@ public class WebCrawler {
 
     private Task(URI link) {
       this.link = link;
+      synchronized (seen) {
+        seen.add(link);
+        log.info("link: {} || seen by: {}", link, Thread.currentThread());
+        log.info("Links seen: {}", seen.size());
+      }
     }
 
     @Override
     public void run() {
-      synchronized (seen) {
-        if (seen.contains(link)) {
-          log.warn("Already seen: {}", link);
-          return;
-        } else {
-          seen.add(link);
-        }
-      }
-
       String html = HtmlFetcher.fetch(link, REDIRECTS);
 
       if (html == null) {
+        log.info("{} was not 200.", link);
         return;
       }
 
-      log.info("Task for: {}", link);
+      html = HtmlCleaner.stripBlockElements(html);
+
+      String clean = HtmlCleaner.stripHtml(html);
 
       SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
-      String clean = HtmlCleaner.stripHtml(html);
       var stems = FileStemmer.listStems(clean, stemmer);
 
       InvertedIndex local = new InvertedIndex();
 
       local.addAll(LinkFinder.toAbsolute(seed, link.toString()).toString(), stems);
-      if (crawlLimit.incrementAndGet() < max) {
-        index.addIndex(local);
-        log.info("Number of links searched: {} ", crawlLimit);
-        ArrayList<URI> internalLinks = LinkFinder.listUris(seed, html);
+      index.addIndex(local);
+      log.info("{} was added to index.", link);
 
+      ArrayList<URI> internalLinks = LinkFinder.listUris(seed, html);
+
+      synchronized (seen) {
         for (var internalLink : internalLinks) {
-          if (crawlLimit.get() == max) {
+          if (seen.size() >= max) {
             break;
           }
-          queue.execute(new Task(internalLink));
+          if (!seen.contains(internalLink)) {
+            seen.add(internalLink);
+            queue.execute(new Task(internalLink));
+          } else {
+            log.warn("{} was already processed", link);
+          }
         }
       }
     }
