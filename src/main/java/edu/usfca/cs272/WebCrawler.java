@@ -64,9 +64,6 @@ public class WebCrawler {
     this.processLink(this.seed);
   }
 
-  /** Processing a link in muktithreading. */
-  public void process() {}
-
   /** Task for building the inverted index from a web page. */
   private class Task implements Runnable {
 
