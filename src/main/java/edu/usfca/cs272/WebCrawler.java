@@ -67,8 +67,14 @@ public class WebCrawler {
   /** Task for building the inverted index from a web page. */
   private class Task implements Runnable {
 
+    /** The link to process */
     private final URI link;
 
+    /**
+     * Constructor for the Task
+     *
+     * @param link the link to process.
+     */
     private Task(URI link) {
       this.link = link;
       synchronized (seen) {
