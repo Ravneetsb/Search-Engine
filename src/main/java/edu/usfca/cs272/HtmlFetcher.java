@@ -129,7 +129,7 @@ public class HtmlFetcher {
       }
     } catch (IOException e) {
       html = null;
-      System.out.println("error");
+      System.out.println("Not a html Page.");
     }
 
     return html;
