@@ -3,7 +3,6 @@ package edu.usfca.cs272;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.concurrent.atomic.AtomicInteger;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,9 +25,6 @@ public class WebCrawler {
   /** Keep track of links that have been already processed. */
   public final HashSet<URI> seen = new HashSet<>();
 
-  /** The tracker for number of links to process. */
-  private final AtomicInteger crawlLimit;
-
   /** The max number of pages to crawl. */
   private final int max;
 
@@ -48,7 +44,6 @@ public class WebCrawler {
     this.queue = queue;
     this.seed = URI.create(seed);
     this.max = max;
-    this.crawlLimit = new AtomicInteger(0);
     log.info("Using {} as crawlLimit", max);
   }
 
@@ -99,7 +94,7 @@ public class WebCrawler {
 
       // Step 2: Process the links.
       html = HtmlCleaner.stripBlockElements(html);
-      ArrayList<URI> internalLinks = LinkFinder.listUris(seed, html);
+      ArrayList<URI> internalLinks = LinkFinder.listUris(link, html);
 
       synchronized (seen) {
         for (var internalLink : internalLinks) {
