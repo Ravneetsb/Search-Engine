@@ -140,7 +140,7 @@ public class LinkFinder {
    * @see #findLinks(URI, String, Collection)
    */
   public static ArrayList<URI> listUris(URI base, String html) {
-    ArrayList<URI> uris = new ArrayList<URI>();
+    ArrayList<URI> uris = new ArrayList<>();
     findLinks(base, html, uris);
     return uris;
   }
@@ -155,7 +155,7 @@ public class LinkFinder {
    * @see #findLinks(URI, String, Collection)
    */
   public static HashSet<URI> uniqueUris(URI base, String html) {
-    HashSet<URI> uris = new HashSet<URI>();
+    HashSet<URI> uris = new HashSet<>();
     findLinks(base, html, uris);
     return uris;
   }
@@ -174,5 +174,5 @@ public class LinkFinder {
    *
    * @see URI
    */
-  public static Pattern URI_PARTS = Pattern.compile("^(?:([^:]*):)?([^#]+)?(?:#(.*))?$");
+  public static final Pattern URI_PARTS = Pattern.compile("^(?:([^:]*):)?([^#]+)?(?:#(.*))?$");
 }
