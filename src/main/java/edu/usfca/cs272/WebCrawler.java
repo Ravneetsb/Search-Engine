@@ -23,7 +23,7 @@ public class WebCrawler {
   private final URI seed; // TODO Recommend as a parameter
 
   /** Keep track of links that have been already processed. */
-  private final HashSet<URI> seen = new HashSet<>(); // TODO Init in the constructor
+  private final HashSet<URI> seen;
 
   /** The max number of pages to crawl. */
   private final int max;
@@ -44,6 +44,7 @@ public class WebCrawler {
     this.queue = queue;
     this.seed = URI.create(seed);
     this.max = max;
+    this.seen = new HashSet<>();
   }
 
   /**
