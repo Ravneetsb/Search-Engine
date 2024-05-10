@@ -74,8 +74,7 @@ public class HtmlCleaner {
    * @see String#replaceAll(String, String)
    */
   public static String stripComments(String html) {
-    // TODO return html.replaceAll("(?s)<!--.*?-->", "")
-    return html.replaceAll("<!--[\\s\\S]*?-->", "");
+    return html.replaceAll("(?s)<!--.*?-->", "");
   }
 
   /**
