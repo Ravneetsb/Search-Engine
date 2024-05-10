@@ -53,8 +53,10 @@ public class WebCrawler {
    * @param seed the base uri
    */
   public void processLink(URI seed) {
-    if (seen.contains(seed)) { // TODO synchronized (seen)
-      return;
+    synchronized (seen) {
+      if (seen.contains(seed)) {
+        return;
+      }
     }
     queue.execute(new Task(seed));
     queue.finish();
