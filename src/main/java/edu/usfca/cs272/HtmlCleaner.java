@@ -30,8 +30,7 @@ public class HtmlCleaner {
    * @see String#replaceAll(String, String)
    */
   public static String stripTags(String html) {
-  	// TODO Might have been able to simplify this a bit
-    return html.replaceAll("<[^<>]*?\\n*[^<>]*?>", "");
+    return html.replaceAll("<[^<>]*?>", "");
   }
 
   /**
@@ -75,7 +74,7 @@ public class HtmlCleaner {
    * @see String#replaceAll(String, String)
    */
   public static String stripComments(String html) {
-  	// TODO return html.replaceAll("(?s)<!--.*?-->", "")
+    // TODO return html.replaceAll("(?s)<!--.*?-->", "")
     return html.replaceAll("<!--[\\s\\S]*?-->", "");
   }
 
