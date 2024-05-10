@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 /** WebCrawler for the search engine. */
 public class WebCrawler {
+	// TODO Make these private instead
 
   /** The number of redirects to follow. */
   public static final int REDIRECTS = 3;
@@ -20,10 +21,10 @@ public class WebCrawler {
   public final WorkQueue queue;
 
   /** The seed uri for the web crawler. */
-  public final URI seed;
+  public final URI seed; // TODO Recommend as a parameter
 
   /** Keep track of links that have been already processed. */
-  public final HashSet<URI> seen = new HashSet<>();
+  public final HashSet<URI> seen = new HashSet<>(); // TODO Init in the constructor
 
   /** The max number of pages to crawl. */
   private final int max;
@@ -52,7 +53,7 @@ public class WebCrawler {
    * @param seed the base uri
    */
   public void processLink(URI seed) {
-    if (seen.contains(seed)) {
+    if (seen.contains(seed)) { // TODO synchronized (seen)
       return;
     }
     queue.execute(new Task(seed));
@@ -102,14 +103,14 @@ public class WebCrawler {
             break;
           }
           if (!seen.contains(internalLink)) {
-            seen.add(internalLink);
+            seen.add(internalLink); // TODO Remove
             queue.execute(new Task(internalLink));
           }
         }
       }
 
       // Step 3: Finish cleaning the html.
-      String clean = HtmlCleaner.stripHtml(html);
+      String clean = HtmlCleaner.stripHtml(html); // TODO This re-removes the block elements
 
       // Step 4: Add the stems to the index.
       SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
