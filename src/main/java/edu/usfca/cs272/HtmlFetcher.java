@@ -24,6 +24,10 @@ import java.util.regex.Pattern;
  * @version Spring 2024
  */
 public class HtmlFetcher {
+
+  /** Regex to find the status code in html. */
+  public static final String statusRegex = "\\s(\\d{3})\\s";
+
   /**
    * Returns {@code true} if and only if there is a "content-type" header (assume lowercase) and the
    * first value of that header starts with the value "text/html" (case-insensitive).
@@ -35,13 +39,12 @@ public class HtmlFetcher {
   public static boolean isHtml(Map<String, List<String>> headers) {
     var contentType = headers.get("content-type");
     if (contentType != null) {
-    	// TODO NoSuchElementException - if this collection is empty
-      return contentType.getFirst().toLowerCase().startsWith("text/html");
+      var content = contentType.getFirst();
+
+      return content != null && content.toLowerCase().startsWith("text/html");
     }
     return false;
   }
-  
-  // TODO Any of the getFirst need to be careful about using
 
   /**
    * Parses the HTTP status code from the provided HTTP headers, assuming the status line is stored
@@ -53,10 +56,12 @@ public class HtmlFetcher {
    */
   public static int getStatusCode(Map<String, List<String>> headers) {
     var status = headers.get(null).getFirst();
-    Pattern pattern = Pattern.compile("\\s(\\d{3})\\s"); // TODO Your regexes could usually be static
-    Matcher matcher = pattern.matcher(status);
-    if (matcher.find()) {
-      return Integer.parseInt(matcher.group(1));
+    if (status != null) {
+      Pattern pattern = Pattern.compile(statusRegex);
+      Matcher matcher = pattern.matcher(status);
+      if (matcher.find()) {
+        return Integer.parseInt(matcher.group(1));
+      }
     }
     return -1;
   }
@@ -132,7 +137,6 @@ public class HtmlFetcher {
       }
     } catch (IOException e) {
       html = null;
-      System.out.println("Not a html Page."); // TODO Remove 
     }
 
     return html;
