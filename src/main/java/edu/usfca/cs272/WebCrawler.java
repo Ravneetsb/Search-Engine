@@ -20,7 +20,7 @@ public class WebCrawler {
   private final WorkQueue queue;
 
   /** The seed uri for the web crawler. */
-  private final URI seed; // TODO Recommend as a parameter
+  private final URI seed;
 
   /** Keep track of links that have been already processed. */
   private final HashSet<URI> seen;
