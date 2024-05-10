@@ -9,22 +9,21 @@ import org.apache.logging.log4j.Logger;
 
 /** WebCrawler for the search engine. */
 public class WebCrawler {
-	// TODO Make these private instead
 
   /** The number of redirects to follow. */
-  public static final int REDIRECTS = 3;
+  private static final int REDIRECTS = 3;
 
   /** The invertedIndex to populate. */
-  public final ThreadSafeInvertedIndex index;
+  private final ThreadSafeInvertedIndex index;
 
   /** The Workqueue to use. */
-  public final WorkQueue queue;
+  private final WorkQueue queue;
 
   /** The seed uri for the web crawler. */
-  public final URI seed; // TODO Recommend as a parameter
+  private final URI seed; // TODO Recommend as a parameter
 
   /** Keep track of links that have been already processed. */
-  public final HashSet<URI> seen = new HashSet<>(); // TODO Init in the constructor
+  private final HashSet<URI> seen = new HashSet<>(); // TODO Init in the constructor
 
   /** The max number of pages to crawl. */
   private final int max;
