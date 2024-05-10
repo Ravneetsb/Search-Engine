@@ -105,7 +105,6 @@ public class WebCrawler {
             break;
           }
           if (!seen.contains(internalLink)) {
-            seen.add(internalLink); // TODO Remove
             queue.execute(new Task(internalLink));
           }
         }
