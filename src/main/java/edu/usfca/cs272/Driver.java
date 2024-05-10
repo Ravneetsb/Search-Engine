@@ -32,6 +32,9 @@ public class Driver {
   /** The default number of webpages to crawl. */
   public static final int DEFAUT_CRAWL = 1;
 
+  /** The default port to host the server. */
+  public static final int DEFAULT_PORT = 8080;
+
   /** Log */
   public static final Logger log = LogManager.getLogger();
 
@@ -52,9 +55,12 @@ public class Driver {
     Processor processor;
     WorkQueue queue = null;
     WebCrawler crawler = null;
+    SearchServer server = null;
     boolean partial = argParser.hasFlag("-partial");
 
-    if (argParser.hasFlag("-threads") || argParser.hasValue("-html")) {
+    if (argParser.hasFlag("-threads")
+        || argParser.hasValue("-html")
+        || argParser.hasFlag("-server")) {
       int threads = argParser.getInteger("-threads", DEFAULT_THREADS);
       if (threads < 1) {
         threads = DEFAULT_THREADS;
@@ -67,6 +73,10 @@ public class Driver {
       if (argParser.hasValue("-html")) {
         int crawl = argParser.getInteger("-crawl", DEFAUT_CRAWL);
         crawler = new WebCrawler(threadedIndex, queue, argParser.getString("-html"), crawl);
+      }
+      if (argParser.hasFlag("-server")) {
+        int port = argParser.getInteger("-server", DEFAULT_PORT);
+        server = new SearchServer(port, threadedIndex, processor);
       }
     } else {
       index = new InvertedIndex();
@@ -131,6 +141,14 @@ public class Driver {
 
     if (queue != null) {
       queue.join();
+    }
+
+    if (server != null) {
+      try {
+        server.launch();
+      } catch (Exception e) {
+        log.info("Unable to start server.");
+      }
     }
 
     // calculate time elapsed and output
