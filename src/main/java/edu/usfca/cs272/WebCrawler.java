@@ -111,7 +111,8 @@ public class WebCrawler {
       }
 
       // Step 3: Finish cleaning the html.
-      String clean = HtmlCleaner.stripHtml(html); // TODO This re-removes the block elements
+      String clean = HtmlCleaner.stripTags(html);
+      clean = HtmlCleaner.stripEntities(clean);
 
       // Step 4: Add the stems to the index.
       SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
