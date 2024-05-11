@@ -1,5 +1,7 @@
 package edu.usfca.cs272;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -13,6 +15,8 @@ public class SearchServer {
   /** Inverted Index */
   private final ThreadSafeInvertedIndex index;
 
+  private final Logger log = LogManager.getLogger();
+
   /**
    * Host the server on localhost.
    *
@@ -25,7 +29,6 @@ public class SearchServer {
     this.index = index;
     ServletHandler handler = new ServletHandler();
     handler.addServletWithMapping(new ServletHolder(new SearchServlet(index, processor)), "/index");
-
     //    handler.addServletWithMapping(new HomeServlet(processor), "/index");
 
     server.setHandler(handler);
