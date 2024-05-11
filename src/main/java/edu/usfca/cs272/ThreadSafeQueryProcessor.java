@@ -79,6 +79,7 @@ public class ThreadSafeQueryProcessor implements Processor {
   @Override
   public void parseQuery(String query) {
     queue.execute(new Task(query));
+    queue.finish();
   }
 
   /** Task for the Processor */
