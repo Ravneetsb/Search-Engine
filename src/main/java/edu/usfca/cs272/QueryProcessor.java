@@ -61,7 +61,7 @@ public class QueryProcessor implements Processor {
   public String toString() {
     return JsonWriter.writeSearch(searches);
   }
-  
+
   // TODO Use @Override
 
   /**

@@ -6,6 +6,9 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
 /** Server for the search engine. */
 public class SearchServer {
 
@@ -15,7 +18,11 @@ public class SearchServer {
   /** Inverted Index */
   private final ThreadSafeInvertedIndex index;
 
+  private final Processor processor;
+
   private final Logger log = LogManager.getLogger();
+
+  public static final Path base = Path.of("src", "main", "resources", "template");
 
   /**
    * Host the server on localhost.
@@ -24,11 +31,13 @@ public class SearchServer {
    * @param index the index to perform search on
    * @param processor the processor to perform search on index.
    */
-  public SearchServer(int port, ThreadSafeInvertedIndex index, Processor processor) {
+  public SearchServer(int port, ThreadSafeInvertedIndex index, Processor processor) throws IOException {
     this.server = new Server(port);
     this.index = index;
+    this.processor = processor;
     ServletHandler handler = new ServletHandler();
-    handler.addServletWithMapping(new ServletHolder(new SearchServlet(index, processor)), "/index");
+    handler.addServletWithMapping(
+        new ServletHolder(new SearchServlet(this.index, this.processor)), "/");
     //    handler.addServletWithMapping(new HomeServlet(processor), "/index");
 
     server.setHandler(handler);

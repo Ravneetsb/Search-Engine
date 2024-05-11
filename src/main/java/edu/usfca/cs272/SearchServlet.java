@@ -6,6 +6,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.StringJoiner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,54 +21,41 @@ class SearchServlet extends HttpServlet {
 
   private final Logger log = LogManager.getLogger();
 
-  public SearchServlet(ThreadSafeInvertedIndex index, Processor processor) {
+  private final String htmlTemplate;
+
+  public SearchServlet(ThreadSafeInvertedIndex index, Processor processor) throws IOException {
     this.index = index;
     this.processor = processor;
+    htmlTemplate = Files.readString(SearchServer.base.resolve("index.html"), StandardCharsets.UTF_8);
   }
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
-    // generate html from template
-    String html =
-        """
-					<!DOCTYPE html>
-					<html lang="en">
-
-					<head>
-					  <meta charset="utf-8">
-					  <title>Ravneet</title>
-					</head>
-
-					<body>
-					<h1>%1$s</h1>
-
-					<form method="get" action="/index">
-					  <p>
-					    <input type="text" name="query" size="50"></input>
-					  </p>
-
-					  <p>
-					    <button>Reverse</button>
-					  </p>
-					</form>
-
-					<pre>
-					%2$s
-					</pre>
-
-					</body>
-					</html>
-					""";
     String query = request.getParameter("query");
-    String result;
+    StringJoiner sb = new StringJoiner("\n");
     if (query != null) {
-      System.out.println("Got query");
-      result = processor.getScores(query).toString();
-      System.out.println(result);
-    } else {
-      result = "ENTER QUERY";
+      sb.add("Your Query:" + query);
+      log.info("Searching for: {}", query);
+      processor.parseQuery(query);
+      var scores = processor.getScores(query);
+      for (var score : scores) {
+        sb.add("<div>");
+        sb.add("Score: " + score.getScore());
+        sb.add(
+            String.join(
+                "",
+                "<a href='",
+                score.getLocation(),
+                "' target='_blank'>",
+                score.getLocation(),
+                "</a>"));
+        sb.add("Count: " + score.getCount());
+        sb.add("</div>");
+        sb.add("\n");
+      }
+
     }
 
     response.setContentType("text/html");
@@ -73,7 +63,7 @@ class SearchServlet extends HttpServlet {
 
     // output generated html
     PrintWriter out = response.getWriter();
-    out.printf(html, "Search Engine", result);
+    out.printf(htmlTemplate, "Search Engine", sb);
     out.flush();
   }
 }

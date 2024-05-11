@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.util.IO;
 
 /**
  * Class responsible for running this project based on the provided command-line arguments. See the
@@ -76,7 +77,11 @@ public class Driver {
       }
       if (argParser.hasFlag("-server")) {
         int port = argParser.getInteger("-server", DEFAULT_PORT);
-        server = new SearchServer(port, threadedIndex, processor);
+        try {
+          server = new SearchServer(port, threadedIndex, processor);
+        } catch (IOException e) {
+          log.error("Could not find template files.");
+        }
       }
     } else {
       index = new InvertedIndex();
