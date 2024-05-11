@@ -97,6 +97,15 @@ public class Driver {
 
     if (crawler != null) {
       crawler.processLink();
+      System.out.println("CRAWLING COMPLETE");
+    }
+
+    if (server != null) {
+      try {
+        server.launch();
+      } catch (Exception e) {
+        log.info("Unable to start server.");
+      }
     }
 
     if (argParser.hasValue("-query")) {
@@ -108,9 +117,9 @@ public class Driver {
       }
     }
 
-    if (queue != null) {
-      queue.shutdown();
-    }
+    //    if (queue != null) {
+    //      queue.shutdown();
+    //    }
 
     if (argParser.hasFlag("-counts")) {
       Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
@@ -136,18 +145,6 @@ public class Driver {
         processor.toJson(results);
       } catch (IOException e) {
         System.err.printf("Unable to write results to path: %s", results);
-      }
-    }
-
-    if (queue != null) {
-      queue.join();
-    }
-
-    if (server != null) {
-      try {
-        server.launch();
-      } catch (Exception e) {
-        log.info("Unable to start server.");
       }
     }
 
