@@ -123,6 +123,6 @@ public class ThreadSafeQueryProcessor implements Processor {
 
   @Override
   public String toString() {
-    return "ThreadSafeQueryProcessor{" + "searchMethod=" + searchMethod + '}';
+    return JsonWriter.writeSearch(searches);
   }
 }
