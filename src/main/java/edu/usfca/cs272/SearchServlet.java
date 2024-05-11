@@ -37,7 +37,7 @@ class SearchServlet extends HttpServlet {
 					<body>
 					<h1>%1$s</h1>
 
-					<form method="get" action="/get_reverse">
+					<form method="get" action="/index">
 					  <p>
 					    <input type="text" name="query" size="50"></input>
 					  </p>
@@ -57,14 +57,16 @@ class SearchServlet extends HttpServlet {
 
     String query = request.getParameter("query");
 
-    processor.parseQuery(query);
+    if (query != null) {
+      processor.parseQuery(query);
+    }
 
     response.setContentType("text/html");
     response.setStatus(HttpServletResponse.SC_OK);
 
     // output generated html
     PrintWriter out = response.getWriter();
-    out.printf(html, "Search Engine", processor.getScores(query));
+    out.printf(html, "Search Engine", processor.toString());
     out.flush();
   }
 }
