@@ -18,10 +18,14 @@ public class SearchServer {
   /** Inverted Index */
   private final ThreadSafeInvertedIndex index;
 
+/**
+* The processor to use.
+*/
   private final Processor processor;
 
-  private final Logger log = LogManager.getLogger();
-
+/**
+* Base path for the resource templates.
+*/
   public static final Path base = Path.of("src", "main", "resources", "template");
 
   /**

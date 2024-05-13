@@ -15,14 +15,32 @@ import org.apache.logging.log4j.Logger;
 /** Servlet for the Home Page. */
 class SearchServlet extends HttpServlet {
 
+/**
+* The thread-safe inverted index to be used.
+*/
   private ThreadSafeInvertedIndex index;
 
+/**
+* The thread-safe query processor to be used.
+*/
   private Processor processor;
 
+/**
+* The logger for this class.
+*/
   private final Logger log = LogManager.getLogger();
 
+/**
+* The html template to serve the client.
+*/
   private final String htmlTemplate;
 
+/**
+* The servlet for index page.
+ * @param index the thread-safe inverted index to use.
+ * @param processor the thread-safe query processor to use.
+ * @throws IOException if the template cannot be read.
+*/
   public SearchServlet(ThreadSafeInvertedIndex index, Processor processor) throws IOException {
     this.index = index;
     this.processor = processor;
