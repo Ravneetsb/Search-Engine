@@ -41,7 +41,7 @@ public class SearchServer {
     this.processor = processor;
     ServletHandler handler = new ServletHandler();
     handler.addServletWithMapping(
-        new ServletHolder(new SearchServlet(this.index, this.processor)), "/");
+        new ServletHolder(new SearchServlet(this.processor)), "/");
     //    handler.addServletWithMapping(new HomeServlet(processor), "/index");
 
     server.setHandler(handler);
