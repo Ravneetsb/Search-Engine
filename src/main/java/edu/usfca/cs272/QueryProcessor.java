@@ -62,14 +62,8 @@ public class QueryProcessor implements Processor {
     return JsonWriter.writeSearch(searches);
   }
 
-  // TODO Use @Override
 
-  /**
-   * Returns the scores for a query
-   *
-   * @param query the query for which the scores are returned
-   * @return the scores for a query
-   */
+@Override
   public List<InvertedIndex.Score> getScores(String query) {
     var stems = FileStemmer.uniqueStems(query, stemmer);
     query = String.join(" ", stems);
@@ -81,11 +75,7 @@ public class QueryProcessor implements Processor {
     }
   }
 
-  /**
-   * Returns a set of the queries in the searches map.
-   *
-   * @return a set of the queries in the searches map.
-   */
+@Override
   public Set<String> getQueries() {
     return Collections.unmodifiableSet(searches.keySet());
   }
