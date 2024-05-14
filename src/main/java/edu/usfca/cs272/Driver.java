@@ -77,7 +77,7 @@ public class Driver {
       if (argParser.hasFlag("-server")) {
         int port = argParser.getInteger("-server", DEFAULT_PORT);
         try {
-          server = new SearchServer(port, threadedIndex, processor);
+          server = new SearchServer(port, threadedIndex, processor, queue);
         } catch (IOException e) {
           log.error("Could not find template files.");
         }
@@ -120,10 +120,6 @@ public class Driver {
         System.err.printf("Unable to read queries from path: %s", queries);
       }
     }
-
-    //    if (queue != null) {
-    //      queue.shutdown();
-    //    }
 
     if (argParser.hasFlag("-counts")) {
       Path countOutput = argParser.getPath("-counts", DEFAULT_COUNTS);
