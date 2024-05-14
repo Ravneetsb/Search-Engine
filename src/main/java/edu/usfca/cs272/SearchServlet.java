@@ -17,32 +17,27 @@ import org.apache.logging.log4j.Logger;
 class SearchServlet extends HttpServlet {
 
   /** Class version for serialization, in [YEAR][TERM] format (unused). */
-  @Serial
-  private static final long serialVersionUID = 202401;
+  @Serial private static final long serialVersionUID = 202401;
 
-/**
-* The thread-safe query processor to be used.
-*/
+  /** The thread-safe query processor to be used. */
   private final transient Processor processor;
 
-/**
-* The logger for this class.
-*/
+  /** The logger for this class. */
   private final transient Logger log = LogManager.getLogger();
 
-/**
-* The html template to serve the client.
-*/
+  /** The html template to serve the client. */
   private final String htmlTemplate;
 
-/**
-* The servlet for index page.
- * @param processor the thread-safe query processor to use.
- * @throws IOException if the template cannot be read.
-*/
+  /**
+   * The servlet for index page.
+   *
+   * @param processor the thread-safe query processor to use.
+   * @throws IOException if the template cannot be read.
+   */
   public SearchServlet(Processor processor) throws IOException {
     this.processor = processor;
-    htmlTemplate = Files.readString(SearchServer.base.resolve("index.html"), StandardCharsets.UTF_8);
+    htmlTemplate =
+        Files.readString(SearchServer.base.resolve("index.html"), StandardCharsets.UTF_8);
   }
 
   @Override
@@ -71,7 +66,6 @@ class SearchServlet extends HttpServlet {
         sb.add("</div>");
         sb.add("\n");
       }
-
     }
 
     response.setContentType("text/html");

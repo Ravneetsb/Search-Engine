@@ -31,7 +31,7 @@ public class SearchServer {
     this.processor = processor;
     ServletHandler handler = new ServletHandler();
     handler.addServletWithMapping(new ServletHolder(new SearchServlet(this.processor)), "/");
-    //    handler.addServletWithMapping(new HomeServlet(processor), "/index");
+    handler.addServletWithMapping(new ServletHolder(new ShutdownServlet()), "/shutdown");
 
     server.setHandler(handler);
   }
@@ -48,8 +48,9 @@ public class SearchServer {
   /** Shutdowns the server. */
   public void shutdown() {
     try {
+      this.server.stop();
       this.server.join();
-    } catch (InterruptedException e) {
+    } catch (Exception e) {
       System.err.println("Something went wrong shutting down the server.");
     }
   }
