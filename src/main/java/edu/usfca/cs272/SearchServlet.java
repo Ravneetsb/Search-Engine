@@ -55,20 +55,30 @@ class SearchServlet extends HttpServlet {
     query = StringEscapeUtils.escapeHtml4(query);
     StringJoiner sb = new StringJoiner("\n");
     if (query != null) {
-        DatabaseConnector db = new DatabaseConnector(Path.of("src/main/resources/database.properties"));
+      if (query.split(" ").length > 1) {
+        DatabaseConnector db =
+            new DatabaseConnector(Path.of("src/main/resources/database.properties"));
         try {
-            Connection connection = db.getConnection();
-            db.insertSearch(connection, query);
+          Connection connection = db.getConnection();
+          db.insertSearch(connection, query.replaceAll("\\s+", " "));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+          throw new RuntimeException(e);
         }
-        Instant start = Instant.now();
+      }
+
+      Instant start = Instant.now();
       processor.parseQuery(query);
       long elapsed = Duration.between(start, Instant.now()).toMillis();
       double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();
       var scores = processor.getScores(query);
       sb.add("<div class='hero has-text-centered'>");
-      sb.add("<br /> <p class='sub-title is-5'> " + scores.size() + " results in " + seconds + " seconds." + "</p>");
+      sb.add(
+          "<br /> <p class='sub-title is-5'> "
+              + scores.size()
+              + " results in "
+              + seconds
+              + " seconds."
+              + "</p>");
       sb.add("</div>");
       for (var score : scores) {
         sb.add("<pre>");
@@ -81,7 +91,11 @@ class SearchServlet extends HttpServlet {
                 "' target='_blank'>",
                 score.getLocation(),
                 "</a>"));
-        sb.add("<p class='sub-title is-6'> Score: " + score.getScore() + "\tMatches:" +  score.getCount());
+        sb.add(
+            "<p class='sub-title is-6'> Score: "
+                + score.getScore()
+                + "\tMatches:"
+                + score.getCount());
         sb.add("</p> </div> </pre>");
         sb.add("\n");
       }

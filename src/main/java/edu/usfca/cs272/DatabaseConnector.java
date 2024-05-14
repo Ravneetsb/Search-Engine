@@ -32,7 +32,7 @@ public class DatabaseConnector {
     /** Properties with username and password for connecting to database. */
     private final Properties login;
 
-    public static final String INSERT_SEARCHES = "insert into searches (query, count) values (?, 1) on duplicate key update count = count + 1;";
+    public static final String INSERT_SEARCHES = "insert into queries (query, count) values (?, 1) on duplicate key update count = count + 1;";
 
     /**
      * Creates a connector from a "database.properties" file located in the
