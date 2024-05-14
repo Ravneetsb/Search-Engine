@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.StringJoiner;
@@ -14,6 +15,10 @@ import org.apache.logging.log4j.Logger;
 
 /** Servlet for the Home Page. */
 class SearchServlet extends HttpServlet {
+
+  /** Class version for serialization, in [YEAR][TERM] format (unused). */
+  @Serial
+  private static final long serialVersionUID = 202401;
 
 /**
 * The thread-safe query processor to be used.

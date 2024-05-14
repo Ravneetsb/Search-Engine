@@ -1,13 +1,10 @@
 package edu.usfca.cs272;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.io.IOException;
+import java.nio.file.Path;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-
-import java.io.IOException;
-import java.nio.file.Path;
 
 /** Server for the search engine. */
 public class SearchServer {
@@ -15,17 +12,10 @@ public class SearchServer {
   /** The server. */
   private final Server server;
 
-  /** Inverted Index */
-  private final ThreadSafeInvertedIndex index;
-
-/**
-* The processor to use.
-*/
+  /** The processor to use. */
   private final Processor processor;
 
-/**
-* Base path for the resource templates.
-*/
+  /** Base path for the resource templates. */
   public static final Path base = Path.of("src", "main", "resources", "template");
 
   /**
@@ -35,13 +25,12 @@ public class SearchServer {
    * @param index the index to perform search on
    * @param processor the processor to perform search on index.
    */
-  public SearchServer(int port, ThreadSafeInvertedIndex index, Processor processor) throws IOException {
+  public SearchServer(int port, ThreadSafeInvertedIndex index, Processor processor)
+      throws IOException {
     this.server = new Server(port);
-    this.index = index;
     this.processor = processor;
     ServletHandler handler = new ServletHandler();
-    handler.addServletWithMapping(
-        new ServletHolder(new SearchServlet(this.processor)), "/");
+    handler.addServletWithMapping(new ServletHolder(new SearchServlet(this.processor)), "/");
     //    handler.addServletWithMapping(new HomeServlet(processor), "/index");
 
     server.setHandler(handler);
