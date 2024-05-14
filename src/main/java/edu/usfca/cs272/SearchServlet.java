@@ -9,7 +9,11 @@ import java.io.PrintWriter;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.StringJoiner;
+
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,15 +49,18 @@ class SearchServlet extends HttpServlet {
       throws ServletException, IOException {
 
     String query = request.getParameter("query");
+    query = StringEscapeUtils.escapeHtml4(query);
     StringJoiner sb = new StringJoiner("\n");
     if (query != null) {
       sb.add("Your Query:" + query);
-      log.info("Searching for: {}", query);
+      Instant start = Instant.now();
       processor.parseQuery(query);
+      long elapsed = Duration.between(start, Instant.now()).toMillis();
+      double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();
       var scores = processor.getScores(query);
+      sb.add("<br /> <p class='sub-title is-5'> Number of search results: " + scores.size() + " in " + seconds + " seconds." + "</p>");
       for (var score : scores) {
         sb.add("<div class='container is-block'>");
-        sb.add("Score: " + score.getScore());
         sb.add(
             String.join(
                 "",
@@ -62,8 +69,8 @@ class SearchServlet extends HttpServlet {
                 "' target='_blank'>",
                 score.getLocation(),
                 "</a>"));
-        sb.add("Count: " + score.getCount());
-        sb.add("</div>");
+        sb.add("<p class='sub-title is-6'> Score: " + score.getScore() + "\tMatches:" +  score.getCount());
+        sb.add("</p> </div>");
         sb.add("\n");
       }
     }
