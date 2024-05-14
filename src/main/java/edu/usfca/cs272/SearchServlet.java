@@ -23,7 +23,7 @@ class SearchServlet extends HttpServlet {
 /**
 * The thread-safe query processor to be used.
 */
-  private Processor processor;
+  private final Processor processor;
 
 /**
 * The logger for this class.
