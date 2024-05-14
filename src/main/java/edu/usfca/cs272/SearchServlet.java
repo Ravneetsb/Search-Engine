@@ -23,12 +23,12 @@ class SearchServlet extends HttpServlet {
 /**
 * The thread-safe query processor to be used.
 */
-  private final Processor processor;
+  private final transient Processor processor;
 
 /**
 * The logger for this class.
 */
-  private final Logger log = LogManager.getLogger();
+  private final transient Logger log = LogManager.getLogger();
 
 /**
 * The html template to serve the client.
