@@ -98,24 +98,26 @@ public class SearchServer {
       response.setContentType("text/html");
       response.setStatus(HttpServletResponse.SC_OK);
 
-      // output generated html
-      PrintWriter out = response.getWriter();
-      out.printf(htmlTemplate);
-      out.flush();
-
       if (password != null) {
         System.out.println(password);
         if (password.equals(PASSWORD)) {
           System.out.println(server);
-            try {
-                server.stop();
-                server.join();
-                queue.join();
-            } catch (Exception e) {
-                System.err.println("Unable to shutdown server");
-            }
+          try {
+            server.stop();
+            server.join();
+            queue.join();
+          } catch (Exception e) {
+            System.err.println("Unable to shutdown server");
+          }
+        } else {
+
         }
       }
+
+      // output generated html
+      PrintWriter out = response.getWriter();
+      out.printf(htmlTemplate, "data-theme='light'");
+      out.flush();
     }
   }
 }
