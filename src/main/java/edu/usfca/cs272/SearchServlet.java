@@ -9,6 +9,9 @@ import java.io.PrintWriter;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.StringJoiner;
@@ -52,14 +55,23 @@ class SearchServlet extends HttpServlet {
     query = StringEscapeUtils.escapeHtml4(query);
     StringJoiner sb = new StringJoiner("\n");
     if (query != null) {
-      sb.add("Your Query:" + query);
-      Instant start = Instant.now();
+        DatabaseConnector db = new DatabaseConnector(Path.of("src/main/resources/database.properties"));
+        try {
+            Connection connection = db.getConnection();
+            db.insertSearch(connection, query);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        Instant start = Instant.now();
       processor.parseQuery(query);
       long elapsed = Duration.between(start, Instant.now()).toMillis();
       double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();
       var scores = processor.getScores(query);
-      sb.add("<br /> <p class='sub-title is-5'> Number of search results: " + scores.size() + " in " + seconds + " seconds." + "</p>");
+      sb.add("<div class='hero has-text-centered'>");
+      sb.add("<br /> <p class='sub-title is-5'> " + scores.size() + " results in " + seconds + " seconds." + "</p>");
+      sb.add("</div>");
       for (var score : scores) {
+        sb.add("<pre>");
         sb.add("<div class='container is-block'>");
         sb.add(
             String.join(
@@ -70,7 +82,7 @@ class SearchServlet extends HttpServlet {
                 score.getLocation(),
                 "</a>"));
         sb.add("<p class='sub-title is-6'> Score: " + score.getScore() + "\tMatches:" +  score.getCount());
-        sb.add("</p> </div>");
+        sb.add("</p> </div> </pre>");
         sb.add("\n");
       }
     }

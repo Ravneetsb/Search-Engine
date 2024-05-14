@@ -1,15 +1,13 @@
 package edu.usfca.cs272;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashSet;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
@@ -33,6 +31,8 @@ public class DatabaseConnector {
 
     /** Properties with username and password for connecting to database. */
     private final Properties login;
+
+    public static final String INSERT_SEARCHES = "insert into searches (query, count) values (?, 1) on duplicate key update count = count + 1;";
 
     /**
      * Creates a connector from a "database.properties" file located in the
@@ -112,6 +112,13 @@ public class DatabaseConnector {
         return dbConnection;
     }
 
+    public void insertSearch(Connection db, String query) throws SQLException {
+        try (PreparedStatement  statement =  db.prepareStatement(INSERT_SEARCHES)) {
+            statement.setString(1, query);
+            statement.execute();
+        }
+    }
+
     /**
      * Opens a database connection and returns a set of found tables. Will return
      * an empty set if there are no results.
@@ -150,6 +157,7 @@ public class DatabaseConnector {
 
         // Open database connection and close when done
         try (Connection db = getConnection();) {
+            insertSearch(db, "a");
             System.out.println("Executing SHOW TABLES...");
             Set<String> tables = getTables(db);
 
