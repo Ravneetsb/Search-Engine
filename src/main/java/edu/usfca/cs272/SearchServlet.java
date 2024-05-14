@@ -52,7 +52,7 @@ class SearchServlet extends HttpServlet {
       processor.parseQuery(query);
       var scores = processor.getScores(query);
       for (var score : scores) {
-        sb.add("<div>");
+        sb.add("<div class='container is-block'>");
         sb.add("Score: " + score.getScore());
         sb.add(
             String.join(
@@ -73,7 +73,7 @@ class SearchServlet extends HttpServlet {
 
     // output generated html
     PrintWriter out = response.getWriter();
-    out.printf(htmlTemplate, "Search Engine", sb);
+    out.printf(htmlTemplate, sb);
     out.flush();
   }
 }
