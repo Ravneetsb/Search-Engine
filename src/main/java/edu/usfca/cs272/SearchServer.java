@@ -58,16 +58,6 @@ public class SearchServer {
     server.start();
   }
 
-  /** Shutdowns the server. */
-  public void shutdown() {
-    try {
-      this.server.stop();
-      this.server.join();
-    } catch (Exception e) {
-      System.err.println("Something went wrong shutting down the server.");
-    }
-  }
-
   @Override
   public String toString() {
     return "Search Server for the Search Engine";
