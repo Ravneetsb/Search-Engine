@@ -44,6 +44,7 @@ public class SearchServer {
     this.queue = queue;
     ServletHandler handler = new ServletHandler();
     handler.addServletWithMapping(new ServletHolder(new SearchServlet(this.processor)), "/");
+    handler.addServletWithMapping(new ServletHolder(new SettingsServlet()), "/settings");
     handler.addServletWithMapping(new ServletHolder(new ShutdownServlet()), "/shutdown");
 
     server.setHandler(handler);
