@@ -50,14 +50,13 @@ class SearchServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-
+    DatabaseConnector db = new DatabaseConnector(Path.of("src/main/resources/database.properties"));
     String query = request.getParameter("query");
     query = StringEscapeUtils.escapeHtml4(query);
     StringJoiner sb = new StringJoiner("\n");
+    StringJoiner stats = new StringJoiner("\n");
     if (query != null) {
       if (query.split(" ").length > 1) {
-        DatabaseConnector db =
-            new DatabaseConnector(Path.of("src/main/resources/database.properties"));
         try {
           Connection connection = db.getConnection();
           db.insertSearch(connection, query.replaceAll("\\s+", " "));
@@ -101,12 +100,24 @@ class SearchServlet extends HttpServlet {
       }
     }
 
+    try {
+      Connection connection = db.getConnection();
+      var topFive = db.getTopFiveSearches(connection);
+      for (var stat: topFive) {
+        stats.add("<pre>");
+        stats.add(stat);
+        stats.add("</pre>");
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+
     response.setContentType("text/html");
     response.setStatus(HttpServletResponse.SC_OK);
 
     // output generated html
     PrintWriter out = response.getWriter();
-    out.printf(htmlTemplate, sb);
+    out.printf(htmlTemplate, sb, stats);
     out.flush();
   }
 }

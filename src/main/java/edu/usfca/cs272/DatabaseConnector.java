@@ -1,17 +1,12 @@
 package edu.usfca.cs272;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
-import java.util.HashSet;
-import java.util.InvalidPropertiesFormatException;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class is designed to test your database configuration. You need to have
@@ -33,6 +28,8 @@ public class DatabaseConnector {
     private final Properties login;
 
     public static final String INSERT_SEARCHES = "insert into queries (query, count) values (?, 1) on duplicate key update count = count + 1;";
+
+    public static final String GET_TOP_FIVE_SEARCHES = "select query, count from queries order by count desc limit 5;";
 
     /**
      * Creates a connector from a "database.properties" file located in the
@@ -117,6 +114,19 @@ public class DatabaseConnector {
             statement.setString(1, query);
             statement.execute();
         }
+    }
+
+    public List<String> getTopFiveSearches(Connection db) throws SQLException {
+        ArrayList<String> topFive = new ArrayList<>();
+        try (PreparedStatement statement = db.prepareStatement(GET_TOP_FIVE_SEARCHES)) {
+            var result = statement.executeQuery();
+            while (result.next()) {
+                String query = result.getString(1);
+                String count = result.getNString(2);
+                topFive.add(String.join(" ", query, ": ", count, " searches"));
+            }
+        }
+        return topFive;
     }
 
     /**
