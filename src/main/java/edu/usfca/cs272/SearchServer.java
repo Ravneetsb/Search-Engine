@@ -115,6 +115,12 @@ public class SearchServer {
       response.setContentType("text/html");
       response.setStatus(HttpServletResponse.SC_OK);
 
+
+      // output generated html
+      PrintWriter out = response.getWriter();
+      out.printf(htmlTemplate, SearchServer.theme);
+      out.flush();
+
       if (password != null) {
         System.out.println(password);
         if (password.equals(PASSWORD)) {
@@ -130,11 +136,6 @@ public class SearchServer {
 
         }
       }
-
-      // output generated html
-      PrintWriter out = response.getWriter();
-      out.printf(htmlTemplate, SearchServer.theme);
-      out.flush();
     }
   }
 }

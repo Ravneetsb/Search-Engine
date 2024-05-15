@@ -57,7 +57,9 @@ public class Driver {
     WebCrawler crawler = null;
     SearchServer server = null;
     boolean partial = argParser.hasFlag("-partial");
-
+    if (argParser.hasFlag("-server")) {
+      partial = true;
+    }
     if (argParser.hasFlag("-threads")
         || argParser.hasValue("-html")
         || argParser.hasFlag("-server")) {
