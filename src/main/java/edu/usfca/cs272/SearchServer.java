@@ -27,6 +27,12 @@ public class SearchServer {
 
   private final WorkQueue queue;
 
+  public static String theme = "<html lang=\"en\" data-theme=\"light\">";
+
+  public static final String LIGHT_THEME = "<html lang=\"en\" data-theme=\"light\">";
+
+  public static final String DARK_THEME = "<html lang=\"en\" data-theme=\"dark\">";
+
   /** Base path for the resource templates. */
   public static final Path base = Path.of("src", "main", "resources", "template");
 
@@ -39,15 +45,25 @@ public class SearchServer {
    */
   public SearchServer(int port, ThreadSafeInvertedIndex index, Processor processor, WorkQueue queue)
       throws IOException {
+    DatabaseConnector db = new DatabaseConnector(Path.of("src/main/resources/database.properties"));
     this.server = new Server(port);
     this.processor = processor;
     this.queue = queue;
     ServletHandler handler = new ServletHandler();
-    handler.addServletWithMapping(new ServletHolder(new SearchServlet(this.processor)), "/");
-    handler.addServletWithMapping(new ServletHolder(new SettingsServlet()), "/settings");
+    handler.addServletWithMapping(new ServletHolder(new SearchServlet(this.processor, db)), "/");
+    handler.addServletWithMapping(new ServletHolder(new SettingsServlet(db)), "/settings");
     handler.addServletWithMapping(new ServletHolder(new ShutdownServlet()), "/shutdown");
+    handler.addServletWithMapping(new ServletHolder(new ThemeServlet(db)), "/theme-change");
 
     server.setHandler(handler);
+  }
+
+  public static void changeTheme() {
+    if (theme.equals(LIGHT_THEME)) {
+      theme = DARK_THEME;
+    } else {
+      theme = LIGHT_THEME;
+    }
   }
 
   /**
@@ -117,7 +133,7 @@ public class SearchServer {
 
       // output generated html
       PrintWriter out = response.getWriter();
-      out.printf(htmlTemplate, "data-theme='light'");
+      out.printf(htmlTemplate, SearchServer.theme);
       out.flush();
     }
   }

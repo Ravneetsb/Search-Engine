@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 import javax.xml.crypto.Data;
 
 /** Servlet for the Home Page. */
-class SettingsServlet extends HttpServlet {
+class ThemeServlet extends HttpServlet {
 
   /** Class version for serialization, in [YEAR][TERM] format (unused). */
   @Serial private static final long serialVersionUID = 202401;
@@ -34,7 +34,7 @@ class SettingsServlet extends HttpServlet {
    *
    * @throws IOException if the template cannot be read.
    */
-  public SettingsServlet(DatabaseConnector db) throws IOException {
+  public ThemeServlet(DatabaseConnector db) throws IOException {
     this.db = db;
     htmlTemplate =
         Files.readString(SearchServer.base.resolve("settings.html"), StandardCharsets.UTF_8);
@@ -44,15 +44,14 @@ class SettingsServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
-    //        String query = request.getParameter("query");
-    //        StringJoiner sb = new StringJoiner("\n");
+    SearchServer.changeTheme();
 
-    response.setContentType("text/html");
-    response.setStatus(HttpServletResponse.SC_OK);
+    String referer = request.getHeader("referer");
 
-    // output generated html
-    PrintWriter out = response.getWriter();
-    out.printf(htmlTemplate);
-    out.flush();
+    if (referer != null && !referer.isEmpty()) {
+      response.sendRedirect(referer);
+    } else {
+      response.sendRedirect("/");
+    }
   }
 }

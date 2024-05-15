@@ -20,6 +20,8 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.xml.crypto.Data;
+
 /** Servlet for the Home Page. */
 class SearchServlet extends HttpServlet {
 
@@ -35,13 +37,16 @@ class SearchServlet extends HttpServlet {
   /** The html template to serve the client. */
   private final String htmlTemplate;
 
+  private final DatabaseConnector db;
+
   /**
    * The servlet for index page.
    *
    * @param processor the thread-safe query processor to use.
    * @throws IOException if the template cannot be read.
    */
-  public SearchServlet(Processor processor) throws IOException {
+  public SearchServlet(Processor processor, DatabaseConnector db) throws IOException {
+    this.db = db;
     this.processor = processor;
     htmlTemplate =
         Files.readString(SearchServer.base.resolve("index.html"), StandardCharsets.UTF_8);
@@ -50,7 +55,7 @@ class SearchServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    DatabaseConnector db = new DatabaseConnector(Path.of("src/main/resources/database.properties"));
+//    DatabaseConnector db = new DatabaseConnector(Path.of("src/main/resources/database.properties"));
     String query = request.getParameter("query");
     query = StringEscapeUtils.escapeHtml4(query);
     StringJoiner sb = new StringJoiner("\n");
@@ -117,7 +122,7 @@ class SearchServlet extends HttpServlet {
 
     // output generated html
     PrintWriter out = response.getWriter();
-    out.printf(htmlTemplate, sb, stats);
+    out.printf(htmlTemplate, SearchServer.theme, sb, stats);
     out.flush();
   }
 }

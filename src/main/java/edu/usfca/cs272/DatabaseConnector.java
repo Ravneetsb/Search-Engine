@@ -129,6 +129,12 @@ public class DatabaseConnector {
         return topFive;
     }
 
+    public void resetMetaData(Connection db) throws SQLException {
+        try (Statement statement = db.createStatement()) {
+            statement.execute("delete * from queries");
+        }
+    }
+
     /**
      * Opens a database connection and returns a set of found tables. Will return
      * an empty set if there are no results.
