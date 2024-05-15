@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.sql.SQLException;
 import java.util.StringJoiner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,8 +45,15 @@ class SettingsServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
-    //        String query = request.getParameter("query");
-    //        StringJoiner sb = new StringJoiner("\n");
+    String pass = request.getParameter("password");
+    if (pass != null && pass.equals("a")) {
+        try {
+            db.resetMetaData(db.getConnection());
+            response.sendRedirect("/");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     response.setContentType("text/html");
     response.setStatus(HttpServletResponse.SC_OK);

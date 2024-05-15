@@ -131,7 +131,7 @@ public class DatabaseConnector {
 
     public void resetMetaData(Connection db) throws SQLException {
         try (Statement statement = db.createStatement()) {
-            statement.execute("delete * from queries");
+            statement.execute("delete from queries");
         }
     }
 

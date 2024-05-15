@@ -60,5 +60,22 @@
     <p class="title is-1"> Settings </p>
 </div>
 
+<section class="section is-small is-centered">
+    <p class="sub-title is-3">Enter password to reset metadata.</p>
+    <form method="get" action="/settings">
+        <div class="field">
+            <label class="label" for="password">Password:</label>
+            <div class="control">
+                <input type="text" name="password" size="50" class="input is-rounded is-primary" id="password"
+                       placeholder="Enter Password">
+            </div>
+        </div>
+        <p>
+            <button class="button is-primary" type="submit">Reset Metadata</button>
+        </p>
+
+    </form>
+</section>
+
 </body>
 </html>
