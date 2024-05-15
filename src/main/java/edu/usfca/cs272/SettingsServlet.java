@@ -52,7 +52,7 @@ class SettingsServlet extends HttpServlet {
 
     // output generated html
     PrintWriter out = response.getWriter();
-    out.printf(htmlTemplate);
+    out.printf(htmlTemplate, SearchServer.theme);
     out.flush();
   }
 }
