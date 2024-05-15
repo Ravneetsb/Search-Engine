@@ -30,7 +30,7 @@ public class Driver {
   public static final int DEFAULT_THREADS = 5;
 
   /** The default number of webpages to crawl. */
-  public static final int DEFAUT_CRAWL = 1;
+  public static final int DEFAULT_CRAWL = 1;
 
   /** The default port to host the server. */
   public static final int DEFAULT_PORT = 8080;
@@ -73,7 +73,7 @@ public class Driver {
       builder = new ThreadSafeInvertedIndexBuilder(threadedIndex, queue);
       processor = new ThreadSafeQueryProcessor(threadedIndex, queue, partial);
       if (argParser.hasValue("-html")) {
-        int crawl = argParser.getInteger("-crawl", DEFAUT_CRAWL);
+        int crawl = argParser.getInteger("-crawl", DEFAULT_CRAWL);
         crawler = new WebCrawler(threadedIndex, queue, argParser.getString("-html"), crawl);
       }
       if (argParser.hasFlag("-server")) {
