@@ -5,17 +5,18 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.StringJoiner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.xml.crypto.Data;
-
-/** Servlet for the Home Page. */
+/**
+ * The servlet responsible for toggling between dark and light mode in the webpages.
+ *
+ * @author Ravneet Singh Bhatia
+ * @version 2024
+ */
 class ThemeServlet extends HttpServlet {
 
   /** Class version for serialization, in [YEAR][TERM] format (unused). */
@@ -27,10 +28,11 @@ class ThemeServlet extends HttpServlet {
   /** The html template to serve the client. */
   private final String htmlTemplate;
 
+  /** The database connector to used for connecting to the on-campus database. */
   private final DatabaseConnector db;
 
   /**
-   * The servlet for settings page.
+   * Creates a new theme servlet.
    *
    * @throws IOException if the template cannot be read.
    */
@@ -44,14 +46,15 @@ class ThemeServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
-    SearchServer.changeTheme();
+    SearchServer.changeTheme(); // change the theme.
 
     String referer = request.getHeader("referer");
 
     if (referer != null && !referer.isEmpty()) {
+      // if the change was successful, redirect the user back to the same page they came from.
       response.sendRedirect(referer);
     } else {
-      response.sendRedirect("/");
+      response.sendRedirect("/");   // send back to home page.
     }
   }
 }
