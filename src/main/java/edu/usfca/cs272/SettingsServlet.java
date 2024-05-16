@@ -10,13 +10,13 @@ import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.sql.SQLException;
-import java.util.StringJoiner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.xml.crypto.Data;
-
-/** Servlet for the Home Page. */
+/**
+ * Servlet for the settings page. Responsible for validating the admin password for triggering a
+ * metadata reset.
+ */
 class SettingsServlet extends HttpServlet {
 
   /** Class version for serialization, in [YEAR][TERM] format (unused). */
@@ -28,10 +28,18 @@ class SettingsServlet extends HttpServlet {
   /** The html template to serve the client. */
   private final String htmlTemplate;
 
+/**
+* The database connector used to connect to the on-campus database.
+*/
   private final DatabaseConnector db;
 
+/**
+* The admin password to trigger a reset of the metadata.
+*/
+  private final String PASSWORD = "p@$$w0rd";
+
   /**
-   * The servlet for settings page.
+   * Creates a new Settings servlet.
    *
    * @throws IOException if the template cannot be read.
    */
@@ -46,13 +54,13 @@ class SettingsServlet extends HttpServlet {
       throws ServletException, IOException {
 
     String pass = request.getParameter("password");
-    if (pass != null && pass.equals("a")) {
-        try {
-            db.resetMetaData(db.getConnection());
-            response.sendRedirect("/");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    if (pass != null && pass.equals(PASSWORD)) {        // authenticate the password.
+      try {
+        db.resetMetaData(db.getConnection());
+        response.sendRedirect("/");     // send user back to home page if the reset is successful.
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
     }
 
     response.setContentType("text/html");
