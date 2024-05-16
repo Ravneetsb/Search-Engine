@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -16,6 +17,9 @@ import java.nio.file.Path;
  * @version Spring 2024
  */
 public class DownloadServlet extends HttpServlet {
+
+  /** Class version for serialization, in [YEAR][SEMESTER] format. */
+  @Serial private static final long serialVersionUID = 202401;
 
   /** The inverted index from which the downloadable file will be generated. */
   private final transient ThreadSafeInvertedIndex index;
