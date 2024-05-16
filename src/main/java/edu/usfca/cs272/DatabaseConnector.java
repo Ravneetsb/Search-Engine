@@ -71,6 +71,18 @@ public class DatabaseConnector {
     login.put("password", config.getProperty("password"));
   }
 
+/**
+* Creates the required sql tables if they do not already exist.
+ * @throws SQLException if there is a problem connecting to the database.
+*/
+  public void createTables() throws SQLException {
+    var db = getConnection();
+    String createTable = "create table if not exists queries( query varchar(255) primary key , count int not null);";
+    try (Statement statement = db.createStatement()) {
+      statement.execute(createTable);
+    }
+  }
+
   /**
    * Attempts to load properties file with database configuration. Must include username, password,
    * database, and hostname.

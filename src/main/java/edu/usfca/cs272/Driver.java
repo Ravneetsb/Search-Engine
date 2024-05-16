@@ -2,6 +2,7 @@ package edu.usfca.cs272;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import org.apache.logging.log4j.LogManager;
@@ -83,9 +84,13 @@ public class Driver {
       if (argParser.hasFlag("-server")) {
         int port = argParser.getInteger("-server", DEFAULT_PORT);
         try {
+          DatabaseConnector db = new DatabaseConnector(Path.of("src/main/resources/database.properties"));
+          db.createTables();
           server = new SearchServer(port, threadedIndex, processor, queue);
         } catch (IOException e) {
           log.error("Could not find template files.");
+        } catch (SQLException e) {
+            System.err.println("Unable to connect to database.");
         }
       }
     } else { // Single Threaded Search Engine.

@@ -51,7 +51,7 @@ public class ThemeServlet extends HttpServlet {
 
     String referer = request.getHeader("referer");
 
-    if (referer.contains("?query=")) {    // Prevent the search from being conducted again if theme is changed.
+    if (referer.contains("/?query=")) {    // Prevent the search from being triggered again if theme is changed.
       referer = "/";
     }
 
