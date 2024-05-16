@@ -24,7 +24,7 @@ import org.apache.logging.log4j.Logger;
  * user input.
  *
  * @author Ravneet Singh Bhatia
- * @version 2024
+ * @version Spring 2024
  */
 class SearchServlet extends HttpServlet {
 

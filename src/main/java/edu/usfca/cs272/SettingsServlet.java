@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
  * Servlet for the settings page. Responsible for validating the admin password for triggering a
  * metadata reset.
  * @author Ravneet Singh Bhatia
- * @version 2024
+ * @version Spring 2024
  */
 class SettingsServlet extends HttpServlet {
 

@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
  * The servlet responsible for toggling between dark and light mode in the webpages.
  *
  * @author Ravneet Singh Bhatia
- * @version 2024
+ * @version Spring 2024
  */
 class ThemeServlet extends HttpServlet {
 

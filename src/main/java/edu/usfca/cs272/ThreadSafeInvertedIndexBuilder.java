@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
-/** Thread Safe implementation of InvertedIndexBuilder */
+/** Thread-safe version of the Inverted index
+ * @author Ravneet Singh Bhatia
+ * @version Spring 2024*/
 public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
 
   /** Work queue. */
@@ -16,7 +18,7 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
   private final ThreadSafeInvertedIndex index;
 
   /**
-   * Constructor
+   * Creates a new ThreadSafeInvertedIndexBuilder
    *
    * @param invertedIndex the index.
    * @param queue workqueue
@@ -59,14 +61,14 @@ public class ThreadSafeInvertedIndexBuilder extends InvertedIndexBuilder {
 
     @Override
     public void run() {
-      InvertedIndex localIndex = new InvertedIndex();
+      InvertedIndex localIndex = new InvertedIndex();   // creating a local index minimizes blocking.
       try {
-        InvertedIndexBuilder.readFile(path, localIndex);
+        InvertedIndexBuilder.readFile(path, localIndex);      // populate the local index.
       } catch (IOException e) {
         log.error("Unable to read file from {}", path);
         throw new UncheckedIOException(e);
       }
-      index.addIndex(localIndex);
+      index.addIndex(localIndex);   // add the local index to the main thread-safe index.
     }
 
     @Override

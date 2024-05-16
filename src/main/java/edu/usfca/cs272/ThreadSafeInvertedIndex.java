@@ -8,7 +8,7 @@ import java.util.*;
  * Thread-safe version of the InvertedIndex.
  *
  * @author Ravneet Singh Bhatia
- * @version 2024
+ * @version Spring 2024
  */
 public class ThreadSafeInvertedIndex extends InvertedIndex {
   /** The multiReaderLock used to make the index thread-safe. */
