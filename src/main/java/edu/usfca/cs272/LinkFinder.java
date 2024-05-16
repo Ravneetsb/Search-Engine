@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
  * Finds HTTP(S) URLs from the anchor tags within HTML code.
  *
  * @author CS 272 Software Development (University of San Francisco)
+ * @author Ravneet Singh Bhatia
  * @version Spring 2024
  */
 public class LinkFinder {

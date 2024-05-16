@@ -19,7 +19,8 @@ import java.util.*;
  * <p>Warning: This class is not thread-safe. If multiple threads access this class concurrently,
  * access must be synchronized externally.
  *
- * @author Ravneet Singh Bhatia, CS 272 Software Development (University of San Francisco)
+ * @author CS 272 Software Development (University of San Francisco)
+ * @author Ravneet Singh Bhatia
  * @version Spring 2024
  */
 public class JsonWriter {
