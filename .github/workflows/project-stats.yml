@@ -1,0 +1,10 @@
+name: Project Stats
+on: 
+  workflow_dispatch:
+
+jobs:
+  main:
+    name: 'Run'
+    uses: usf-cs272-spring2024/cs272-bot/.github/workflows/calc-stats.yml@main
+    secrets: inherit
+    permissions: write-all
