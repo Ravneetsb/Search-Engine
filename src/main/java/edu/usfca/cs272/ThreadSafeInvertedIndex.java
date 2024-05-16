@@ -4,12 +4,17 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
-/** Thread Safe Inverted Index. */
+/**
+ * Thread-safe version of the InvertedIndex.
+ *
+ * @author Ravneet Singh Bhatia
+ * @version 2024
+ */
 public class ThreadSafeInvertedIndex extends InvertedIndex {
-  /** The multiReaderLock for the index. */
+  /** The multiReaderLock used to make the index thread-safe. */
   private final MultiReaderLock lock;
 
-  /** Constructor for ThreadSafe Inverted Index. */
+  /** Creates a new thread-safe inverted index. */
   public ThreadSafeInvertedIndex() {
     lock = new MultiReaderLock();
   }
