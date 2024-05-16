@@ -5,9 +5,9 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * InvertedIndex Data Structure for the Search Engine Project.
+ * Inverted Index Data Structure.
  *
- * @author Ravneet Singh Bhatia, CS 272 Software Development (University of San Francisco)
+ * @author Ravneet Singh Bhatia
  * @version Spring 2024
  */
 public class InvertedIndex {

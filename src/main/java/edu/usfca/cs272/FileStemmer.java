@@ -19,6 +19,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
  * processed words.
  *
  * @author CS 272 Software Development (University of San Francisco)
+ * @author Ravneet Singh Bhatia
  * @version Spring 2024
  */
 public class FileStemmer {

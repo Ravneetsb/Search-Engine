@@ -15,6 +15,7 @@ import java.util.*;
  * off-campus.
  *
  * @author CS 272 Software Development (University of San Francisco)
+ * @author Ravneet Singh Bhatia
  * @version Spring 2024
  */
 public class DatabaseConnector {
