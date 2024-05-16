@@ -80,7 +80,7 @@ public class InvertedIndexBuilder {
    */
   public static void readFile(Path file, InvertedIndex index) throws IOException {
     // CITE: Talked to Frank about not having multi-line reading.
-    int iter = 1;   // the position of the stem in the file.
+    int iter = 1; // the position of the stem in the file.
     try (BufferedReader br = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
       String line;
       String location = file.toString();

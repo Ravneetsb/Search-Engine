@@ -54,7 +54,7 @@ class ThemeServlet extends HttpServlet {
       // if the change was successful, redirect the user back to the same page they came from.
       response.sendRedirect(referer);
     } else {
-      response.sendRedirect("/");   // send back to home page.
+      response.sendRedirect("/"); // send back to home page.
     }
   }
 }

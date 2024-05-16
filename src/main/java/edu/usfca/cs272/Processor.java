@@ -9,12 +9,13 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
-/** Processor Interface.
- * The processor is responsible for executing searches on the index,
- * populating the results to either be sent to the client or output
- * to a file.
+/**
+ * Processor Interface. The processor is responsible for executing searches on the index, populating
+ * the results to either be sent to the client or output to a file.
+ *
  * @author Ravneet Singh Bhatia
- * @version Spring 2024*/
+ * @version Spring 2024
+ */
 public interface Processor {
   /**
    * Reads a file containing queries to parse the queries within.

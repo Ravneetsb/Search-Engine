@@ -60,7 +60,7 @@ public class WebCrawler {
    */
   public void processLink(URI seed) {
     synchronized (seen) {
-      if (seen.contains(seed)) {    // check to see if uri has been processed already.
+      if (seen.contains(seed)) { // check to see if uri has been processed already.
         return;
       }
     }
@@ -87,7 +87,7 @@ public class WebCrawler {
     private Task(URI link) {
       this.link = link;
       synchronized (seen) {
-        seen.add(link);     // mark the link as seen.
+        seen.add(link); // mark the link as seen.
       }
     }
 

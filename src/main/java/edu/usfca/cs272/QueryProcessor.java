@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.function.Function;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
-/** Single threaded query processor.*/
+/** Single threaded query processor. */
 public class QueryProcessor implements Processor {
 
   /** Map of the query and its score */
@@ -62,8 +62,7 @@ public class QueryProcessor implements Processor {
     return JsonWriter.writeSearch(searches);
   }
 
-
-@Override
+  @Override
   public List<InvertedIndex.Score> getScores(String query) {
     var stems = FileStemmer.uniqueStems(query, stemmer);
     query = String.join(" ", stems);
@@ -75,7 +74,7 @@ public class QueryProcessor implements Processor {
     }
   }
 
-@Override
+  @Override
   public Set<String> getQueries() {
     return Collections.unmodifiableSet(searches.keySet());
   }

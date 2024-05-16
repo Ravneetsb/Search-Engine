@@ -52,7 +52,7 @@ public class SearchServer {
   public SearchServer(int port, ThreadSafeInvertedIndex index, Processor processor, WorkQueue queue)
       throws IOException {
     DatabaseConnector db = new DatabaseConnector(Path.of("src/main/resources/database.properties"));
-    this.server = new Server(port);     // instantiate the Server.
+    this.server = new Server(port); // instantiate the Server.
     this.queue = queue;
     ServletHandler handler = new ServletHandler();
     // Map the servlets.
@@ -64,9 +64,7 @@ public class SearchServer {
     server.setHandler(handler);
   }
 
-/**
-* Changes the theme of the webpages.
-*/
+  /** Changes the theme of the webpages. */
   public static void changeTheme() {
     if (theme.equals(LIGHT_THEME)) {
       theme = DARK_THEME;
@@ -127,8 +125,8 @@ public class SearchServer {
       out.printf(htmlTemplate, SearchServer.theme);
       out.flush();
 
-      if (password != null) {   // there is an input.
-        if (password.equals(PASSWORD)) {      // authenticate.
+      if (password != null) { // there is an input.
+        if (password.equals(PASSWORD)) { // authenticate.
           try {
             // Graceful shutdown 🧘‍♂️
             server.stop();
@@ -138,7 +136,7 @@ public class SearchServer {
             System.err.println("Unable to shutdown server");
           }
         } else {
-            // Add pop-up if there is time.
+          // Add pop-up if there is time.
         }
       }
     }

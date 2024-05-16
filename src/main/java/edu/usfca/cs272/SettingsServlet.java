@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Servlet for the settings page. Responsible for validating the admin password for triggering a
  * metadata reset.
+ *
  * @author Ravneet Singh Bhatia
  * @version Spring 2024
  */
@@ -30,14 +31,10 @@ class SettingsServlet extends HttpServlet {
   /** The html template to serve the client. */
   private final String htmlTemplate;
 
-/**
-* The database connector used to connect to the on-campus database.
-*/
+  /** The database connector used to connect to the on-campus database. */
   private final DatabaseConnector db;
 
-/**
-* The admin password to trigger a reset of the metadata.
-*/
+  /** The admin password to trigger a reset of the metadata. */
   private final String PASSWORD = "p@$$w0rd";
 
   /**
@@ -56,10 +53,10 @@ class SettingsServlet extends HttpServlet {
       throws ServletException, IOException {
 
     String pass = request.getParameter("password");
-    if (pass != null && pass.equals(PASSWORD)) {        // authenticate the password.
+    if (pass != null && pass.equals(PASSWORD)) { // authenticate the password.
       try {
         db.resetMetaData(db.getConnection());
-        response.sendRedirect("/");     // send user back to home page if the reset is successful.
+        response.sendRedirect("/"); // send user back to home page if the reset is successful.
       } catch (SQLException e) {
         throw new RuntimeException(e);
       }

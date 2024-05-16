@@ -74,8 +74,7 @@ public class InvertedIndex {
   }
 
   /**
-   * adds a stem to the index.
-   * updates the count after adding the stem to the index.
+   * adds a stem to the index. updates the count after adding the stem to the index.
    *
    * @param stem word stem
    * @param path file path

@@ -44,7 +44,7 @@ class SearchServlet extends HttpServlet {
   private final DatabaseConnector db;
 
   /**
-   *Creates a new Search servlet.
+   * Creates a new Search servlet.
    *
    * @param processor the thread-safe query processor to use.
    * @throws IOException if the template cannot be read.
@@ -74,10 +74,11 @@ class SearchServlet extends HttpServlet {
         }
       }
 
-      Instant start = Instant.now();    // the instant the search is going to be called.
+      Instant start = Instant.now(); // the instant the search is going to be called.
       processor.parseQuery(query);
       long elapsed = Duration.between(start, Instant.now()).toMillis();
-      double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();   // time taken to execute the search.
+      double seconds =
+          (double) elapsed / Duration.ofSeconds(1).toMillis(); // time taken to execute the search.
       var scores = processor.getScores(query);
 
       // Let the user know how many results were found in how many seconds.
