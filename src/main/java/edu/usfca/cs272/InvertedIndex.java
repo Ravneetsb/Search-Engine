@@ -17,7 +17,7 @@ public class InvertedIndex {
   /** Map for counts. */
   private final Map<String, Integer> counts;
 
-  /** Constructor for InvertedIndex */
+  /** Creates a new inverted index. */
   public InvertedIndex() {
     this.index = new TreeMap<>();
     this.counts = new TreeMap<>();
@@ -74,7 +74,8 @@ public class InvertedIndex {
   }
 
   /**
-   * add stem to index.
+   * adds a stem to the index.
+   * updates the count after adding the stem to the index.
    *
    * @param stem word stem
    * @param path file path
@@ -110,7 +111,7 @@ public class InvertedIndex {
   }
 
   /**
-   * Adds data from another invertedIndex to this index.
+   * Copies data from another inverted index into this index.
    *
    * @param other a different inverted index
    * @return true if the add is successful.
