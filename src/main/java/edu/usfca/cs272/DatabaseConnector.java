@@ -27,8 +27,16 @@ public class DatabaseConnector {
     /** Properties with username and password for connecting to database. */
     private final Properties login;
 
+/**
+* SQL query to insert into the queries table every time a query is called in the server.
+ * if a query is seen for the first time, the count is set to 1
+ * if a query has already been seen, the count is incremented.
+*/
     public static final String INSERT_SEARCHES = "insert into queries (query, count) values (?, 1) on duplicate key update count = count + 1;";
 
+/**
+* SQL query to get the top 5 queries searched in the server.
+*/
     public static final String GET_TOP_FIVE_SEARCHES = "select query, count from queries order by count desc limit 5;";
 
     /**
@@ -109,13 +117,25 @@ public class DatabaseConnector {
         return dbConnection;
     }
 
+/**
+* Executes the INSERT_SEARCH query.
+ * @param db The active database connection
+ * @param query the query that has been searched.
+ * @throws SQLException if unable to execute the query.
+*/
     public void insertSearch(Connection db, String query) throws SQLException {
         try (PreparedStatement  statement =  db.prepareStatement(INSERT_SEARCHES)) {
-            statement.setString(1, query);
+            statement.setString(1, query);      // replaces ? with query.
             statement.execute();
         }
     }
 
+/**
+* Executes the GET_TOP_FIVE_SEARCHES query.
+ * @param db The active database connection
+ * @return list containing the top 5 queries.
+ * @throws SQLException if unable to execute the query.
+*/
     public List<String> getTopFiveSearches(Connection db) throws SQLException {
         ArrayList<String> topFive = new ArrayList<>();
         try (PreparedStatement statement = db.prepareStatement(GET_TOP_FIVE_SEARCHES)) {
@@ -129,6 +149,11 @@ public class DatabaseConnector {
         return topFive;
     }
 
+/**
+* deletes everything from the queries table.
+ * @param db The active database connection
+ * @throws SQLException if unable to execute the query.
+*/
     public void resetMetaData(Connection db) throws SQLException {
         try (Statement statement = db.createStatement()) {
             statement.execute("delete from queries");
@@ -188,41 +213,6 @@ public class DatabaseConnector {
         }
 
         return okay;
-    }
-
-    /**
-     * Tests whether database configuration (including tunnel) is correct. If you
-     * see the message "Connection to database established" and the tables within
-     * your database, then your settings are correct.
-     *
-     * @param args unused
-     */
-    public static void main(String[] args) {
-        try {
-            Path base = Path.of("src", "main", "resources");
-            Path properties = base.resolve("database.properties");
-
-            // Check for other properties file in command-line arguments
-            if (args.length > 0) {
-                properties = base.resolve(args[0]);
-            }
-
-            System.out.println("Loading " + properties + " ...");
-
-            DatabaseConnector test = new DatabaseConnector(properties);
-            System.out.println("Connecting to " + test.uri);
-
-            if (test.testConnection()) {
-                System.out.println("Connection to database established.");
-            }
-            else {
-                System.err.println("Unable to connect properly to database.");
-            }
-        }
-        catch (Exception e) {
-            System.err.println("Unable to connect properly to database.");
-            System.err.println(e.getMessage());
-        }
     }
 }
 
