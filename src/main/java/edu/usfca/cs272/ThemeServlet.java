@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
  * @author Ravneet Singh Bhatia
  * @version Spring 2024
  */
-class ThemeServlet extends HttpServlet {
+public class ThemeServlet extends HttpServlet {
 
   /** Class version for serialization, in [YEAR][TERM] format (unused). */
   @Serial private static final long serialVersionUID = 202401;
