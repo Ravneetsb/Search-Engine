@@ -5,7 +5,12 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** A simple work queue. */
+/**
+ * A simple work queue.
+ *
+ * @author CS 272 Software Development (University of San Francisco)
+ * @author Ravneet Singh Bhatia
+ */
 public class WorkQueue {
 
   /** Workers that wait until work is available */
@@ -53,7 +58,7 @@ public class WorkQueue {
     pending++;
   }
 
-  /** Decrement count of pending work. */
+  /** Decrement count of pending work and let other threads know if pending is 0. */
   private synchronized void decrementPending() {
     assert pending > 0;
     pending--;
@@ -75,7 +80,7 @@ public class WorkQueue {
     }
   }
 
-  /** Waits for all the pending work to be finished. Does no terminate the worker threads. */
+  /** Waits for all the pending work to be finished. Does not terminate the worker threads. */
   public synchronized void finish() {
     try {
       while (pending > 0) {
@@ -140,21 +145,21 @@ public class WorkQueue {
         while (true) {
           synchronized (tasks) {
             while (tasks.isEmpty() && !shutdown) {
-              tasks.wait();
+              tasks.wait(); // wait till there is something to do.
             }
 
             if (shutdown) {
               break;
             }
 
-            task = tasks.removeFirst();
+            task = tasks.removeFirst(); // get task
           }
           try {
             task.run();
           } catch (RuntimeException e) {
             System.err.println(e);
           }
-          decrementPending();
+          decrementPending(); // task was ran successfully.
         }
       } catch (InterruptedException e) {
         log.catching(Level.WARN, e);
