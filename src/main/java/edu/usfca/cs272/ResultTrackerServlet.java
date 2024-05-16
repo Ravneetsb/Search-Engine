@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.io.Serial;
@@ -35,6 +36,7 @@ public class ResultTrackerServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     String link = request.getParameter("link");
+    link = HtmlCleaner.stripHtml(link);
     String referer = request.getHeader("referer");
     if (referer == null || referer.isEmpty()) {
       response.sendRedirect("/");

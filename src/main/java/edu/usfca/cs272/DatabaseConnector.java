@@ -36,8 +36,8 @@ public class DatabaseConnector {
       "insert into %s (%s, count) values (?, 1) on duplicate key update count = count + 1;";
 
   /** SQL query to get the top 5 queries searched in the server. */
-  public static final String GET_TOP_FIVE_SEARCHES =
-      "select query, count from queries order by count desc limit 5;";
+  public static final String GET_TOP_FIVE =
+      "select %s, count from %s order by count desc limit 5;";
 
   /**
    * Creates a connector from a "database.properties" file located in the current working directory.
@@ -161,20 +161,41 @@ public class DatabaseConnector {
   }
 
   /**
-   * Executes the GET_TOP_FIVE_SEARCHES query.
+   * Executes the GET_TOP_FIVE query to get the 5 most searched queries.
    *
    * @param db The active database connection
    * @return list containing the top 5 queries.
    * @throws SQLException if unable to execute the query.
    */
   public List<String> getTopFiveSearches(Connection db) throws SQLException {
+    String stat = GET_TOP_FIVE.formatted("query", "queries");
     ArrayList<String> topFive = new ArrayList<>();
-    try (PreparedStatement statement = db.prepareStatement(GET_TOP_FIVE_SEARCHES)) {
-      var result = statement.executeQuery();
+    try (Statement statement = db.createStatement()) {
+      var result = statement.executeQuery(stat);
       while (result.next()) {
         String query = result.getString(1);
         String count = result.getNString(2);
         topFive.add(String.join(" ", query, ": ", count, " searches"));
+      }
+    }
+    return topFive;
+  }
+
+/**
+* Executes the GET_TOP_FIVE query to get the 5 most visited results.
+ * @param db the active database connection.
+ * @return list containing the top 5 most visited results.
+ * @throws SQLException if unable to execute the query.s
+*/
+  public List<String> getTopFiveResults(Connection db) throws SQLException {
+    String stat = GET_TOP_FIVE.formatted("url", "results");
+    ArrayList<String> topFive = new ArrayList<>();
+    try (Statement statement = db.createStatement()) {
+      var result = statement.executeQuery(stat);
+      while (result.next()) {
+        String link = result.getString(1);
+        String count = result.getNString(2);
+        topFive.add(String.join("", "<a href=/result?link=", link, " target=_blank>",link, "</a>", ": ", count));
       }
     }
     return topFive;

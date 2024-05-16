@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.StringJoiner;
 
+import jakarta.servlet.http.HttpSession;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -127,12 +128,26 @@ public class SearchServlet extends HttpServlet {
       throw new RuntimeException(e);
     }
 
+    // Let the user know the top 5 most visited results from the databse.
+    StringJoiner metaResults = new StringJoiner("\n");
+    try {
+      Connection connection = db.getConnection();
+      var topFive = db.getTopFiveResults(connection);
+      for (var stat: topFive) {
+        metaResults.add("<pre>");
+        metaResults.add(stat);
+        metaResults.add("</pre>");
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+
     response.setContentType("text/html");
     response.setStatus(HttpServletResponse.SC_OK);
 
     // output generated html
     PrintWriter out = response.getWriter();
-    out.printf(htmlTemplate, SearchServer.theme, sb, stats);
+    out.printf(htmlTemplate, SearchServer.theme, sb, stats, metaResults);
     out.flush();
   }
 }
