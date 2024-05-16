@@ -9,7 +9,6 @@ import java.io.PrintWriter;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -20,9 +19,13 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.xml.crypto.Data;
-
-/** Servlet for the Home Page. */
+/**
+ * The Search Servlet. This class is responsible for triggering the search on the index based on
+ * user input.
+ *
+ * @author Ravneet Singh Bhatia
+ * @version 2024
+ */
 class SearchServlet extends HttpServlet {
 
   /** Class version for serialization, in [YEAR][TERM] format (unused). */
@@ -37,10 +40,11 @@ class SearchServlet extends HttpServlet {
   /** The html template to serve the client. */
   private final String htmlTemplate;
 
+  /** The database connector to connect to the on-campus SQL database. */
   private final DatabaseConnector db;
 
   /**
-   * The servlet for index page.
+   *Creates a new Search servlet.
    *
    * @param processor the thread-safe query processor to use.
    * @throws IOException if the template cannot be read.
@@ -55,13 +59,13 @@ class SearchServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-//    DatabaseConnector db = new DatabaseConnector(Path.of("src/main/resources/database.properties"));
     String query = request.getParameter("query");
     query = StringEscapeUtils.escapeHtml4(query);
     StringJoiner sb = new StringJoiner("\n");
     StringJoiner stats = new StringJoiner("\n");
     if (query != null) {
       if (query.split(" ").length > 1) {
+        // Add the multi-word query in the database.
         try {
           Connection connection = db.getConnection();
           db.insertSearch(connection, query.replaceAll("\\s+", " "));
@@ -70,11 +74,13 @@ class SearchServlet extends HttpServlet {
         }
       }
 
-      Instant start = Instant.now();
+      Instant start = Instant.now();    // the instant the search is going to be called.
       processor.parseQuery(query);
       long elapsed = Duration.between(start, Instant.now()).toMillis();
-      double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();
+      double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();   // time taken to execute the search.
       var scores = processor.getScores(query);
+
+      // Let the user know how many results were found in how many seconds.
       sb.add("<div class='hero has-text-centered'>");
       sb.add(
           "<br /> <p class='sub-title is-5'> "
@@ -84,6 +90,8 @@ class SearchServlet extends HttpServlet {
               + " seconds."
               + "</p>");
       sb.add("</div>");
+
+      // Serve the results.
       for (var score : scores) {
         sb.add("<pre>");
         sb.add("<div class='container is-block'>");
@@ -105,10 +113,11 @@ class SearchServlet extends HttpServlet {
       }
     }
 
+    // Let the user know the top 5 multi-word queries in the database.
     try {
       Connection connection = db.getConnection();
       var topFive = db.getTopFiveSearches(connection);
-      for (var stat: topFive) {
+      for (var stat : topFive) {
         stats.add("<pre>");
         stats.add(stat);
         stats.add("</pre>");
