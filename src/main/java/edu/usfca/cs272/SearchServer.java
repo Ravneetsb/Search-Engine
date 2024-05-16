@@ -60,6 +60,7 @@ public class SearchServer {
     handler.addServletWithMapping(new ServletHolder(new SettingsServlet(db)), "/settings");
     handler.addServletWithMapping(new ServletHolder(new ShutdownServlet()), "/shutdown");
     handler.addServletWithMapping(new ServletHolder(new ThemeServlet(db)), "/theme-change");
+    handler.addServletWithMapping(new ServletHolder(new ResultTrackerServlet(db)), "/result");
 
     server.setHandler(handler);
   }

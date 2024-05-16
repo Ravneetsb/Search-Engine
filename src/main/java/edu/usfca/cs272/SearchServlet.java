@@ -99,7 +99,7 @@ public class SearchServlet extends HttpServlet {
         sb.add(
             String.join(
                 "",
-                "<a href='",
+                "<a href='/result?link=",
                 score.getLocation(),
                 "' target='_blank'>",
                 score.getLocation(),

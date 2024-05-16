@@ -32,8 +32,8 @@ public class DatabaseConnector {
    * query is seen for the first time, the count is set to 1 if a query has already been seen, the
    * count is incremented.
    */
-  public static final String INSERT_SEARCHES =
-      "insert into queries (query, count) values (?, 1) on duplicate key update count = count + 1;";
+  public static final String INSERT =
+      "insert into %s (%s, count) values (?, 1) on duplicate key update count = count + 1;";
 
   /** SQL query to get the top 5 queries searched in the server. */
   public static final String GET_TOP_FIVE_SEARCHES =
@@ -71,13 +71,15 @@ public class DatabaseConnector {
     login.put("password", config.getProperty("password"));
   }
 
-/**
-* Creates the required sql tables if they do not already exist.
- * @throws SQLException if there is a problem connecting to the database.
-*/
+  /**
+   * Creates the required sql tables if they do not already exist.
+   *
+   * @throws SQLException if there is a problem connecting to the database.
+   */
   public void createTables() throws SQLException {
     var db = getConnection();
-    String createTable = "create table if not exists queries( query varchar(255) primary key , count int not null);";
+    String createTable =
+        "create table if not exists queries( query varchar(255) primary key , count int not null);";
     try (Statement statement = db.createStatement()) {
       statement.execute(createTable);
     }
@@ -129,15 +131,31 @@ public class DatabaseConnector {
   }
 
   /**
-   * Executes the INSERT_SEARCH query.
+   * Executes the INSERT for the queries table..
    *
    * @param db The active database connection
    * @param query the query that has been searched.
    * @throws SQLException if unable to execute the query.
    */
   public void insertSearch(Connection db, String query) throws SQLException {
-    try (PreparedStatement statement = db.prepareStatement(INSERT_SEARCHES)) {
-      statement.setString(1, query); // replaces ? with query.
+    String stat = INSERT.formatted("queries", "query");
+    try (PreparedStatement statement = db.prepareStatement(stat)) {
+      statement.setString(1, query); // replaces third ? with query.
+      statement.execute();
+    }
+  }
+
+  /**
+   * Executes INSERT for the results table.
+   *
+   * @param db the database connection
+   * @param uri the uri to store.
+   * @throws SQLException if unable to execute the query.
+   */
+  public void insertResults(Connection db, String uri) throws SQLException {
+    String stat = INSERT.formatted("results", "url"); // replaces ? with query.
+    try (PreparedStatement statement = db.prepareStatement(stat)) {
+      statement.setString(1, uri);
       statement.execute();
     }
   }
