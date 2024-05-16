@@ -6,7 +6,12 @@ import java.util.*;
 import java.util.function.Function;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
-/** The thread safe query processor */
+/**
+ * Thread-safe variation of the Processor
+ *
+ * @author Ravneet Singh Bhatia
+ * @version Spring 2024
+ */
 public class ThreadSafeQueryProcessor implements Processor {
 
   /** Workqueue for the processor. */
@@ -82,7 +87,7 @@ public class ThreadSafeQueryProcessor implements Processor {
     queue.finish();
   }
 
-  /** Task for the Processor */
+  /** Task for the Processor performs a search for the given query. */
   private class Task implements Runnable {
     /** The query to perform search for. */
     private final String query;
@@ -106,11 +111,11 @@ public class ThreadSafeQueryProcessor implements Processor {
       String queryKey = String.join(" ", stems);
 
       synchronized (searches) {
-        if (searches.containsKey(query)) {
+        if (searches.containsKey(query)) { // query has already been processed.
           return;
         }
       }
-      ArrayList<InvertedIndex.Score> scores = searchMethod.apply(stems);
+      ArrayList<InvertedIndex.Score> scores = searchMethod.apply(stems); // perform the search.
       synchronized (searches) {
         searches.put(queryKey, scores);
       }
