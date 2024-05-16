@@ -7,10 +7,15 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** WebCrawler for the search engine. */
+/**
+ * Class responsible for crawling the web in the search engine.
+ *
+ * @author Ravneet Singh Bhatia
+ * @version Spring 2024
+ */
 public class WebCrawler {
 
-  /** The number of redirects to follow. */
+  /** The maximum number of redirects to follow. */
   private static final int REDIRECTS = 3;
 
   /** The invertedIndex to populate. */
@@ -28,7 +33,7 @@ public class WebCrawler {
   /** The max number of pages to crawl. */
   private final int max;
 
-  /** Logger */
+  /** Logger for this class. */
   public static final Logger log = LogManager.getLogger();
 
   /**
@@ -48,13 +53,14 @@ public class WebCrawler {
   }
 
   /**
-   * Processes links. Recursively prcesses any links on the webpage.
+   * Processes links. Recursively processes any links on the webpage if they haven't already been
+   * processed.
    *
    * @param seed the base uri
    */
   public void processLink(URI seed) {
     synchronized (seen) {
-      if (seen.contains(seed)) {
+      if (seen.contains(seed)) {    // check to see if uri has been processed already.
         return;
       }
     }
@@ -74,14 +80,14 @@ public class WebCrawler {
     private final URI link;
 
     /**
-     * Constructor for the Task
+     * Creates a new Task
      *
      * @param link the link to process.
      */
     private Task(URI link) {
       this.link = link;
       synchronized (seen) {
-        seen.add(link);
+        seen.add(link);     // mark the link as seen.
       }
     }
 
