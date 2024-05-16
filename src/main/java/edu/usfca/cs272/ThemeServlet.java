@@ -29,7 +29,7 @@ public class ThemeServlet extends HttpServlet {
   private final String htmlTemplate;
 
   /** The database connector to used for connecting to the on-campus database. */
-  private final DatabaseConnector db;
+  private final transient DatabaseConnector db;
 
   /**
    * Creates a new theme servlet.

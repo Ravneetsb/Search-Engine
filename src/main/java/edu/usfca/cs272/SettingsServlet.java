@@ -32,7 +32,7 @@ public class SettingsServlet extends HttpServlet {
   private final String htmlTemplate;
 
   /** The database connector used to connect to the on-campus database. */
-  private final DatabaseConnector db;
+  private final transient DatabaseConnector db;
 
   /** The admin password to trigger a reset of the metadata. */
   private final String PASSWORD = "p@$$w0rd";

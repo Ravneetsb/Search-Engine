@@ -41,7 +41,7 @@ public class SearchServlet extends HttpServlet {
   private final String htmlTemplate;
 
   /** The database connector to connect to the on-campus SQL database. */
-  private final DatabaseConnector db;
+  private final transient DatabaseConnector db;
 
   /**
    * Creates a new Search servlet.
