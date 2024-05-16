@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
  * @see ReadWriteLock
  * @see ReentrantReadWriteLock
  * @author CS 272 Software Development (University of San Francisco)
+ * @author Ravneet Singh Bhatia
  * @version Spring 2024
  */
 public class MultiReaderLock {
