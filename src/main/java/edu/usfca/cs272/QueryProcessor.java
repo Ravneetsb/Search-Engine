@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.function.Function;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
-/** Process query for each line. */
+/** Single threaded query processor.*/
 public class QueryProcessor implements Processor {
 
   /** Map of the query and its score */
@@ -20,7 +20,7 @@ public class QueryProcessor implements Processor {
       new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
 
   /**
-   * Constructor for Searcher
+   * Creates a new query processor.
    *
    * @param invertedIndex The index to be searched.
    * @param partial true if partial search is to be performed.
@@ -31,7 +31,7 @@ public class QueryProcessor implements Processor {
   }
 
   /**
-   * Constructor for QueryProcessor which always runs an exact search.
+   * Creates a new Query Processor that always executes an exact search.
    *
    * @param invertedIndex index to be searched
    */
