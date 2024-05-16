@@ -35,12 +35,12 @@ public class Driver {
   /** The default port to host the server. */
   public static final int DEFAULT_PORT = 8080;
 
-  /** Log */
+  /** The logger for this class. */
   public static final Logger log = LogManager.getLogger();
 
   /**
-   * Initializes the classes necessary based on the provided command-line arguments. This includes
-   * (but is not limited to) how to build or search an inverted index.
+   * Initialized the classes necessary for the search engine. Uses the command line args as flags to
+   * decide which classes to use.
    *
    * @param args flag/value pairs used to start this program
    */
@@ -56,10 +56,14 @@ public class Driver {
     WorkQueue queue = null;
     WebCrawler crawler = null;
     SearchServer server = null;
+
     boolean partial = argParser.hasFlag("-partial");
-    if (argParser.hasFlag("-server")) {
+
+    if (argParser.hasFlag("-server")) { // Always perform a partial search when running the server.
       partial = true;
     }
+
+    // Multi-Threading?
     if (argParser.hasFlag("-threads")
         || argParser.hasValue("-html")
         || argParser.hasFlag("-server")) {
@@ -72,7 +76,7 @@ public class Driver {
       index = threadedIndex;
       builder = new ThreadSafeInvertedIndexBuilder(threadedIndex, queue);
       processor = new ThreadSafeQueryProcessor(threadedIndex, queue, partial);
-      if (argParser.hasValue("-html")) {
+      if (argParser.hasValue("-html")) { // the seed for the crawl.
         int crawl = argParser.getInteger("-crawl", DEFAULT_CRAWL);
         crawler = new WebCrawler(threadedIndex, queue, argParser.getString("-html"), crawl);
       }
@@ -84,7 +88,7 @@ public class Driver {
           log.error("Could not find template files.");
         }
       }
-    } else {
+    } else { // Single Threaded Search Engine.
       index = new InvertedIndex();
       builder = new InvertedIndexBuilder(index);
       processor = new QueryProcessor(index, partial);
@@ -121,6 +125,10 @@ public class Driver {
       } catch (IOException e) {
         System.err.printf("Unable to read queries from path: %s", queries);
       }
+    }
+
+    if (server == null && queue != null) {
+      queue.join(); // Join the work queue if there is no server.
     }
 
     if (argParser.hasFlag("-counts")) {
