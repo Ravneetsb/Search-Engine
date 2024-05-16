@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serial;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import org.apache.logging.log4j.LogManager;
@@ -49,6 +50,10 @@ public class ThemeServlet extends HttpServlet {
     SearchServer.changeTheme(); // change the theme.
 
     String referer = request.getHeader("referer");
+
+    if (referer.contains("?query=")) {    // Prevent the search from being conducted again if theme is changed.
+      referer = "/";
+    }
 
     if (referer != null && !referer.isEmpty()) {
       // if the change was successful, redirect the user back to the same page they came from.
