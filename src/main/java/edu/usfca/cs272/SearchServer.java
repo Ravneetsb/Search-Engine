@@ -11,8 +11,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
@@ -117,6 +117,8 @@ public class SearchServer {
         throws ServletException, IOException {
 
       String password = request.getParameter("password");
+
+      password = StringEscapeUtils.escapeHtml4(password);
 
       response.setContentType("text/html");
       response.setStatus(HttpServletResponse.SC_OK);

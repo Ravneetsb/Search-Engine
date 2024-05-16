@@ -128,7 +128,7 @@ public class SearchServlet extends HttpServlet {
       throw new RuntimeException(e);
     }
 
-    // Let the user know the top 5 most visited results from the databse.
+    // Let the user know the top 5 most visited results from the database.
     StringJoiner metaResults = new StringJoiner("\n");
     try {
       Connection connection = db.getConnection();

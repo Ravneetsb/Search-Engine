@@ -10,6 +10,8 @@ import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.sql.SQLException;
+
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -53,6 +55,7 @@ public class SettingsServlet extends HttpServlet {
       throws ServletException, IOException {
 
     String pass = request.getParameter("password");
+    pass = StringEscapeUtils.escapeHtml4(pass);
     if (pass != null && pass.equals(PASSWORD)) { // authenticate the password.
       try {
         db.resetMetaData(db.getConnection());
