@@ -17,7 +17,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  */
 public class InvertedIndexBuilder {
 
-  /** InvertedIndex data structure to build. */
+  /** The inverted index to populate. */
   private final InvertedIndex index;
 
   /**
@@ -30,7 +30,7 @@ public class InvertedIndexBuilder {
   }
 
   /**
-   * Build function for InvertedIndex
+   * Triggers the build for the index.
    *
    * @param input Path of input file.
    * @throws IOException if file can't be read.
@@ -71,7 +71,6 @@ public class InvertedIndexBuilder {
     readFile(file, this.index);
   }
 
-  // CITE: Talked to Frank about not having multi-line reading.
   /**
    * reads text file to populate InvertedIndex.
    *
@@ -80,7 +79,8 @@ public class InvertedIndexBuilder {
    * @throws IOException if unable to read file.
    */
   public static void readFile(Path file, InvertedIndex index) throws IOException {
-    int iter = 1;
+    // CITE: Talked to Frank about not having multi-line reading.
+    int iter = 1;   // the position of the stem in the file.
     try (BufferedReader br = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
       String line;
       String location = file.toString();
