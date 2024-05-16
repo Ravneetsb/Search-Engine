@@ -39,6 +39,9 @@ public class DatabaseConnector {
   public static final String GET_TOP_FIVE =
       "select %s, count from %s order by count desc limit 5;";
 
+  public static final String CREATE_TABLE =
+          "create table if not exists %s( %s varchar(255) primary key , count int not null);";
+
   /**
    * Creates a connector from a "database.properties" file located in the current working directory.
    *
@@ -78,10 +81,9 @@ public class DatabaseConnector {
    */
   public void createTables() throws SQLException {
     var db = getConnection();
-    String createTable =
-        "create table if not exists queries( query varchar(255) primary key , count int not null);";
     try (Statement statement = db.createStatement()) {
-      statement.execute(createTable);
+      statement.execute(CREATE_TABLE.formatted("queries", "query"));
+      statement.execute(CREATE_TABLE.formatted("results", "url"));
     }
   }
 
